@@ -1,11 +1,9 @@
 package com.github.miachm.SODS;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class SpreadSheet implements Cloneable {
@@ -13,7 +11,7 @@ public class SpreadSheet implements Cloneable {
     private List<Sheet> sheets = new ArrayList<Sheet>();
 
     public SpreadSheet() {
-        sheets.add(new Sheet());
+        sheets.add(new Sheet("Empty"));
         //TODO
     }
 
@@ -32,18 +30,57 @@ public class SpreadSheet implements Cloneable {
         return new SpreadSheet();
     }
 
+    public void appendSheet(Sheet sheet)
+    {
+        addSheet(sheet,sheets.size());
+    }
+
+    public void addSheet(Sheet sheet,int pos) {
+        // TODO
+    }
+
+    public void clear(){
+        sheets.clear();
+    }
+
+    public void deleteSheet(int pos) {
+        // TODO
+    }
+
+    public void deleteSheet(String name){
+        // TODO
+    }
+
+    public void deleteSheet(Sheet sheet){
+        // TODO
+    }
+
     public List<Sheet> getSheets()
     {
         return Collections.unmodifiableList(sheets);
     }
 
-    public void appendSheet()
-    {
-        addSheet(new Sheet());
+    public int getNumSheets(){
+        return sheets.size();
     }
 
-    public void addSheet(Sheet sheet)
-    {
+    public void setSheet(int pos){
+        // TODO
+    }
+
+    public void save(File out) throws FileNotFoundException {
+        save(new FileOutputStream(out));
+    }
+
+    public void save(OutputStream out){
+        // TODO
+    }
+
+    public void sortSheets(){
+        sortSheets((a,b) -> a.getName().compareTo(b.getName()));
+    }
+
+    public void sortSheets(Comparator<Sheet> comparator){
         // TODO
     }
 }

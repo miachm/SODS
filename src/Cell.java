@@ -1,6 +1,6 @@
 package com.github.miachm.SODS;
 
-public class Cell {
+class Cell {
     private Object value;
 
     // TODO
