@@ -14,4 +14,4 @@ I needed to generate ODS files in Java. I looked for libraries, but they are:
 So, i decided create my own library from scratch. Everything is possible!
 
 # What is the current state?
-It's not ready for usage. Contributions are welcome!
+It's not ready yet. Contributions are welcome!
