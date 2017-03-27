@@ -47,15 +47,15 @@ public class SpreadSheet implements Cloneable {
     }
 
     public void deleteSheet(int pos) {
-        // TODO
+        sheets.remove(pos);
     }
 
     public void deleteSheet(String name){
-        // TODO
+        sheets.removeIf((sheet) -> sheet.getName().equals(name));
     }
 
     public void deleteSheet(Sheet sheet){
-        // TODO
+        deleteSheet(sheet.getName());
     }
 
     public List<Sheet> getSheets()
@@ -67,8 +67,8 @@ public class SpreadSheet implements Cloneable {
         return sheets.size();
     }
 
-    public void setSheet(int pos){
-        // TODO
+    public void setSheet(Sheet sheet,int pos){
+        sheets.set(pos,sheet);
     }
 
     public void save(File out) throws FileNotFoundException {
@@ -84,6 +84,6 @@ public class SpreadSheet implements Cloneable {
     }
 
     public void sortSheets(Comparator<Sheet> comparator){
-        // TODO
+        sheets.sort(comparator);
     }
 }
