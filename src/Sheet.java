@@ -15,14 +15,6 @@ public class Sheet implements Cloneable {
         getDataRange().clear();
     }
 
-    public void clearContents() {
-        getDataRange().clearContent();
-    }
-
-    public void clearFormats() {
-        getDataRange().clearFormat();
-    }
-
     @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();

@@ -6,32 +6,17 @@ public class Range {
 
     private List<List<Cell>> cells;
 
-    Range(List<List<Cell>> cells){
+    Range(Sheet sheet,List<List<Cell>> cells){
         this.cells = cells;
     }
 
     public void clear(){
-        // TODO
-    }
-
-    public void clearContent(){
-        // TODO
-    }
-
-    public void clearFormat(){
-        // TODO
+        for (List<Cell> list : cells)
+            list.forEach((cell) -> cell.clear());
     }
 
     public void copyTo(Range dest){
-        // TODO
-    }
-
-    public void copyFormatTo(Range dest){
-        // TODO
-    }
-
-    public void copyValuesTo(Range dest){
-        // TODO
+        dest.setValues(dest.getValues());
     }
 
     public Range getCell(int row,int column){
