@@ -1,5 +1,6 @@
 package com.github.miachm.SODS;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Range {
@@ -20,8 +21,10 @@ public class Range {
     }
 
     public Range getCell(int row,int column){
-        // TODO
-        return null;
+        List<List<Cell>> list = new ArrayList<>();
+        list.add(new ArrayList<>());
+        list.get(0).add(cells.get(row).get(column));
+        return new Range(list);
     }
 
     public int getColumn(){
