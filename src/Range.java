@@ -4,6 +4,12 @@ import java.util.List;
 
 public class Range {
 
+    private List<List<Cell>> cells;
+
+    Range(List<List<Cell>> cells){
+        this.cells = cells;
+    }
+
     public void clear(){
         // TODO
     }
