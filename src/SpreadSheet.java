@@ -22,12 +22,12 @@ public class SpreadSheet implements Cloneable {
     }
 
     @Override
-    public Object clone()
+    public Object clone() throws CloneNotSupportedException
     {
         SpreadSheet spread = new SpreadSheet();
 
         for (Sheet sheet : sheets){
-            spread.appendSheet(sheet);
+            spread.appendSheet((Sheet) sheet.clone());
         }
 
         return spread;
@@ -39,7 +39,7 @@ public class SpreadSheet implements Cloneable {
     }
 
     public void addSheet(Sheet sheet,int pos) {
-        // TODO
+        sheets.add(pos,sheet);
     }
 
     public void clear(){

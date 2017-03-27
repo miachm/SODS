@@ -3,14 +3,12 @@ package com.github.miachm.SODS;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Sheet {
+public class Sheet implements Cloneable {
     private List<Cell> cells = new ArrayList<Cell>();
     private String name;
 
     public Sheet(String name) {
         this.name = name;
-
-        // TODO
     }
 
     public void clear() {
@@ -23,6 +21,11 @@ public class Sheet {
 
     public void clearFormats() {
         // TODO
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
     public void deleteColumn(int column) {
