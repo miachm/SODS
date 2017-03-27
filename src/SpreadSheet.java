@@ -11,8 +11,6 @@ public class SpreadSheet implements Cloneable {
     private List<Sheet> sheets = new ArrayList<Sheet>();
 
     public SpreadSheet() {
-        sheets.add(new Sheet("Empty"));
-        //TODO
     }
 
     public SpreadSheet(File file) throws FileNotFoundException {
@@ -26,8 +24,13 @@ public class SpreadSheet implements Cloneable {
     @Override
     public Object clone()
     {
-        // TODO Implement
-        return new SpreadSheet();
+        SpreadSheet spread = new SpreadSheet();
+
+        for (Sheet sheet : sheets){
+            spread.appendSheet(sheet);
+        }
+
+        return spread;
     }
 
     public void appendSheet(Sheet sheet)
