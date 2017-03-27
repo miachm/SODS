@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Sheet implements Cloneable {
-    private List<Cell> cells = new ArrayList<Cell>();
+    private List<List<Cell>> cells = new ArrayList<List<Cell>>();
     private String name;
 
     public Sheet(String name) {
@@ -12,15 +12,15 @@ public class Sheet implements Cloneable {
     }
 
     public void clear() {
-        // TODO
+        getDataRange().clear();
     }
 
     public void clearContents() {
-        // TODO
+        getDataRange().clearContent();
     }
 
     public void clearFormats() {
-        // TODO
+        getDataRange().clearFormat();
     }
 
     @Override
@@ -29,34 +29,37 @@ public class Sheet implements Cloneable {
     }
 
     public void deleteColumn(int column) {
-        // TODO
+        deleteColumn(column,1);
     }
 
     public void deleteColumn(int column, int howmany) {
-        // TODO
+        for (List<Cell> row : cells){
+           for (int i = 0;i < howmany;i++)
+           {
+               row.remove(column);
+           }
+        }
     }
 
-    public void deleteRow(int column) {
-        // TODO
+    public void deleteRow(int row) {
+        deleteRows(row,1);
     }
 
-    public void deleteRows(int column, int howmany) {
-        // TODO
+    public void deleteRows(int row, int howmany) {
+        for (int i = 0;i < howmany;i++)
+            cells.remove(row);
     }
 
     public Range getDataRange() {
-        // TODO
-        return null;
+        return getRange(0,0,getMaxRows(),getMaxColumns());
     }
 
     public int getMaxColumns() {
-        // TODO
-        return 0;
+        return cells.isEmpty() ? 0 : cells.get(0).size();
     }
 
     public int getMaxRows() {
-        // TODO
-        return 0;
+        return cells.size();
     }
 
     public String getName() {
@@ -86,11 +89,15 @@ public class Sheet implements Cloneable {
     }
 
     public void insertColumnsAfter(int columnIndex, int howmany) {
-        // TODO
+        insertColumnsBefore(columnIndex+1,howmany);
     }
 
     public void insertColumnsBefore(int columnIndex, int howmany) {
-        // TODO
+        for (List<Cell> row : cells){
+            for (int i = 0;i < howmany;i++){
+                row.add(columnIndex,new Cell());
+            }
+        }
     }
     public void insertRowAfter(int afterPosition) {
         insertRowsAfter(afterPosition, 1);
@@ -100,12 +107,14 @@ public class Sheet implements Cloneable {
         insertRowsBefore(beforePosition, 1);
     }
 
-    public void insertRowsAfter(int rowIndex, int howmany) {
-        // TODO
+    public void insertRowsBefore(int rowIndex, int howmany) {
+        for (int i = 0;i < howmany;i++){
+            cells.add(rowIndex,new ArrayList<Cell>(getMaxColumns()));
+        }
     }
 
-    public void insertRowsBefore(int rowIndex, int howmany) {
-        // TODO
+    public void insertRowsAfter(int rowIndex, int howmany) {
+        insertRowsBefore(rowIndex+1,howmany);
     }
 
 
