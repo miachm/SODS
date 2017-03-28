@@ -13,12 +13,12 @@ public class SpreadSheet implements Cloneable {
     public SpreadSheet() {
     }
 
-    public SpreadSheet(File file) throws FileNotFoundException {
+    public SpreadSheet(File file) throws IOException {
         this(new FileInputStream(file));
     }
 
-    public SpreadSheet(InputStream in){
-        // TODO
+    public SpreadSheet(InputStream in) throws IOException {
+        OdsReader.load(in,this);
     }
 
     @Override
