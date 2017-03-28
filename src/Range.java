@@ -3,22 +3,25 @@ package com.github.miachm.SODS;
 import java.util.ArrayList;
 import java.util.List;
 
+interface RangeIterator{
+    public void call(Cell cell);
+}
+
 public class Range {
+    private final int column_init,row_init;
+    private final int numrows,numcolumns;
+    private final Sheet sheet;
 
-    private List<List<Cell>> cells;
-    private int column_init,row_init;
-    private Sheet sheet;
-
-    Range(List<List<Cell>> cells,Sheet sheet,int row_init,int column_init){
-        this.cells = cells;
+    Range(Sheet sheet,int row_init,int column_init,int numrows,int numcolumns){
         this.sheet = sheet;
         this.row_init = row_init;
         this.column_init = column_init;
+        this.numrows = numrows;
+        this.numcolumns = numcolumns;
     }
 
     public void clear(){
-        for (List<Cell> list : cells)
-            list.forEach((cell) -> cell.clear());
+        iterateRange((cell) -> cell.clear());
     }
 
     public void copyTo(Range dest){
@@ -26,10 +29,7 @@ public class Range {
     }
 
     public Range getCell(int row,int column){
-        List<List<Cell>> list = new ArrayList<>();
-        list.add(new ArrayList<>());
-        list.get(0).add(cells.get(row).get(column));
-        return new Range(list,sheet,row_init+row,column_init+column);
+        return new Range(sheet,row_init+row,column_init+column,1,1);
     }
 
     public int getColumn(){
@@ -37,18 +37,14 @@ public class Range {
     }
 
     public String getFormula(){
-        return cells.get(0).get(0).getFormula();
+        return sheet.getCell(row_init,column_init).getFormula();
     }
 
     public List<String> getFormulas(){
-        ArrayList<String> formulas = new ArrayList<>();
+        ArrayList<String> formulas = new ArrayList<String>();
         formulas.ensureCapacity(getNumRows()*getNumColumns());
 
-        for (List<Cell> row : cells){
-            for (Cell cell : row){
-                formulas.add(cell.getFormula());
-            }
-        }
+        iterateRange((cell) -> formulas.add(cell.getFormula()));
 
         return formulas;
     }
@@ -62,11 +58,11 @@ public class Range {
     }
 
     public int getNumColumns(){
-        return cells.get(0).size();
+        return numcolumns;
     }
 
     public int getNumRows(){
-        return cells.size();
+        return numrows;
     }
 
     public int getRow(){
@@ -78,37 +74,38 @@ public class Range {
     }
 
     public Object getValue(){
-        return cells.get(0).get(0).getValue();
+        return sheet.getCell(row_init,column_init).getValue();
     }
 
     public List<Object> getValues(){
-        ArrayList<Object> values = new ArrayList<>();
+        ArrayList<Object> values = new ArrayList<Object>();
         values.ensureCapacity(getNumRows()*getNumColumns());
-
-        for (List<Cell> row : cells){
-            for (Cell cell : row){
-                values.add(cell.getValue());
-            }
-        }
-
+        iterateRange((cell) -> values.add(cell.getValue()));
         return values;
     }
 
     public void setValue(Object o){
-        for (List<Cell> row : cells){
-            for (Cell cell : row){
-                cell.setValue(o);
-            }
-        }
+        iterateRange((cell) -> cell.setValue(o));
     }
 
     public void setValues(List<Object> o){
-        int index = 0;
-        for (List<Cell> row : cells){
-            for (Cell cell : row){
-                if (index >= o.size())
-                    return;
-                cell.setValue(index);
+        iterateRange(new RangeIterator() {
+            int index = 0;
+            @Override
+            public void call(Cell cell) {
+                if (index < o.size()) {
+                    cell.setValue(index);
+                    index++;
+                }
+            }
+        });
+    }
+
+    private void iterateRange(RangeIterator e){
+        for (int i = 0;i < numrows;i++){
+            for (int j = 0;j < numcolumns;j++){
+                Cell cell = sheet.getCell(row_init+i,column_init+j);
+                e.call(cell);
             }
         }
     }
