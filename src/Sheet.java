@@ -73,7 +73,7 @@ public class Sheet implements Cloneable {
             range.add(new ArrayList<Cell>(cells.get(i)));
         }
 
-        return new Range(range);
+        return new Range(range,row,column);
     }
 
     public void insertColumnAfter(int afterPosition) {
