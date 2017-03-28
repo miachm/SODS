@@ -3,10 +3,6 @@ package com.github.miachm.SODS;
 import java.util.ArrayList;
 import java.util.List;
 
-interface RangeIterator{
-    public void call(Cell cell);
-}
-
 public class Range {
     private final int column_init,row_init;
     private final int numrows,numcolumns;
