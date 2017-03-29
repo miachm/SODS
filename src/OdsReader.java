@@ -24,8 +24,10 @@ class OdsReader {
 
         ZipEntry entry = zip.getNextEntry();
         while (entry != null){
-            processEntry(map,zip,buff,entry);
-            zip.closeEntry();
+            if (!entry.isDirectory()) {
+                processEntry(map, zip, buff, entry);
+                zip.closeEntry();
+            }
             entry = zip.getNextEntry();
         }
 
