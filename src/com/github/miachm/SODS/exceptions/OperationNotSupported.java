@@ -1,11 +1,11 @@
-package com.github.miachm.SODS;
+package com.github.miachm.SODS.com.github.miachm.SODS.exceptions;
 
 /**
  * Created by MiguelPC on 29/03/2017.
  */
-public class NotAnOds extends RuntimeException {
+public class OperationNotSupported extends RuntimeException {
     private String message;
-    public NotAnOds(String s) {
+    public OperationNotSupported(String s) {
         this.message = s;
     }
 

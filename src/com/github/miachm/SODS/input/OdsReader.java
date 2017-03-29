@@ -1,5 +1,8 @@
-package com.github.miachm.SODS;
+package com.github.miachm.SODS.com.github.miachm.SODS.input;
 
+import com.github.miachm.SODS.com.github.miachm.SODS.spreadsheet.SpreadSheet;
+import com.github.miachm.SODS.com.github.miachm.SODS.exceptions.NotAnOds;
+import com.github.miachm.SODS.com.github.miachm.SODS.exceptions.OperationNotSupported;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -17,12 +20,12 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-class OdsReader {
+public class OdsReader {
     private static final int TAM_BUFFER = 1000;
     private static final String CORRECT_MIMETYPE = "application/vnd.oasis.opendocument.spreadsheet";
     private static final String MANIFEST_PATH = "META-INF/manifest.xml";
 
-    static void load(InputStream in,SpreadSheet spread) throws IOException {
+    static public void load(InputStream in,SpreadSheet spread) throws IOException {
         /* TODO This code if for ods files in zip. But we could have XML-ONLY FILES */
 
         Map<String,byte[]> files = uncompress(in);
@@ -100,7 +103,7 @@ class OdsReader {
 
 
             NodeList files = doc.getElementsByTagName("manifest:file-entry");
-            iterateFilesEntriesManifest(files);
+            iterateFilesEntryManifest(files);
 
         }catch (ParserConfigurationException e) {
             e.printStackTrace();
@@ -111,7 +114,7 @@ class OdsReader {
         }
     }
 
-    private static void iterateFilesEntriesManifest(NodeList files){
+    private static void iterateFilesEntryManifest(NodeList files){
         for (int i = 0;i < files.getLength();i++) {
             NodeList children = files.item(i).getChildNodes();
 

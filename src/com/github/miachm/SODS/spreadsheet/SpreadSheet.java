@@ -1,4 +1,6 @@
-package com.github.miachm.SODS;
+package com.github.miachm.SODS.com.github.miachm.SODS.spreadsheet;
+
+import com.github.miachm.SODS.com.github.miachm.SODS.input.OdsReader;
 
 import java.io.*;
 import java.util.ArrayList;
