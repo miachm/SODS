@@ -10,11 +10,18 @@ import java.util.zip.ZipInputStream;
 
 class OdsReader {
     private static final int TAM_BUFFER = 1000;
+    private static final String CORRECT_MIMETYPE = "application/vnd.oasis.opendocument.spreadsheet";
+    private static final String MANIFEST_PATH = "META-INF/manifest.xml";
 
     static void load(InputStream in,SpreadSheet spread) throws IOException {
         /* TODO This code if for ods files in zip. But we could have XML-ONLY FILES */
 
         Map<String,byte[]> files = uncompress(in);
+
+        checkMimeType(files);
+
+        byte[] manifest = getManifest(files);
+        readManifest(manifest);
     }
 
     private static Map<String,byte[]> uncompress(InputStream in) throws IOException {
@@ -49,5 +56,28 @@ class OdsReader {
             }
             stream.write(buff,0,len);
         }
+    }
+
+    private static void checkMimeType(Map<String,byte[]> map){
+        byte[] mimetype = map.get("mimetype");
+        if (mimetype == null)
+            throw new NotAnOds("This file doesn't contain a mimetype");
+
+        String mimetype_string = new String(mimetype);
+        if (!mimetype_string.equals(CORRECT_MIMETYPE))
+            throw new NotAnOds("This file doesn't look like an ODS file. Mimetype: " + mimetype_string);
+    }
+
+    private static byte[] getManifest(Map<String,byte[]> map){
+        byte[] manifest = map.get(MANIFEST_PATH);
+        if (manifest == null) {
+            throw new NotAnOds("Error loading, it doesn't like an ODS file");
+        }
+
+        return manifest;
+    }
+
+    private static void readManifest(byte[] manifest) {
+
     }
 }
