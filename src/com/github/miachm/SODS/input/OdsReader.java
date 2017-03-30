@@ -5,6 +5,7 @@ import com.github.miachm.SODS.com.github.miachm.SODS.exceptions.OperationNotSupp
 import com.github.miachm.SODS.com.github.miachm.SODS.spreadsheet.SpreadSheet;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -81,9 +82,13 @@ public class OdsReader {
             NodeList children = files.item(i).getChildNodes();
 
             for (int j = 0;j <children.getLength();j++) {
-                if (children.item(j).getNodeName().equals("manifest:encryption-data")) {
+                Node child = children.item(j);
+                if (child.getNodeName().equals("manifest:encryption-data")) {
                     throw new OperationNotSupported("This file has encription technology that it's not supported" +
                             "by this library");
+                }
+                else if (child.getNodeName().equals("manifest:media-type")){
+                    System.out.println("Manifest media type: " + child.getAttributes());
                 }
             }
         }
