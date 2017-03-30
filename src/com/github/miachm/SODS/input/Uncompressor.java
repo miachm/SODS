@@ -1,7 +1,6 @@
 package com.github.miachm.SODS.com.github.miachm.SODS.input;
 
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -9,7 +8,7 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-class Uncompressor implements Closeable {
+class Uncompressor {
 
     private static final int TAM_BUFFER = 1000;
     private byte buff[] = new byte[TAM_BUFFER];
@@ -29,6 +28,8 @@ class Uncompressor implements Closeable {
             }
             entry = zip.getNextEntry();
         }
+
+        zip.close();
         return map;
     }
 
@@ -45,10 +46,5 @@ class Uncompressor implements Closeable {
             }
             stream.write(buff,0,len);
         }
-    }
-
-    @Override
-    public void close() throws IOException{
-        zip.close();
     }
 }
