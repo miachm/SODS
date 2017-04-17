@@ -13,22 +13,25 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+import java.util.Set;
 
 public class OdsReader {
     private static final String CORRECT_MIMETYPE = "application/vnd.oasis.opendocument.spreadsheet";
     private static final String MANIFEST_PATH = "META-INF/manifest.xml";
     private String main_path;
+    private Map<String,byte[]> files;
 
     private OdsReader(InputStream in,SpreadSheet spread) throws IOException {
         /* TODO This code if for ods files in zip. But we could have XML-ONLY FILES */
 
         Uncompressor uncompressor = new Uncompressor(in);
-        Map<String,byte[]> files = uncompressor.getFiles();
+        files = uncompressor.getFiles();
 
         checkMimeType(files);
 
         byte[] manifest = getManifest(files);
         readManifest(manifest);
+        readContent();
     }
 
     static public void load(InputStream in,SpreadSheet spread) throws IOException {
@@ -107,5 +110,22 @@ public class OdsReader {
             if (main_path)
                 this.main_path = path;
         }
+    }
+
+    private void readContent() {
+        Set<String> names = files.keySet();
+
+        for (String name : names){
+            if (sameFolder(name,main_path)){
+                processContent(files.get(name));
+            }
+        }
+    }
+
+    private boolean sameFolder(String name, String main_path) {
+        return true;
+    }
+    
+    private void processContent(byte[] bytes) {
     }
 }
