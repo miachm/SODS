@@ -173,7 +173,17 @@ public class OdsReader {
                             }
                             else if (n.getNodeName().equals("table:table-row")){
                                 sheet.insertRowAfter(sheet.getMaxRows());
-                                
+
+                                NodeList l = n.getChildNodes();
+
+                                for (int m = 0;m < l.getLength();m++){
+                                    Node n2 = l.item(m);
+                                    if (n2.getNodeName().equals("table:table-cell")){
+                                        Node n3 = n2.getFirstChild();
+                                        // TODO : Iterate over the children
+                                        sheet.getRange(sheet.getMaxRows()-1,k).setValue(n2.getNodeValue());
+                                    }
+                                }
                             }
                         }
                     }
