@@ -123,9 +123,12 @@ public class OdsReader {
     }
 
     private boolean sameFolder(String name, String main_path) {
-        return true;
+        if (!name.startsWith(main_path))
+            return false;
+
+        return name.indexOf('/',main_path.length()+1) < 0;
     }
-    
+
     private void processContent(byte[] bytes) {
     }
 }
