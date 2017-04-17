@@ -1,12 +1,13 @@
-package com.github.miachm.SODS.com.github.miachm.SODS.examples;
+package com.github.miachm.SODS.examples;
 
-import com.github.miachm.SODS.com.github.miachm.SODS.spreadsheet.Range;
-import com.github.miachm.SODS.com.github.miachm.SODS.spreadsheet.Sheet;
-import com.github.miachm.SODS.com.github.miachm.SODS.spreadsheet.SpreadSheet;
+import com.github.miachm.SODS.spreadsheet.Range;
+import com.github.miachm.SODS.spreadsheet.Sheet;
+import com.github.miachm.SODS.spreadsheet.SpreadSheet;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+
 
 public class BasicUsage{
     public static void main(String args[]){

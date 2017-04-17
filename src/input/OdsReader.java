@@ -1,9 +1,9 @@
-package com.github.miachm.SODS.com.github.miachm.SODS.input;
+package com.github.miachm.SODS.input;
 
-import com.github.miachm.SODS.com.github.miachm.SODS.exceptions.NotAnOds;
-import com.github.miachm.SODS.com.github.miachm.SODS.exceptions.OperationNotSupported;
-import com.github.miachm.SODS.com.github.miachm.SODS.spreadsheet.Sheet;
-import com.github.miachm.SODS.com.github.miachm.SODS.spreadsheet.SpreadSheet;
+import com.github.miachm.SODS.exceptions.NotAnOds;
+import com.github.miachm.SODS.exceptions.OperationNotSupported;
+import com.github.miachm.SODS.spreadsheet.Sheet;
+import com.github.miachm.SODS.spreadsheet.SpreadSheet;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 

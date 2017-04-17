@@ -1,4 +1,4 @@
-package com.github.miachm.SODS.com.github.miachm.SODS.exceptions;
+package com.github.miachm.SODS.exceptions;
 
 /**
  * Created by MiguelPC on 29/03/2017.
