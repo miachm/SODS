@@ -1,6 +1,7 @@
 package com.github.miachm.SODS.spreadsheet;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Sheet implements Cloneable {
@@ -103,7 +104,11 @@ public class Sheet implements Cloneable {
 
     public void insertRowsBefore(int rowIndex, int howmany) {
         for (int i = 0;i < howmany;i++){
-            cells.add(rowIndex,new ArrayList<Cell>(getMaxColumns()));
+            ArrayList<Cell> row = new ArrayList<>();
+            for (int j = 0;j < getMaxColumns();j++)
+                row.add(new Cell());
+            cells.add(rowIndex,row);
+
         }
     }
 

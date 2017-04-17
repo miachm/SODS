@@ -114,9 +114,9 @@ public class OdsReader {
         Set<String> names = files.keySet();
 
         for (String name : names){
-            if (sameFolder(name,main_path)){
+            System.out.println("NAME: " + name);
+            if (name.endsWith(".xml"))
                 processContent(files.get(name));
-            }
         }
     }
 
@@ -129,6 +129,9 @@ public class OdsReader {
 
     private void processContent(byte[] bytes) {
         try{
+            if (bytes.length == 0)
+                return;
+
             DocumentBuilderFactory factory =
                     DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -138,8 +141,11 @@ public class OdsReader {
 
             NodeList files = doc.getElementsByTagName("office:body");
 
-            if (files != null)
-                iterateFilesEntries(files);
+            if (files != null) {
+                Node n = files.item(0);
+                if (n != null)
+                iterateFilesEntries(n.getChildNodes());
+            }
 
         }catch (ParserConfigurationException e) {
             e.printStackTrace();
@@ -151,6 +157,8 @@ public class OdsReader {
     }
 
     private void iterateFilesEntries(NodeList files) {
+        if (files == null)
+            return;
         for (int i = 0;i < files.getLength();i++){
             Node node = files.item(i);
             if (node.getNodeName().equals("office:spreadsheet")){
@@ -169,10 +177,15 @@ public class OdsReader {
                         for (int k = 0;k < new_list.getLength();k++){
                             Node n = new_list.item(k);
                             if (n.getNodeName().equals("table:table-column")){
-                                sheet.insertColumnAfter(sheet.getMaxColumns());
+                                Node n5 = n.getAttributes().getNamedItem("table:number-columns-repeated");
+                                int incr = 1;
+                                if (n5 != null)
+                                    incr = Integer.parseInt(n5.getNodeValue());
+                                System.out.println("INCR: " + incr);
+                                sheet.insertColumnsAfter(sheet.getMaxColumns(),incr);
                             }
                             else if (n.getNodeName().equals("table:table-row")){
-                                sheet.insertRowAfter(sheet.getMaxRows());
+                                sheet.insertRowAfter(sheet.getMaxRows()-1);
 
                                 NodeList l = n.getChildNodes();
 
@@ -181,7 +194,8 @@ public class OdsReader {
                                     if (n2.getNodeName().equals("table:table-cell")){
                                         Node n3 = n2.getFirstChild();
                                         // TODO : Iterate over the children
-                                        sheet.getRange(sheet.getMaxRows()-1,k).setValue(n2.getNodeValue());
+                                        System.out.println("Printing : " + n3.getNodeValue());
+                                        sheet.getRange(sheet.getMaxRows()-1,k).setValue(n3.getNodeValue());
                                     }
                                 }
                             }
