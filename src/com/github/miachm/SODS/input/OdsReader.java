@@ -2,6 +2,7 @@ package com.github.miachm.SODS.com.github.miachm.SODS.input;
 
 import com.github.miachm.SODS.com.github.miachm.SODS.exceptions.NotAnOds;
 import com.github.miachm.SODS.com.github.miachm.SODS.exceptions.OperationNotSupported;
+import com.github.miachm.SODS.com.github.miachm.SODS.spreadsheet.Sheet;
 import com.github.miachm.SODS.com.github.miachm.SODS.spreadsheet.SpreadSheet;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -19,11 +20,12 @@ public class OdsReader {
     private static final String CORRECT_MIMETYPE = "application/vnd.oasis.opendocument.spreadsheet";
     private static final String MANIFEST_PATH = "META-INF/manifest.xml";
     private String main_path;
+    private SpreadSheet spread;
     private Map<String,byte[]> files;
 
     private OdsReader(InputStream in,SpreadSheet spread) throws IOException {
         /* TODO This code if for ods files in zip. But we could have XML-ONLY FILES */
-
+        this.spread = spread;
         Uncompressor uncompressor = new Uncompressor(in);
         files = uncompressor.getFiles();
 
@@ -36,10 +38,6 @@ public class OdsReader {
 
     static public void load(InputStream in,SpreadSheet spread) throws IOException {
         OdsReader reader = new OdsReader(in,spread);
-        reader.fill(spread);
-    }
-
-    private void fill(SpreadSheet spread) {
     }
 
     private void checkMimeType(Map<String,byte[]> map){
@@ -130,5 +128,57 @@ public class OdsReader {
     }
 
     private void processContent(byte[] bytes) {
+        try{
+            DocumentBuilderFactory factory =
+                    DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(new ByteArrayInputStream(bytes));
+
+            Element root = doc.getDocumentElement();
+
+            NodeList files = doc.getElementsByTagName("office:body");
+
+            if (files != null)
+                iterateFilesEntries(files);
+
+        }catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void iterateFilesEntries(NodeList files) {
+        for (int i = 0;i < files.getLength();i++){
+            Node node = files.item(i);
+            if (node.getNodeName().equals("office:spreadsheet")){
+                NodeList list = node.getChildNodes();
+
+                for (int j = 0;j < list.getLength();j++){
+                    node = list.item(j);
+                    if (node.getNodeName().equals("table:table")){
+
+                        NamedNodeMap atributes = node.getAttributes();
+                        String name = atributes.getNamedItem("table:name").getNodeValue();
+
+                        Sheet sheet = new Sheet(name);
+
+                        NodeList new_list = node.getChildNodes();
+                        for (int k = 0;k < new_list.getLength();k++){
+                            Node n = new_list.item(k);
+                            if (n.getNodeName().equals("table:table-column")){
+                                sheet.insertColumnAfter(sheet.getMaxColumns());
+                            }
+                            else if (n.getNodeName().equals("table:table-row")){
+                                sheet.insertRowAfter(sheet.getMaxRows());
+                                
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
