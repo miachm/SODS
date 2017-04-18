@@ -19,6 +19,21 @@ public class SpreadSheet implements Cloneable {
         this(new FileInputStream(file));
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SpreadSheet that = (SpreadSheet) o;
+
+        return sheets.equals(that.sheets);
+    }
+
+    @Override
+    public int hashCode() {
+        return sheets.hashCode();
+    }
+
     public SpreadSheet(InputStream in) throws IOException {
         OdsReader.load(in,this);
     }

@@ -1,7 +1,6 @@
 package com.github.miachm.SODS.spreadsheet;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Sheet implements Cloneable {
@@ -116,5 +115,21 @@ public class Sheet implements Cloneable {
         insertRowsBefore(rowIndex+1,howmany);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
+        Sheet sheet = (Sheet) o;
+
+        if (!cells.equals(sheet.cells)) return false;
+        return name.equals(sheet.name);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = cells.hashCode();
+        result = 31 * result + name.hashCode();
+        return result;
+    }
 }
