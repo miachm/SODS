@@ -97,7 +97,7 @@ public class SpreadSheet implements Cloneable {
     }
 
     public void sortSheets(){
-        sortSheets((a,b) -> a.getName().compareTo(b.getName()));
+        Collections.sort(sheets);
     }
 
     public void sortSheets(Comparator<Sheet> comparator){

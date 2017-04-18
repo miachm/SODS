@@ -3,7 +3,7 @@ package com.github.miachm.SODS.spreadsheet;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Sheet implements Cloneable {
+public class Sheet implements Cloneable,Comparable<Sheet> {
     private List<List<Cell>> cells = new ArrayList<List<Cell>>();
     private String name;
 
@@ -131,5 +131,10 @@ public class Sheet implements Cloneable {
         int result = cells.hashCode();
         result = 31 * result + name.hashCode();
         return result;
+    }
+
+    @Override
+    public int compareTo(Sheet o) {
+        return name.compareTo(o.getName());
     }
 }
