@@ -56,15 +56,9 @@ class SpreadSheetTest extends GroovyTestCase {
     void testClone() {
         SpreadSheet spread = new SpreadSheet()
         Sheet sheet = new Sheet("A")
-        sheet.insertColumnsAfter(0,10)
-        sheet.insertRowsAfter(0,10)
-        sheet.getDataRange().setValues(Collections.nCopies(1,"A"))
-
         spread.appendSheet(sheet)
         spread.appendSheet(new Sheet("B"))
-
         SpreadSheet copy = spread.clone()
-
         assertEquals(spread,copy)
     }
 
@@ -188,6 +182,7 @@ class SpreadSheetTest extends GroovyTestCase {
                 return o2.getName() <=> o1.getName()
             }
         })
-        assertEquals(isSorted(spread.getSheets()),true)
+        
+        assertEquals(isSorted(spread.getSheets().reverse()),true)
     }
 }
