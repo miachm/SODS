@@ -80,6 +80,10 @@ public class Range {
         return values;
     }
 
+    public int getNumValues(){
+        return getNumColumns()*getNumRows();
+    }
+
     public void setValue(Object o){
         iterateRange((cell) -> cell.setValue(o));
     }
