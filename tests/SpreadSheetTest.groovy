@@ -182,7 +182,7 @@ class SpreadSheetTest extends GroovyTestCase {
                 return o2.getName() <=> o1.getName()
             }
         })
-        
+
         assertEquals(isSorted(spread.getSheets().reverse()),true)
     }
 }
