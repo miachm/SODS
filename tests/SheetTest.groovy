@@ -89,12 +89,20 @@ class SheetTest extends GroovyTestCase {
         assertEquals(sheet.getRange(0,0).getValue(),1);
     }
 
-    void testDeleteColumn1() {
+    void testDeleteColumns() {
+        Sheet sheet = new Sheet();
+        sheet.insertColumnsAfter(0);
+        sheet.insertColumnsAfter(0);
+        sheet.getDataRange().setValues(1,2,3);
 
+        sheet.deleteColumns(1,2);
+
+        assertEquals(sheet.getMaxColumns(),1);
+        assertEquals(sheet.getRange(0,0).getValue(),1);
     }
 
     void testDeleteRow() {
-
+        assertEquals(true,false);
     }
 
     void testDeleteRows() {
