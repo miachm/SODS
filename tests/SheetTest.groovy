@@ -67,7 +67,7 @@ class SheetTest extends GroovyTestCase {
     }
 
     void testDeleteColumn() {
-        Sheet sheet = new Sheet();
+        Sheet sheet = new Sheet("A");
         sheet.insertColumnAfter(0);
         sheet.getDataRange().setValues(1,2);
 
@@ -87,7 +87,7 @@ class SheetTest extends GroovyTestCase {
     }
 
     void testDeleteColumns() {
-        Sheet sheet = new Sheet();
+        Sheet sheet = new Sheet("A");
         sheet.insertColumnAfter(0);
         sheet.insertColumnAfter(0);
         sheet.getDataRange().setValues(1,2,3);
