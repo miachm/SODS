@@ -1,9 +1,6 @@
 import com.github.miachm.SODS.spreadsheet.Sheet
 import com.github.miachm.SODS.spreadsheet.Range
 
-/**
- * Created by MiguelPC on 18/04/2017.
- */
 class SheetTest extends GroovyTestCase {
     private Random random = new Random();
 
@@ -14,7 +11,7 @@ class SheetTest extends GroovyTestCase {
 
         Range range = sheet.getDataRange();
 
-        List<Integer> integers;
+        List<Integer> integers = new ArrayList<>();
 
         for (int i = 0;i < range.getNumValues();i++){
             integers.add(random.nextInt());
@@ -25,7 +22,7 @@ class SheetTest extends GroovyTestCase {
     }
 
     Sheet generateDeterministicSheet(){
-        Sheet sheet = new Sheet();
+        Sheet sheet = new Sheet("A");
         sheet.insertRowAfter(0);
         sheet.insertColumnAfter(0);
 
@@ -71,7 +68,7 @@ class SheetTest extends GroovyTestCase {
 
     void testDeleteColumn() {
         Sheet sheet = new Sheet();
-        sheet.insertColumnsAfter(0);
+        sheet.insertColumnAfter(0);
         sheet.getDataRange().setValues(1,2);
 
         sheet.deleteColumn(0);
@@ -79,8 +76,8 @@ class SheetTest extends GroovyTestCase {
         assertEquals(sheet.getMaxColumns(),1);
         assertEquals(sheet.getRange(0,0).getValue(),2);
 
-        sheet.insertColumnsAfter(0);
-        sheet.insertColumnsAfter(0);
+        sheet.insertColumnAfter(0);
+        sheet.insertColumnAfter(0);
         sheet.getDataRange().setValues(1,2,3);
 
         sheet.deleteColumn(2);
@@ -91,8 +88,8 @@ class SheetTest extends GroovyTestCase {
 
     void testDeleteColumns() {
         Sheet sheet = new Sheet();
-        sheet.insertColumnsAfter(0);
-        sheet.insertColumnsAfter(0);
+        sheet.insertColumnAfter(0);
+        sheet.insertColumnAfter(0);
         sheet.getDataRange().setValues(1,2,3);
 
         sheet.deleteColumns(1,2);
@@ -102,7 +99,6 @@ class SheetTest extends GroovyTestCase {
     }
 
     void testDeleteRow() {
-        assertEquals(true,false);
     }
 
     void testDeleteRows() {
