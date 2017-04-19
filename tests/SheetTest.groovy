@@ -142,11 +142,13 @@ class SheetTest extends GroovyTestCase {
     }
 
     void testGetMaxColumns() {
-
+        Sheet sheet = generateDeterministicSheet();
+        assertEquals(sheet.getMaxColumns(),2);
     }
 
     void testGetMaxRows() {
-
+        Sheet sheet = generateDeterministicSheet();
+        assertEquals(sheet.getMaxRows(),2);
     }
 
     void testGetName() {
