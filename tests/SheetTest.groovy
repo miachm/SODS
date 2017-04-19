@@ -152,11 +152,12 @@ class SheetTest extends GroovyTestCase {
     }
 
     void testGetName() {
-
+        Sheet sheet = new Sheet("D");
+        assertEquals(sheet.getName(),"D");
     }
 
     void testGetRange() {
-
+        
     }
 
     void testGetRange1() {
