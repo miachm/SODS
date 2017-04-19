@@ -23,10 +23,10 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     public void deleteColumn(int column) {
-        deleteColumn(column,1);
+        deleteColumns(column,1);
     }
 
-    public void deleteColumn(int column, int howmany) {
+    public void deleteColumns(int column, int howmany) {
         for (List<Cell> row : cells){
            for (int i = 0;i < howmany;i++)
            {
