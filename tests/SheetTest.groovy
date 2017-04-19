@@ -70,7 +70,23 @@ class SheetTest extends GroovyTestCase {
     }
 
     void testDeleteColumn() {
+        Sheet sheet = new Sheet();
+        sheet.insertColumnsAfter(0);
+        sheet.getDataRange().setValues(1,2);
 
+        sheet.deleteColumn(0);
+
+        assertEquals(sheet.getMaxColumns(),1);
+        assertEquals(sheet.getRange(0,0).getValue(),2);
+
+        sheet.insertColumnsAfter(0);
+        sheet.insertColumnsAfter(0);
+        sheet.getDataRange().setValues(1,2,3);
+
+        sheet.deleteColumn(2);
+
+        assertEquals(sheet.getMaxColumns(),2);
+        assertEquals(sheet.getRange(0,0).getValue(),1);
     }
 
     void testDeleteColumn1() {
