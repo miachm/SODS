@@ -1,7 +1,14 @@
-import com.github.miachm.SODS.spreadsheet.Sheet
-import com.github.miachm.SODS.spreadsheet.Range
+package com.github.miachm.SODS.spreadsheet;
 
-class SheetTest extends GroovyTestCase {
+import org.testng.annotations.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import static org.testng.AssertJUnit.assertEquals;
+
+public class SheetTest {
     private Random random = new Random();
 
     Sheet generateASheet(){
@@ -33,7 +40,8 @@ class SheetTest extends GroovyTestCase {
         return sheet;
     }
 
-    void testClear() {
+    @Test
+    public void testClear() throws Exception {
         Sheet sheet = generateASheet();
         int rows = sheet.getMaxRows();
         int columns = sheet.getMaxColumns();
@@ -49,14 +57,16 @@ class SheetTest extends GroovyTestCase {
         }
     }
 
-    void testClone() {
+    @Test
+    public void testClone() throws Exception {
         Sheet sheet = generateASheet();
-        Sheet other = sheet.clone();
+        Sheet other = (Sheet) sheet.clone();
 
         assertEquals(sheet,other);
     }
 
-    void testEquals(){
+    @Test
+    public void testEquals() throws Exception {
         Sheet sheet = generateDeterministicSheet();
         Sheet other = generateDeterministicSheet();
         assertEquals(sheet,other);
@@ -66,7 +76,8 @@ class SheetTest extends GroovyTestCase {
         assertEquals(equals,false);
     }
 
-    void testDeleteColumn() {
+    @Test
+    public void testDeleteColumn() throws Exception {
         Sheet sheet = new Sheet("A");
         sheet.insertColumnAfter(0);
         sheet.getDataRange().setValues(1,2);
@@ -86,7 +97,8 @@ class SheetTest extends GroovyTestCase {
         assertEquals(sheet.getRange(0,0).getValue(),1);
     }
 
-    void testDeleteColumns() {
+    @Test
+    public void testDeleteColumns() throws Exception {
         Sheet sheet = new Sheet("A");
         sheet.insertColumnAfter(0);
         sheet.insertColumnAfter(0);
@@ -98,7 +110,8 @@ class SheetTest extends GroovyTestCase {
         assertEquals(sheet.getRange(0,0).getValue(),1);
     }
 
-    void testDeleteRow() {
+    @Test
+    public void testDeleteRow() throws Exception {
         Sheet sheet = new Sheet("A");
         sheet.insertRowAfter(0);
         sheet.getDataRange().setValues(1,2);
@@ -118,7 +131,8 @@ class SheetTest extends GroovyTestCase {
         assertEquals(sheet.getRange(0,0).getValue(),1);
     }
 
-    void testDeleteRows() {
+    @Test
+    public void testDeleteRows() throws Exception {
         Sheet sheet = new Sheet("A");
         sheet.insertRowAfter(0);
         sheet.insertRowAfter(0);
@@ -130,7 +144,8 @@ class SheetTest extends GroovyTestCase {
         assertEquals(sheet.getRange(0,0).getValue(),1);
     }
 
-    void testGetDataRange() {
+    @Test
+    public void testGetDataRange() throws Exception {
         Sheet sheet = generateDeterministicSheet();
         Range range = sheet.getDataRange();
         List<Integer> solution = new ArrayList<>();
@@ -141,66 +156,92 @@ class SheetTest extends GroovyTestCase {
         assertEquals(range.getValues(),solution);
     }
 
-    void testGetMaxColumns() {
+    @Test
+    public void testGetMaxColumns() throws Exception {
         Sheet sheet = generateDeterministicSheet();
         assertEquals(sheet.getMaxColumns(),2);
     }
 
-    void testGetMaxRows() {
+    @Test
+    public void testGetMaxRows() throws Exception {
         Sheet sheet = generateDeterministicSheet();
         assertEquals(sheet.getMaxRows(),2);
     }
 
-    void testGetName() {
+    @Test
+    public void testGetName() throws Exception {
         Sheet sheet = new Sheet("D");
         assertEquals(sheet.getName(),"D");
     }
 
-    void testGetRange() {
-        
-    }
-
-    void testGetRange1() {
+    @Test
+    public void testGetRange() throws Exception {
 
     }
 
-    void testGetRange2() {
+    @Test
+    public void testGetRange1() throws Exception {
 
     }
 
-    void testGetCell() {
+    @Test
+    public void testGetRange2() throws Exception {
 
     }
 
-    void testInsertColumnAfter() {
+    @Test
+    public void testGetCell() throws Exception {
 
     }
 
-    void testInsertColumnBefore() {
+    @Test
+    public void testInsertColumnAfter() throws Exception {
 
     }
 
-    void testInsertColumnsAfter() {
+    @Test
+    public void testInsertColumnBefore() throws Exception {
 
     }
 
-    void testInsertColumnsBefore() {
+    @Test
+    public void testInsertColumnsAfter() throws Exception {
 
     }
 
-    void testInsertRowAfter() {
+    @Test
+    public void testInsertColumnsBefore() throws Exception {
 
     }
 
-    void testInsertRowBefore() {
+    @Test
+    public void testInsertRowAfter() throws Exception {
 
     }
 
-    void testInsertRowsBefore() {
+    @Test
+    public void testInsertRowBefore() throws Exception {
 
     }
 
-    void testInsertRowsAfter() {
+    @Test
+    public void testInsertRowsBefore() throws Exception {
 
     }
+
+    @Test
+    public void testInsertRowsAfter() throws Exception {
+
+    }
+
+    @Test
+    public void testHashCode() throws Exception {
+
+    }
+
+    @Test
+    public void testCompareTo() throws Exception {
+
+    }
+
 }
