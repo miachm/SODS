@@ -131,7 +131,14 @@ class SheetTest extends GroovyTestCase {
     }
 
     void testGetDataRange() {
-
+        Sheet sheet = generateDeterministicSheet();
+        Range range = sheet.getDataRange();
+        List<Integer> solution = new ArrayList<>();
+        solution.add(1);
+        solution.add(3);
+        solution.add(2);
+        solution.add(4);
+        assertEquals(range.getValues(),solution);
     }
 
     void testGetMaxColumns() {
