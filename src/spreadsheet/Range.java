@@ -88,17 +88,21 @@ public class Range {
         iterateRange((cell) -> cell.setValue(o));
     }
 
-    public void setValues(List<Object> o){
+    public void setValues(Object... o){
         iterateRange(new RangeIterator() {
             int index = 0;
             @Override
             public void call(Cell cell) {
-                if (index < o.size()) {
-                    cell.setValue(index);
+                if (index < o.length) {
+                    cell.setValue(o[index]);
                     index++;
                 }
             }
         });
+    }
+
+    public void setValues(List<Object> o){
+        setValues(o.toArray());
     }
 
     private void iterateRange(RangeIterator e){
