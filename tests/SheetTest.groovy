@@ -99,10 +99,35 @@ class SheetTest extends GroovyTestCase {
     }
 
     void testDeleteRow() {
+        Sheet sheet = new Sheet("A");
+        sheet.insertRowAfter(0);
+        sheet.getDataRange().setValues(1,2);
+
+        sheet.deleteRow(0);
+
+        assertEquals(sheet.getMaxRows(),1);
+        assertEquals(sheet.getRange(0,0).getValue(),2);
+
+        sheet.insertRowAfter(0);
+        sheet.insertRowAfter(0);
+        sheet.getDataRange().setValues(1,2,3);
+
+        sheet.deleteRow(2);
+
+        assertEquals(sheet.getMaxRows(),2);
+        assertEquals(sheet.getRange(0,0).getValue(),1);
     }
 
     void testDeleteRows() {
+        Sheet sheet = new Sheet("A");
+        sheet.insertRowAfter(0);
+        sheet.insertRowAfter(0);
+        sheet.getDataRange().setValues(1,2,3);
 
+        sheet.deleteRows(1,2);
+
+        assertEquals(sheet.getMaxRows(),1);
+        assertEquals(sheet.getRange(0,0).getValue(),1);
     }
 
     void testGetDataRange() {
