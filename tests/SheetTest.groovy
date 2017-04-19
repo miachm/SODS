@@ -24,6 +24,18 @@ class SheetTest extends GroovyTestCase {
         return sheet;
     }
 
+    Sheet generateDeterministicSheet(){
+        Sheet sheet = new Sheet();
+        sheet.insertRowAfter(0);
+        sheet.insertColumnAfter(0);
+
+        sheet.getRange(0,0).setValue(1);
+        sheet.getRange(1,0).setValue(2);
+        sheet.getRange(0,1).setValue(3);
+        sheet.getRange(1,1).setValue(4);
+        return sheet;
+    }
+
     void testClear() {
         Sheet sheet = generateASheet();
         int rows = sheet.getMaxRows();
@@ -41,7 +53,20 @@ class SheetTest extends GroovyTestCase {
     }
 
     void testClone() {
+        Sheet sheet = generateASheet();
+        Sheet other = sheet.clone();
 
+        assertEquals(sheet,other);
+    }
+
+    void testEquals(){
+        Sheet sheet = generateDeterministicSheet();
+        Sheet other = generateDeterministicSheet();
+        assertEquals(sheet,other);
+        sheet.getRange(0,0).setValue(-1);
+
+        boolean equals = sheet.equals(other);
+        assertEquals(equals,false);
     }
 
     void testDeleteColumn() {
