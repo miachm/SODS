@@ -11,7 +11,7 @@ import static org.testng.AssertJUnit.assertEquals;
 public class SheetTest {
     private Random random = new Random();
 
-    Sheet generateASheet(){
+    private Sheet generateASheet(){
         Sheet sheet = new Sheet("A");
         sheet.insertRowsAfter(0,99);
         sheet.insertColumnsAfter(0,99);
@@ -24,11 +24,11 @@ public class SheetTest {
             integers.add(random.nextInt());
         }
 
-        range.setValues(range);
+        range.setValues(integers);
         return sheet;
     }
 
-    Sheet generateDeterministicSheet(){
+    private Sheet generateDeterministicSheet(){
         Sheet sheet = new Sheet("A");
         sheet.insertRowAfter(0);
         sheet.insertColumnAfter(0);
@@ -256,7 +256,26 @@ public class SheetTest {
 
     @Test
     public void testInsertColumnsBefore() throws Exception {
+        Sheet sheet = generateDeterministicSheet();
+        sheet.insertColumnsAfter(1,3);
+        sheet.insertColumnsAfter(0,2);
+        assertEquals(sheet.getMaxColumns(),7);
 
+        List<Object> list = sheet.getDataRange().getValues();
+        assertEquals(list.get(0),1);
+        assertEquals(list.get(1),null);
+        assertEquals(list.get(2),null);
+        assertEquals(list.get(3),3);
+        assertEquals(list.get(4),null);
+        assertEquals(list.get(5),null);
+        assertEquals(list.get(6),null);
+        assertEquals(list.get(7),2);
+        assertEquals(list.get(8),null);
+        assertEquals(list.get(9),null);
+        assertEquals(list.get(10),4);
+        assertEquals(list.get(11),null);
+        assertEquals(list.get(12),null);
+        assertEquals(list.get(13),null);
     }
 
     @Test
