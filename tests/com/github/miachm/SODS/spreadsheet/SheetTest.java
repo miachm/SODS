@@ -232,7 +232,26 @@ public class SheetTest {
 
     @Test
     public void testInsertColumnsAfter() throws Exception {
+        Sheet sheet = generateDeterministicSheet();
+        sheet.insertColumnsAfter(1,3);
+        sheet.insertColumnsAfter(0,2);
+        assertEquals(sheet.getMaxColumns(),7);
 
+        List<Object> list = sheet.getDataRange().getValues();
+        assertEquals(list.get(0),1);
+        assertEquals(list.get(1),null);
+        assertEquals(list.get(2),null);
+        assertEquals(list.get(3),3);
+        assertEquals(list.get(4),null);
+        assertEquals(list.get(5),null);
+        assertEquals(list.get(6),null);
+        assertEquals(list.get(7),2);
+        assertEquals(list.get(8),null);
+        assertEquals(list.get(9),null);
+        assertEquals(list.get(10),4);
+        assertEquals(list.get(11),null);
+        assertEquals(list.get(12),null);
+        assertEquals(list.get(13),null);
     }
 
     @Test
