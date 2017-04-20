@@ -2,6 +2,7 @@ package com.github.miachm.SODS.input;
 
 import com.github.miachm.SODS.exceptions.NotAnOds;
 import com.github.miachm.SODS.exceptions.OperationNotSupported;
+import com.github.miachm.SODS.spreadsheet.Range;
 import com.github.miachm.SODS.spreadsheet.Sheet;
 import com.github.miachm.SODS.spreadsheet.SpreadSheet;
 import org.w3c.dom.*;
@@ -75,11 +76,7 @@ public class OdsReader {
             NodeList files = doc.getElementsByTagName("manifest:file-entry");
             iterateFilesEntryManifest(files);
 
-        }catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        }catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
     }
@@ -147,11 +144,7 @@ public class OdsReader {
                 iterateFilesEntries(n.getChildNodes());
             }
 
-        }catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        }catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
     }
@@ -170,7 +163,7 @@ public class OdsReader {
 
                         NamedNodeMap atributes = node.getAttributes();
                         String name = atributes.getNamedItem("table:name").getNodeValue();
-
+                        System.out.println("NAME SHEET: " + name);
                         Sheet sheet = new Sheet(name);
 
                         NodeList new_list = node.getChildNodes();
@@ -182,7 +175,7 @@ public class OdsReader {
                                 if (n5 != null)
                                     incr = Integer.parseInt(n5.getNodeValue());
                                 System.out.println("INCR: " + incr);
-                                sheet.insertColumnsAfter(sheet.getMaxColumns(),incr);
+                                sheet.insertColumnsAfter(sheet.getMaxColumns()-1,incr);
                             }
                             else if (n.getNodeName().equals("table:table-row")){
                                 sheet.insertRowAfter(sheet.getMaxRows()-1);
@@ -194,12 +187,14 @@ public class OdsReader {
                                     if (n2.getNodeName().equals("table:table-cell")){
                                         Node n3 = n2.getFirstChild();
                                         // TODO : Iterate over the children
-                                        System.out.println("Printing : " + n3.getNodeValue());
-                                        sheet.getRange(sheet.getMaxRows()-1,k).setValue(n3.getNodeValue());
+                                        System.out.println("Printing : " + n3.getFirstChild().getNodeValue());
+                                        Range range = sheet.getRange(sheet.getMaxRows()-1,sheet.getMaxColumns()-1);
+                                        range.setValue(n3.getFirstChild().getNodeValue());
                                     }
                                 }
                             }
                         }
+                        spread.appendSheet(sheet);
                     }
                 }
             }
