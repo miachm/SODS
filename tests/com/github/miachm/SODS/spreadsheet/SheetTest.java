@@ -196,7 +196,17 @@ public class SheetTest {
 
     @Test
     public void testInsertColumnAfter() throws Exception {
+        Sheet sheet = generateDeterministicSheet();
+        sheet.insertColumnAfter(1);
+        assertEquals(sheet.getMaxColumns(),3);
+        sheet.insertColumnAfter(0);
+        assertEquals(sheet.getMaxColumns(),4);
+        List<Object> list = sheet.getDataRange().getValues();
 
+        assertEquals(list.get(0),1);
+        assertEquals(list.get(1),null);
+        assertEquals(list.get(2),3);
+        assertEquals(list.get(3),null);
     }
 
     @Test
@@ -231,11 +241,6 @@ public class SheetTest {
 
     @Test
     public void testInsertRowsAfter() throws Exception {
-
-    }
-
-    @Test
-    public void testHashCode() throws Exception {
 
     }
 
