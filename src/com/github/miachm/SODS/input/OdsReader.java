@@ -188,12 +188,14 @@ public class OdsReader {
                                         Node n3 = n2.getFirstChild();
                                         // TODO : Iterate over the children
                                         System.out.println("Printing : " + n3.getFirstChild().getNodeValue());
-                                        Range range = sheet.getRange(sheet.getMaxRows()-1,sheet.getMaxColumns()-1);
+                                        Range range = sheet.getRange(sheet.getMaxRows()-1,m);
                                         range.setValue(n3.getFirstChild().getNodeValue());
                                     }
                                 }
                             }
                         }
+                        sheet.deleteRow(0);
+                        sheet.deleteColumn(sheet.getMaxColumns()-1);
                         spread.appendSheet(sheet);
                     }
                 }

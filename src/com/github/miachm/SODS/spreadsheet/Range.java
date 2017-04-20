@@ -11,11 +11,11 @@ public class Range {
     Range(Sheet sheet,int row_init,int column_init,int numrows,int numcolumns){
         if (row_init + numrows > sheet.getMaxRows())
             throw new AssertionError("Range goes out of bounds: "+
-                                    "(end_of_range: " + row_init+numrows + ", maxrows in sheet: " + sheet.getMaxRows());
+                                    "(end_of_range: " + (row_init+numrows) + ", maxrows in sheet: " + sheet.getMaxRows());
 
         if (column_init + numcolumns > sheet.getMaxColumns())
             throw new AssertionError("Range goes out of bounds: "+
-                    "(end_of_range: " + column_init+numcolumns + ", maxcolumns in sheet: " + sheet.getMaxColumns());
+                    "(end_of_range: " + (column_init+numcolumns) + ", maxcolumns in sheet: " + sheet.getMaxColumns());
 
         this.sheet = sheet;
         this.row_init = row_init;
