@@ -197,6 +197,7 @@ public class SheetTest {
     @Test
     public void testInsertColumnAfter() throws Exception {
         Sheet sheet = generateDeterministicSheet();
+        sheet.deleteRow(1);
         sheet.insertColumnAfter(1);
         assertEquals(sheet.getMaxColumns(),3);
         sheet.insertColumnAfter(0);
@@ -211,7 +212,16 @@ public class SheetTest {
 
     @Test
     public void testInsertColumnBefore() throws Exception {
-
+        Sheet sheet = generateDeterministicSheet();
+        sheet.deleteRow(1);
+        assertEquals(sheet.getMaxColumns(),3);
+        sheet.insertColumnBefore(0);
+        assertEquals(sheet.getMaxColumns(),4);
+        List<Object> list = sheet.getDataRange().getValues();
+        assertEquals(list.get(0),null);
+        assertEquals(list.get(1),null);
+        assertEquals(list.get(2),1);
+        assertEquals(list.get(3),3);
     }
 
     @Test
