@@ -103,4 +103,29 @@ public class Range {
             }
         }
     }
+
+    private String valuesToString(){
+        StringBuilder builder = new StringBuilder();
+        Object[][] values = getValues();
+
+        for (int i = 0;i < values.length;i++){
+            builder.append(values[0][0]);
+            for (int j = 1;j < values[i].length;j++){
+                builder.append(" , " + values[i][j]);
+            }
+            builder.append("\n");
+        }
+        return builder.toString();
+    }
+
+    @Override
+    public String toString() {
+        return "Range{" +
+                "\ncolumn_init=" + column_init +
+                "\nrow_init=" + row_init +
+                "\nnumrows=" + numrows +
+                "\nnumcolumns=" + numcolumns +
+                "\nvalues =\n\n" + valuesToString() +
+                "\n}";
+    }
 }

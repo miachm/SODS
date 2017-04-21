@@ -21,8 +21,7 @@ public class BasicUsage{
                 System.out.println("In sheet " + sheet.getName());
 
                 Range range = sheet.getDataRange();
-
-                System.out.println(range.getValues());
+                System.out.println(range.toString());
             }
         } catch (IOException e){
             e.printStackTrace();
