@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Random;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 public class SheetTest {
     private Random random = new Random();
@@ -24,7 +26,7 @@ public class SheetTest {
             integers.add(random.nextInt());
         }
 
-        range.setValues(integers);
+        range.setValues(integers.toArray());
         return sheet;
     }
 
@@ -52,8 +54,7 @@ public class SheetTest {
         Range range = sheet.getDataRange();
 
         for (Object o : range.getValues()){
-            if (o != null)
-                assertEquals(true,false);
+            assertNotNull(o);
         }
     }
 
@@ -148,12 +149,12 @@ public class SheetTest {
     public void testGetDataRange() throws Exception {
         Sheet sheet = generateDeterministicSheet();
         Range range = sheet.getDataRange();
-        List<Integer> solution = new ArrayList<>();
-        solution.add(1);
-        solution.add(3);
-        solution.add(2);
-        solution.add(4);
-        assertEquals(range.getValues(),solution);
+        Object[][] solution = new Object[2][2];
+        solution[0][0] = 1;
+        solution[0][1] = 3;
+        solution[1][0] = 2;
+        solution[1][1] = 4;
+        assertArrayEquals(range.getValues(),solution);
     }
 
     @Test
@@ -177,33 +178,42 @@ public class SheetTest {
     @Test
     public void testGetRangeCell() throws Exception {
         Sheet sheet = generateASheet();
-        List<Object> values = sheet.getDataRange().getValues();
-        for (int i = 0;i < values.size();i++){
-            int row = i / sheet.getMaxColumns();
-            int columns = i % sheet.getMaxColumns();
-            assertEquals(values.get(i),sheet.getRange(row,columns).getValue());
+        Object[][] values = sheet.getDataRange().getValues();
+        for (int i = 0;i < values.length;i++){
+            for (int j = 0;j < values[i].length;j++) {
+                assertEquals(values[i][j], sheet.getRange(i, j).getValue());
+            }
         }
     }
 
     @Test
     public void testGetRangeRows() throws Exception {
         Sheet sheet = generateASheet();
-        List<Object> values = sheet.getDataRange().getValues();
-        final int SIZE = values.size()-sheet.getMaxColumns();
-        for (int i = 0;i < SIZE;i+=2){
-            int row = i / sheet.getMaxColumns();
-            int columns = i % sheet.getMaxColumns();
-            Range range = sheet.getRange(row,columns,2);
-            List<Object> v = range.getValues();
-
-            assertEquals(values.get(i),v.get(0));
-            assertEquals(values.get(i+1),v.get(1));
+        Object[][] values = sheet.getDataRange().getValues();
+        for (int i = 0;i < values.length-1;i++){
+            for (int j = 0;j < values[i].length-1;j++) {
+                Range range = sheet.getRange(i, j,2);
+                Object[][] v = range.getValues();
+                assertEquals(values[i][j],v[0][0]);
+                assertEquals(values[i+1][j],v[1][0]);
+            }
         }
     }
 
     @Test
-    public void testGetRange2() throws Exception {
-
+    public void testGetRangeTable() throws Exception {
+        Sheet sheet = generateASheet();
+        Object[][] values = sheet.getDataRange().getValues();
+        for (int i = 0;i < values.length-1;i++){
+            for (int j = 0;j < values[i].length-1;j++) {
+                Range range = sheet.getRange(i, j,2,2);
+                Object[][] v = range.getValues();
+                assertEquals(values[i][j],v[0][0]);
+                assertEquals(values[i+1][j],v[1][0]);
+                assertEquals(values[i][j+1],v[0][1]);
+                assertEquals(values[i+1][j+1],v[1][1]);
+            }
+        }
     }
 
     @Test
@@ -213,15 +223,15 @@ public class SheetTest {
         assertEquals(sheet.getMaxColumns(),3);
         sheet.insertColumnAfter(1);
         assertEquals(sheet.getMaxColumns(),4);
-        List<Object> list = sheet.getDataRange().getValues();
-        assertEquals(list.get(0),1);
-        assertEquals(list.get(1),null);
-        assertEquals(list.get(2),null);
-        assertEquals(list.get(3),3);
-        assertEquals(list.get(4),2);
-        assertEquals(list.get(5),null);
-        assertEquals(list.get(6),null);
-        assertEquals(list.get(7),4);
+        Object[][] list = sheet.getDataRange().getValues();
+        assertEquals(list[0][0],1);
+        assertEquals(list[0][1],null);
+        assertEquals(list[0][2],null);
+        assertEquals(list[0][3],3);
+        assertEquals(list[1][0],2);
+        assertEquals(list[1][1],null);
+        assertEquals(list[1][2],null);
+        assertEquals(list[1][3],4);
     }
 
     @Test
@@ -231,15 +241,15 @@ public class SheetTest {
         assertEquals(sheet.getMaxColumns(),3);
         sheet.insertColumnBefore(0);
         assertEquals(sheet.getMaxColumns(),4);
-        List<Object> list = sheet.getDataRange().getValues();
-        assertEquals(list.get(0),null);
-        assertEquals(list.get(1),1);
-        assertEquals(list.get(2),null);
-        assertEquals(list.get(3),3);
-        assertEquals(list.get(4),null);
-        assertEquals(list.get(5),2);
-        assertEquals(list.get(6),null);
-        assertEquals(list.get(7),4);
+        Object[][] list = sheet.getDataRange().getValues();
+        assertEquals(list[0][0],null);
+        assertEquals(list[0][1],1);
+        assertEquals(list[0][2],null);
+        assertEquals(list[0][3],3);
+        assertEquals(list[1][0],null);
+        assertEquals(list[1][1],2);
+        assertEquals(list[1][2],null);
+        assertEquals(list[1][3],4);
     }
 
     @Test
@@ -249,21 +259,21 @@ public class SheetTest {
         sheet.insertColumnsAfter(0,2);
         assertEquals(sheet.getMaxColumns(),7);
 
-        List<Object> list = sheet.getDataRange().getValues();
-        assertEquals(list.get(0),1);
-        assertEquals(list.get(1),null);
-        assertEquals(list.get(2),null);
-        assertEquals(list.get(3),3);
-        assertEquals(list.get(4),null);
-        assertEquals(list.get(5),null);
-        assertEquals(list.get(6),null);
-        assertEquals(list.get(7),2);
-        assertEquals(list.get(8),null);
-        assertEquals(list.get(9),null);
-        assertEquals(list.get(10),4);
-        assertEquals(list.get(11),null);
-        assertEquals(list.get(12),null);
-        assertEquals(list.get(13),null);
+        Object[][] list = sheet.getDataRange().getValues();
+        assertEquals(list[0][0],1);
+        assertEquals(list[0][1],null);
+        assertEquals(list[0][2],null);
+        assertEquals(list[0][3],3);
+        assertEquals(list[0][4],null);
+        assertEquals(list[0][5],null);
+        assertEquals(list[0][6],null);
+        assertEquals(list[1][0],2);
+        assertEquals(list[1][1],null);
+        assertEquals(list[1][2],null);
+        assertEquals(list[1][3],4);
+        assertEquals(list[1][4],null);
+        assertEquals(list[1][5],null);
+        assertEquals(list[1][6],null);
     }
 
     @Test
@@ -273,21 +283,21 @@ public class SheetTest {
         sheet.insertColumnsAfter(0,2);
         assertEquals(sheet.getMaxColumns(),7);
 
-        List<Object> list = sheet.getDataRange().getValues();
-        assertEquals(list.get(0),1);
-        assertEquals(list.get(1),null);
-        assertEquals(list.get(2),null);
-        assertEquals(list.get(3),3);
-        assertEquals(list.get(4),null);
-        assertEquals(list.get(5),null);
-        assertEquals(list.get(6),null);
-        assertEquals(list.get(7),2);
-        assertEquals(list.get(8),null);
-        assertEquals(list.get(9),null);
-        assertEquals(list.get(10),4);
-        assertEquals(list.get(11),null);
-        assertEquals(list.get(12),null);
-        assertEquals(list.get(13),null);
+        Object[][] list = sheet.getDataRange().getValues();
+        assertEquals(list[0][0],1);
+        assertEquals(list[0][1],null);
+        assertEquals(list[0][2],null);
+        assertEquals(list[0][3],3);
+        assertEquals(list[0][4],null);
+        assertEquals(list[0][5],null);
+        assertEquals(list[0][6],null);
+        assertEquals(list[1][0],2);
+        assertEquals(list[1][1],null);
+        assertEquals(list[1][2],null);
+        assertEquals(list[1][3],4);
+        assertEquals(list[1][4],null);
+        assertEquals(list[1][5],null);
+        assertEquals(list[1][6],null);
     }
 
     @Test

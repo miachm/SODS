@@ -1,8 +1,5 @@
 package com.github.miachm.SODS.spreadsheet;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Range {
     private final int column_init,row_init;
     private final int numrows,numcolumns;
@@ -25,7 +22,7 @@ public class Range {
     }
 
     public void clear(){
-        iterateRange((cell) -> cell.clear());
+        iterateRange((cell,row,column) -> cell.clear());
     }
 
     public void copyTo(Range dest){
@@ -44,11 +41,10 @@ public class Range {
         return sheet.getCell(row_init,column_init).getFormula();
     }
 
-    public List<String> getFormulas(){
-        ArrayList<String> formulas = new ArrayList<String>();
-        formulas.ensureCapacity(getNumRows()*getNumColumns());
+    public Object[][] getFormulas(){
+        Object[][] formulas = new Object[getNumRows()][getNumColumns()];
 
-        iterateRange((cell) -> formulas.add(cell.getFormula()));
+        iterateRange((cell,row,column) -> formulas[row][column] = cell.getFormula());
 
         return formulas;
     }
@@ -81,10 +77,9 @@ public class Range {
         return sheet.getCell(row_init,column_init).getValue();
     }
 
-    public List<Object> getValues(){
-        ArrayList<Object> values = new ArrayList<Object>();
-        values.ensureCapacity(getNumRows()*getNumColumns());
-        iterateRange((cell) -> values.add(cell.getValue()));
+    public Object[][] getValues(){
+        Object[][] values = new Object[getNumRows()][getNumColumns()];
+        iterateRange((cell,row,column) -> values[row][column] = cell.getValue());
         return values;
     }
 
@@ -93,31 +88,18 @@ public class Range {
     }
 
     public void setValue(Object o){
-        iterateRange((cell) -> cell.setValue(o));
+        iterateRange((cell,row,column) -> cell.setValue(o));
     }
 
     public void setValues(Object... o){
-        iterateRange(new RangeIterator() {
-            int index = 0;
-            @Override
-            public void call(Cell cell) {
-                if (index < o.length) {
-                    cell.setValue(o[index]);
-                    index++;
-                }
-            }
-        });
-    }
-
-    public void setValues(List<Object> o){
-        setValues(o.toArray());
+        iterateRange((cell,row,column) -> cell.setValue(o[row*getNumColumns()+column]));
     }
 
     private void iterateRange(RangeIterator e){
         for (int i = 0;i < numrows;i++){
             for (int j = 0;j < numcolumns;j++){
                 Cell cell = sheet.getCell(row_init+i,column_init+j);
-                e.call(cell);
+                e.call(cell,i,j);
             }
         }
     }
