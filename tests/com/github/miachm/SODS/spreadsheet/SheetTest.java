@@ -320,7 +320,20 @@ public class SheetTest {
 
     @Test
     public void testInsertRowBefore() throws Exception {
-
+        Sheet sheet = generateDeterministicSheet();
+        sheet.insertRowBefore(1);
+        assertEquals(sheet.getMaxRows(),3);
+        sheet.insertRowBefore(0);
+        assertEquals(sheet.getMaxRows(),4);
+        Object[][] list = sheet.getDataRange().getValues();
+        assertEquals(list[0][0],null);
+        assertEquals(list[1][0],1);
+        assertEquals(list[2][0],null);
+        assertEquals(list[3][0],2);
+        assertEquals(list[0][1],null);
+        assertEquals(list[1][1],3);
+        assertEquals(list[2][1],null);
+        assertEquals(list[3][1],4);
     }
 
     @Test
