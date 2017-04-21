@@ -175,8 +175,14 @@ public class SheetTest {
     }
 
     @Test
-    public void testGetRange() throws Exception {
-
+    public void testGetRangeCell() throws Exception {
+        Sheet sheet = generateASheet();
+        List<Object> values = sheet.getDataRange().getValues();
+        for (int i = 0;i < values.size();i++){
+            int row = i / sheet.getMaxColumns();
+            int columns = i % sheet.getMaxColumns();
+            assertEquals(values.get(i),sheet.getRange(row,columns).getValue());
+        }
     }
 
     @Test
@@ -186,11 +192,6 @@ public class SheetTest {
 
     @Test
     public void testGetRange2() throws Exception {
-
-    }
-
-    @Test
-    public void testGetCell() throws Exception {
 
     }
 
