@@ -15,8 +15,8 @@ public class SheetTest {
 
     private Sheet generateASheet(){
         Sheet sheet = new Sheet("A");
-        sheet.insertRowsAfter(0,99);
-        sheet.insertColumnsAfter(0,99);
+        sheet.insertRowsAfter(0,9);
+        sheet.insertColumnsAfter(0,9);
 
         Range range = sheet.getDataRange();
 
