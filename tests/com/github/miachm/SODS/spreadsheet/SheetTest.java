@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
@@ -386,7 +387,11 @@ public class SheetTest {
 
     @Test
     public void testCompareTo() throws Exception {
+        Sheet a = new Sheet("A");
+        Sheet b = new Sheet("B");
 
+        assertTrue(a.compareTo(b) < 0);
+        assertTrue(b.compareTo(a) > 0);
     }
 
 }
