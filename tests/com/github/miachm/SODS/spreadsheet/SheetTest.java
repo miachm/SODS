@@ -186,8 +186,19 @@ public class SheetTest {
     }
 
     @Test
-    public void testGetRange1() throws Exception {
+    public void testGetRangeRows() throws Exception {
+        Sheet sheet = generateASheet();
+        List<Object> values = sheet.getDataRange().getValues();
+        final int SIZE = values.size()-sheet.getMaxColumns();
+        for (int i = 0;i < SIZE;i+=2){
+            int row = i / sheet.getMaxColumns();
+            int columns = i % sheet.getMaxColumns();
+            Range range = sheet.getRange(row,columns,2);
+            List<Object> v = range.getValues();
 
+            assertEquals(values.get(i),v.get(0));
+            assertEquals(values.get(i+1),v.get(1));
+        }
     }
 
     @Test
