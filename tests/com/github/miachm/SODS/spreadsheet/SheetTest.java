@@ -338,6 +338,26 @@ public class SheetTest {
 
     @Test
     public void testInsertRowsBefore() throws Exception {
+        Sheet sheet = generateDeterministicSheet();
+        sheet.insertRowsAfter(1,3);
+        sheet.insertRowsAfter(0,2);
+        assertEquals(sheet.getMaxRows(),7);
+
+        Object[][] list = sheet.getDataRange().getValues();
+        assertEquals(list[0][0],1);
+        assertEquals(list[1][0],null);
+        assertEquals(list[2][0],null);
+        assertEquals(list[3][0],2);
+        assertEquals(list[4][0],null);
+        assertEquals(list[5][0],null);
+        assertEquals(list[6][0],null);
+        assertEquals(list[0][1],3);
+        assertEquals(list[1][1],null);
+        assertEquals(list[2][1],null);
+        assertEquals(list[3][1],4);
+        assertEquals(list[4][1],null);
+        assertEquals(list[5][1],null);
+        assertEquals(list[6][1],null);
     }
 
     @Test
