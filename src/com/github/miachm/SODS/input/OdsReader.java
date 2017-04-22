@@ -96,8 +96,6 @@ public class OdsReader {
                     path = child.getNodeValue();
                 }
                 else if (child.getNodeName().equals("manifest:media-type")){
-                    System.out.println("Manifest media type: " + child.getNodeValue());
-
                     main_path = (child.getNodeValue().equals(CORRECT_MIMETYPE));
                 }
             }
@@ -111,7 +109,6 @@ public class OdsReader {
         Set<String> names = files.keySet();
 
         for (String name : names){
-            System.out.println("NAME: " + name);
             if (name.endsWith(".xml"))
                 processContent(files.get(name));
         }
@@ -141,7 +138,7 @@ public class OdsReader {
             if (files != null) {
                 Node n = files.item(0);
                 if (n != null)
-                iterateFilesEntries(n.getChildNodes());
+                    iterateFilesEntries(n.getChildNodes());
             }
 
         }catch (ParserConfigurationException | SAXException | IOException e) {
@@ -155,51 +152,59 @@ public class OdsReader {
         for (int i = 0;i < files.getLength();i++){
             Node node = files.item(i);
             if (node.getNodeName().equals("office:spreadsheet")){
-                NodeList list = node.getChildNodes();
-
-                for (int j = 0;j < list.getLength();j++){
-                    node = list.item(j);
-                    if (node.getNodeName().equals("table:table")){
-
-                        NamedNodeMap atributes = node.getAttributes();
-                        String name = atributes.getNamedItem("table:name").getNodeValue();
-                        System.out.println("NAME SHEET: " + name);
-                        Sheet sheet = new Sheet(name);
-
-                        NodeList new_list = node.getChildNodes();
-                        for (int k = 0;k < new_list.getLength();k++){
-                            Node n = new_list.item(k);
-                            if (n.getNodeName().equals("table:table-column")){
-                                Node n5 = n.getAttributes().getNamedItem("table:number-columns-repeated");
-                                int incr = 1;
-                                if (n5 != null)
-                                    incr = Integer.parseInt(n5.getNodeValue());
-                                System.out.println("INCR: " + incr);
-                                sheet.insertColumnsAfter(sheet.getMaxColumns()-1,incr);
-                            }
-                            else if (n.getNodeName().equals("table:table-row")){
-                                sheet.insertRowAfter(sheet.getMaxRows()-1);
-
-                                NodeList l = n.getChildNodes();
-
-                                for (int m = 0;m < l.getLength();m++){
-                                    Node n2 = l.item(m);
-                                    if (n2.getNodeName().equals("table:table-cell")){
-                                        Node n3 = n2.getFirstChild();
-                                        // TODO : Iterate over the children
-                                        System.out.println("Printing : " + n3.getFirstChild().getNodeValue());
-                                        Range range = sheet.getRange(sheet.getMaxRows()-1,m);
-                                        range.setValue(n3.getFirstChild().getNodeValue());
-                                    }
-                                }
-                            }
-                        }
-                        sheet.deleteRow(0);
-                        sheet.deleteColumn(sheet.getMaxColumns()-1);
-                        spread.appendSheet(sheet);
-                    }
-                }
+                processSpreadsheet(node.getChildNodes());
             }
         }
     }
+
+    private void processSpreadsheet(NodeList list) {
+        for (int i = 0;i < list.getLength();i++){
+            Node node = list.item(i);
+            if (node.getNodeName().equals("table:table")){
+                processTable(node);
+            }
+        }
+    }
+
+    private void processTable(Node node){
+        NamedNodeMap atributes = node.getAttributes();
+        String name = atributes.getNamedItem("table:name").getNodeValue();
+        Sheet sheet = new Sheet(name);
+
+        NodeList new_list = node.getChildNodes();
+        for (int i = 0;i < new_list.getLength();i++){
+            Node n = new_list.item(i);
+            if (n.getNodeName().equals("table:table-column")){
+                sheet.appendColumns(getNumberOfColumns(n));
+            }
+            else if (n.getNodeName().equals("table:table-row")){
+                sheet.appendRow();
+                processCells(n.getChildNodes(),sheet);
+            }
+        }
+        sheet.deleteRow(0);
+        sheet.deleteColumn(sheet.getMaxColumns()-1);
+        spread.appendSheet(sheet);
+    }
+
+    private int getNumberOfColumns(Node n){
+        Node n5 = n.getAttributes().getNamedItem("table:number-columns-repeated");
+        int incr = 1;
+        if (n5 != null)
+            incr = Integer.parseInt(n5.getNodeValue());
+        return incr;
+    }
+
+    private void processCells(NodeList childNodes,Sheet sheet) {
+        for (int i = 0;i < childNodes.getLength();i++){
+            Node n = childNodes.item(i);
+            if (n.getNodeName().equals("table:table-cell")){
+                Node cell = n.getFirstChild();
+                // TODO : Iterate over the children
+                Range range = sheet.getRange(sheet.getMaxRows()-1,i);
+                range.setValue(cell.getFirstChild().getNodeValue());
+            }
+        }
+    }
+
 }
