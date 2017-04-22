@@ -26,7 +26,11 @@ public class Range {
     }
 
     public void copyTo(Range dest){
-        dest.setValues(dest.getValues());
+        if (dest.getNumValues() != getNumValues())
+            throw new AssertionError("Error in copyTo, the range is of different size ("
+                    + dest.getNumValues() + " against " + getNumValues() + ")");
+
+        dest.setValues(getValues());
     }
 
     public Range getCell(int row,int column){
@@ -92,7 +96,24 @@ public class Range {
     }
 
     public void setValues(Object... o){
+        if (o.length != getNumValues())
+            throw new AssertionError("Error in setValues, the number of the arguments doesn't fit ("
+                    + o.length + " against " + getNumValues() + ")");
+
         iterateRange((cell,row,column) -> cell.setValue(o[row*getNumColumns()+column]));
+    }
+
+    public void setValues(Object[][] o){
+        if (o.length == 0)
+            throw new AssertionError("Error in setValues, the array is empty");
+        if (o.length != getNumRows())
+            throw new AssertionError("Error in setValues, the number of rows doesn't fit ("
+                    + o.length + " against " + getNumRows() + ")");
+        if (o[0].length != getNumColumns())
+            throw new AssertionError("Error in setValues, the number of columns doesn't fit ("
+                    + o.length + " against " + getNumColumns() + ")");
+
+        iterateRange((cell,row,column) -> cell.setValue(o[row][column]));
     }
 
     private void iterateRange(RangeIterator e){
