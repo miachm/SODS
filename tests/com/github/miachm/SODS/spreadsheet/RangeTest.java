@@ -2,6 +2,7 @@ package com.github.miachm.SODS.spreadsheet;
 
 import org.testng.annotations.Test;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
 
 public class RangeTest {
@@ -29,7 +30,23 @@ public class RangeTest {
 
     @Test
     public void testCopyTo() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.insertColumnsAfter(0,3);
+        sheet.insertRowAfter(0);
 
+        Range range = sheet.getDataRange();
+        range.setValues(1,2,3,4,5,6,7,8);
+
+        Range origin = sheet.getRange(0,0,2,2);
+        Range dest = sheet.getRange(0,2,2,2);
+        origin.copyTo(dest);
+
+        Object[][] values = dest.getValues();
+
+        assertEquals(values[0][0],1);
+        assertEquals(values[1][0],5);
+        assertEquals(values[0][1],2);
+        assertEquals(values[1][1],6);
     }
 
     @Test
