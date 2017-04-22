@@ -415,4 +415,26 @@ public class SheetTest {
         assertEquals(a.getMaxRows(),4);
         assertEquals(a.getRange(0,0).getValue(),1);
     }
+
+    @Test
+    public void testAppendColumn() throws Exception {
+        Sheet a = new Sheet("A");
+        a.getDataRange().setValue(1);
+        a.appendColumn();
+        a.appendColumn();
+        a.appendColumn();
+
+        assertEquals(a.getMaxColumns(),4);
+        assertEquals(a.getRange(0,0).getValue(),1);
+    }
+
+    @Test
+    public void testAppendColumns() throws Exception {
+        Sheet a = new Sheet("A");
+        a.getDataRange().setValue(1);
+        a.appendColumns(3);
+
+        assertEquals(a.getMaxColumns(),4);
+        assertEquals(a.getRange(0,0).getValue(),1);
+    }
 }

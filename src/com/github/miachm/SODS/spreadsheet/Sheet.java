@@ -21,6 +21,14 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         insertRowsAfter(getMaxRows()-1,howmany);
     }
 
+    public void appendColumn(){
+        appendColumns(1);
+    }
+
+    public void appendColumns(int howmany){
+        insertColumnsAfter(getMaxColumns()-1,howmany);
+    }
+
     public void clear() {
         getDataRange().clear();
     }
