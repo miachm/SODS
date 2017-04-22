@@ -13,6 +13,14 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         cells.get(0).add(new Cell());
     }
 
+    public void appendRow(){
+        appendRows(1);
+    }
+
+    public void appendRows(int howmany){
+        insertRowsAfter(getMaxRows()-1,howmany);
+    }
+
     public void clear() {
         getDataRange().clear();
     }
@@ -109,7 +117,6 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
             for (int j = 0;j < getMaxColumns();j++)
                 row.add(new Cell());
             cells.add(rowIndex,row);
-
         }
     }
 

@@ -394,4 +394,25 @@ public class SheetTest {
         assertTrue(b.compareTo(a) > 0);
     }
 
+    @Test
+    public void testAppendRow() throws Exception {
+        Sheet a = new Sheet("A");
+        a.getDataRange().setValue(1);
+        a.appendRow();
+        a.appendRow();
+        a.appendRow();
+
+        assertEquals(a.getMaxRows(),4);
+        assertEquals(a.getRange(0,0).getValue(),1);
+    }
+
+    @Test
+    public void testAppendRows() throws Exception {
+        Sheet a = new Sheet("A");
+        a.getDataRange().setValue(1);
+        a.appendRows(3);
+
+        assertEquals(a.getMaxRows(),4);
+        assertEquals(a.getRange(0,0).getValue(),1);
+    }
 }
