@@ -67,12 +67,12 @@ public class SpreadSheet implements Cloneable {
         sheets.remove(pos);
     }
 
-    public void deleteSheet(String name){
-        sheets.removeIf((sheet) -> sheet.getName().equals(name));
+    public boolean deleteSheet(String name){
+        return sheets.removeIf((sheet) -> sheet.getName().equals(name));
     }
 
-    public void deleteSheet(Sheet sheet){
-        deleteSheet(sheet.getName());
+    public boolean deleteSheet(Sheet sheet){
+        return deleteSheet(sheet.getName());
     }
 
     public List<Sheet> getSheets()
