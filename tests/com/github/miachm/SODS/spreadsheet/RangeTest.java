@@ -204,7 +204,12 @@ public class RangeTest {
 
     @Test
     public void testGetNumValues() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRows(2);
+        sheet.appendColumn();
 
+        Range range = sheet.getDataRange();
+        assertEquals(range.getNumValues(),6);
     }
 
     @Test
