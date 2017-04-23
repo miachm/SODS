@@ -1,6 +1,7 @@
 package com.github.miachm.SODS.spreadsheet;
 
 import com.github.miachm.SODS.input.OdsReader;
+import com.github.miachm.SODS.input.OdsWritter;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -88,12 +89,12 @@ public class SpreadSheet implements Cloneable {
         sheets.set(pos,sheet);
     }
 
-    public void save(File out) throws FileNotFoundException {
+    public void save(File out) throws IOException {
         save(new FileOutputStream(out));
     }
 
-    public void save(OutputStream out){
-        // TODO
+    public void save(OutputStream out) throws IOException {
+        OdsWritter.save(out,this);
     }
 
     public void sortSheets(){
