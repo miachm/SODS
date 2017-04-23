@@ -68,7 +68,16 @@ public class RangeTest {
 
     @Test
     public void testGetColumn() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRows(10);
+        sheet.appendColumns(10);
 
+        for (int i = 0;i < sheet.getMaxRows()/2;i++) {
+            for (int j = 0; j < sheet.getMaxColumns()/2; j++) {
+                Range range = sheet.getRange(i,j,2,2);
+                assertEquals(range.getColumn(),j);
+            }
+        }
     }
 
     @Test
