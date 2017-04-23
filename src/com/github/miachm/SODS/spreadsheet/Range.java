@@ -54,11 +54,11 @@ public class Range {
     }
 
     public int getLastColumn(){
-        return column_init + getNumColumns();
+        return column_init + getNumColumns()-1;
     }
 
     public int getLastRow(){
-        return row_init + getNumRows();
+        return row_init + getNumRows()-1;
     }
 
     public int getNumColumns(){
