@@ -172,7 +172,17 @@ public class RangeTest {
 
     @Test
     public void testGetValue() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
 
+        Range range = sheet.getDataRange();
+        range.setValues(1,2,3,4);
+
+        assertEquals(range.getValue(),1);
+
+        range = sheet.getRange(1,1);
+        assertEquals(range.getValue(),4);
     }
 
     @Test
