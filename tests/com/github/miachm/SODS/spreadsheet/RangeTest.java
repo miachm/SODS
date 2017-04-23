@@ -187,7 +187,19 @@ public class RangeTest {
 
     @Test
     public void testGetValues() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
 
+        Range range = sheet.getDataRange();
+        range.setValues(1,2,3,4);
+
+        Object[][] arr = range.getValues();
+
+        assertEquals(arr[0][0],1);
+        assertEquals(arr[0][1],2);
+        assertEquals(arr[1][0],3);
+        assertEquals(arr[1][1],4);
     }
 
     @Test
