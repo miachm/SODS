@@ -51,7 +51,19 @@ public class RangeTest {
 
     @Test
     public void testGetCell() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.insertColumnsAfter(0,2);
+        sheet.insertRowAfter(0);
 
+        Range range = sheet.getDataRange();
+        range.setValues(1,2,3,4,5,6);
+
+        assertEquals(sheet.getCell(0,0).getValue(),1);
+        assertEquals(sheet.getCell(0,1).getValue(),2);
+        assertEquals(sheet.getCell(0,2).getValue(),3);
+        assertEquals(sheet.getCell(1,0).getValue(),4);
+        assertEquals(sheet.getCell(1,1).getValue(),5);
+        assertEquals(sheet.getCell(1,2).getValue(),6);
     }
 
     @Test
