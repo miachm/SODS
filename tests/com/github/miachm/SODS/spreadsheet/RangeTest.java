@@ -4,6 +4,7 @@ import org.testng.annotations.Test;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.fail;
 
 public class RangeTest {
     @Test
@@ -82,17 +83,17 @@ public class RangeTest {
 
     @Test
     public void testGetFormula() throws Exception {
-
+        fail("Not implemented");
     }
 
     @Test
     public void testGetFormulas() throws Exception {
-
+        fail("Not implemented");
     }
 
     @Test
     public void testGetLastColumn() throws Exception {
-
+        
     }
 
     @Test
