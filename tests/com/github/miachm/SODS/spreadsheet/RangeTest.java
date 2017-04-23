@@ -24,9 +24,9 @@ public class RangeTest {
 
         Object[][] values = range.getValues();
 
-        for (int i = 0;i < values.length;i++)
-            for (int j = 0;j < values[i].length;j++)
-                assertNull(values[i][j]);
+        for (Object[] row : values)
+            for (Object value : row)
+                assertNull(value);
     }
 
     @Test
