@@ -163,7 +163,11 @@ public class RangeTest {
 
     @Test
     public void testGetSheet() throws Exception {
+        Sheet sheet = new Sheet("A");
+        Range range = sheet.getDataRange();
+        Sheet parent = range.getSheet();
 
+        assertEquals(sheet,parent);
     }
 
     @Test
