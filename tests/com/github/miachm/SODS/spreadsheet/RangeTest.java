@@ -245,4 +245,31 @@ public class RangeTest {
         assertEquals(arr[1][0],3);
         assertEquals(arr[1][1],4);
     }
+
+    @Test
+    public void testSetValuesMat() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumns(2);
+
+        Range range = sheet.getDataRange();
+        Object[][] arr = new Object[2][3];
+        arr[0][0] = 1;
+        arr[0][1] = 2;
+        arr[0][2] = 3;
+        arr[1][0] = 4;
+        arr[1][1] = 5;
+        arr[1][2] = 6;
+
+        range.setValues(arr);
+
+        arr = range.getValues();
+
+        assertEquals(arr[0][0],1);
+        assertEquals(arr[0][1],2);
+        assertEquals(arr[0][2],3);
+        assertEquals(arr[1][0],4);
+        assertEquals(arr[1][1],5);
+        assertEquals(arr[1][2],6);
+    }
 }
