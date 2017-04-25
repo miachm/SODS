@@ -2,11 +2,12 @@ package com.github.miachm.SODS.spreadsheet;
 
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.*;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
 
 public class SpreadSheetTest {
 
@@ -181,12 +182,15 @@ public class SpreadSheetTest {
 
     @Test
     public void testSave() throws Exception {
-        fail("Not implemented");
-    }
+        SpreadSheet spread = generateASpreadsheet();
 
-    @Test
-    public void testSave1() throws Exception {
-        fail("Not implemented");
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        spread.save(out);
+
+        byte buff[] = out.toByteArray();
+        SpreadSheet loaded = new SpreadSheet(new ByteArrayInputStream(buff));
+
+        assertEquals(spread,loaded);
     }
 
     @Test
