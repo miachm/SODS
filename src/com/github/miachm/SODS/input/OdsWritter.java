@@ -89,5 +89,47 @@ public class OdsWritter {
     }
 
     private void writeSpreadsheet() {
+        Document dom;
+        Element e = null;
+
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            dom = db.newDocument();
+            Element rootEle = dom.createElementNS("office","document-content");
+            rootEle.setAttribute("version","1.2");
+            e = dom.createElement("body");
+
+            Element spreadsheet = dom.createElement("spreadsheet");
+            Element table = dom.createElement("table");
+
+            spreadsheet.appendChild(table);
+            e.appendChild(spreadsheet);
+            rootEle.appendChild(e);
+
+            dom.appendChild(rootEle);
+
+            try {
+                Transformer tr = TransformerFactory.newInstance().newTransformer();
+                tr.setOutputProperty(OutputKeys.INDENT, "yes");
+                tr.setOutputProperty(OutputKeys.METHOD, "xml");
+                tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+                tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+                ByteArrayOutputStream o = new ByteArrayOutputStream();
+                tr.transform(new DOMSource(dom),
+                        new StreamResult(o));
+
+                o.close();
+                out.addEntry(o.toByteArray(),"./content.xml");
+
+            } catch (TransformerException te) {
+                System.err.println(te.getMessage());
+            } catch (IOException ioe) {
+                System.err.println(ioe.getMessage());
+            }
+        } catch (ParserConfigurationException pce) {
+            System.err.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
+        }
     }
 }
