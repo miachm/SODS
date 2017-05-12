@@ -50,7 +50,7 @@ public class OdsWritter {
             Element rootEle = dom.createElementNS("manifest","manifest");
             rootEle.setAttribute("version","1.2");
 
-            e = dom.createElement("file-entry");
+            e = dom.createElementNS("manifest","file-entry");
             e.setAttribute("full-path","/");
             e.setAttribute("version","1.2");
             e.setAttribute("media-type","application/vnd.oasis.opendocument.spreadsheet");
