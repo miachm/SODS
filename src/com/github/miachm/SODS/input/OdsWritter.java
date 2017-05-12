@@ -25,6 +25,8 @@ public class OdsWritter {
     private Compressor out;
     private DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
+    private final String MIMETYPE= "application/vnd.oasis.opendocument.spreadsheet";
+
     private OdsWritter(OutputStream o, SpreadSheet spread) throws IOException {
         this.spread = spread;
         this.out = new Compressor(o);
@@ -37,6 +39,7 @@ public class OdsWritter {
 
     private void save() throws IOException {
         writeManifest();
+        writeMymeType();
         writeSpreadsheet();
         out.close();
     }
@@ -50,12 +53,13 @@ public class OdsWritter {
             dom = db.newDocument();
 
             Element rootEle = dom.createElementNS("manifest","manifest");
-            rootEle.setAttribute("version","1.2");
+            rootEle.setAttributeNS("manifest","version","1.2");
+            rootEle.setAttributeNS("xmlns","manifest","urn:oasis:names:tc:opendocument:xmlns:manifest:1.0");
 
             e = dom.createElementNS("manifest","file-entry");
-            e.setAttribute("full-path","/");
-            e.setAttribute("version","1.2");
-            e.setAttribute("media-type","application/vnd.oasis.opendocument.spreadsheet");
+            e.setAttributeNS("manifest","full-path","/");
+            e.setAttributeNS("manifest","version","1.2");
+            e.setAttributeNS("manifest","media-type",MIMETYPE);
             rootEle.appendChild(e);
 
             dom.appendChild(rootEle);
@@ -82,6 +86,10 @@ public class OdsWritter {
         } catch (ParserConfigurationException pce) {
             System.err.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
         }
+    }
+
+    private void writeMymeType() throws IOException {
+        out.addEntry(MIMETYPE.getBytes(),"mimetype");
     }
 
     private void writeSpreadsheet() {

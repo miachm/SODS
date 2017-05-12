@@ -19,7 +19,7 @@ import java.util.Set;
 
 public class OdsReader {
     private static final String CORRECT_MIMETYPE = "application/vnd.oasis.opendocument.spreadsheet";
-    private static final String MANIFEST_PATH = "META-INF/manifest.xml";
+    private static final String MANIFEST_PATH = "./META-INF/manifest.xml";
     private String main_path;
     private SpreadSheet spread;
     private Map<String,byte[]> files;
