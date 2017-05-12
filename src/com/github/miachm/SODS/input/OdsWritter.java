@@ -1,5 +1,7 @@
 package com.github.miachm.SODS.input;
 
+import com.github.miachm.SODS.spreadsheet.Range;
+import com.github.miachm.SODS.spreadsheet.Sheet;
 import com.github.miachm.SODS.spreadsheet.SpreadSheet;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -94,13 +96,37 @@ public class OdsWritter {
             e = dom.createElementNS("office","body");
 
             Element spreadsheet = dom.createElementNS("office","spreadsheet");
-            Element table = dom.createElementNS("office","table");
-
-            spreadsheet.appendChild(table);
             e.appendChild(spreadsheet);
             rootEle.appendChild(e);
-
             dom.appendChild(rootEle);
+
+            for (Sheet sheet : spread.getSheets()) {
+                Element table = dom.createElementNS("table", "table");
+                table.setAttributeNS("table","name",sheet.getName());
+                for (int i = 0;i < sheet.getMaxColumns();i++){
+                    Element column = dom.createElementNS("table", "column");
+                    table.appendChild(column);
+                }
+                for (int i = 0;i < sheet.getMaxRows();i++){
+                    Element row = dom.createElementNS("table", "row");
+
+                    Range r = sheet.getRange(i,0,1,sheet.getMaxColumns());
+
+                    for (int j = 0;j < sheet.getMaxColumns();j++) {
+                        Object v = r.getCell(0,j).getValue();
+                        Element cell = dom.createElementNS("table", "table-cell");
+                        cell.setAttributeNS("calcext","value-type","string"); // TODO change to correct type
+
+                        Element value = dom.createElementNS("text","p");
+                        value.setTextContent(""+v);
+                        cell.appendChild(value);
+                        row.appendChild(cell);
+                    }
+
+                    table.appendChild(row);
+                }
+                spreadsheet.appendChild(table);
+            }
 
             try {
                 Transformer tr = TransformerFactory.newInstance().newTransformer();
