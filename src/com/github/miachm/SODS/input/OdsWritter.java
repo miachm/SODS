@@ -89,12 +89,12 @@ public class OdsWritter {
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();
             dom = db.newDocument();
-            Element rootEle = dom.createElement("manifest:manifest");
+            Element rootEle = dom.createElementNS("office","document-content");
             rootEle.setAttribute("version","1.2");
-            e = dom.createElement("body");
+            e = dom.createElementNS("office","body");
 
-            Element spreadsheet = dom.createElement("spreadsheet");
-            Element table = dom.createElement("table");
+            Element spreadsheet = dom.createElementNS("office","spreadsheet");
+            Element table = dom.createElementNS("office","table");
 
             spreadsheet.appendChild(table);
             e.appendChild(spreadsheet);
