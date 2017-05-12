@@ -21,10 +21,12 @@ public class OdsWritter {
 
     private SpreadSheet spread;
     private Compressor out;
+    private DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
     private OdsWritter(OutputStream o, SpreadSheet spread) throws IOException {
         this.spread = spread;
         this.out = new Compressor(o);
+        dbf.setNamespaceAware(true);
     }
 
     public static void save(OutputStream out,SpreadSheet spread) throws IOException {
@@ -41,20 +43,13 @@ public class OdsWritter {
         Document dom;
         Element e = null;
 
-        // instance of a DocumentBuilderFactory
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         try {
-            // use factory to get an instance of document builder
             DocumentBuilder db = dbf.newDocumentBuilder();
-            // create instance of DOM
             dom = db.newDocument();
-
-            // create the root element
 
             Element rootEle = dom.createElementNS("manifest","manifest");
             rootEle.setAttribute("version","1.2");
 
-            // create data elements and place them under root
             e = dom.createElement("file-entry");
             e.setAttribute("full-path","/");
             e.setAttribute("version","1.2");
@@ -71,7 +66,6 @@ public class OdsWritter {
                 tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 
                 ByteArrayOutputStream o = new ByteArrayOutputStream();
-                // send DOM to file
                 tr.transform(new DOMSource(dom),
                         new StreamResult(o));
 
@@ -92,11 +86,10 @@ public class OdsWritter {
         Document dom;
         Element e = null;
 
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();
             dom = db.newDocument();
-            Element rootEle = dom.createElementNS("office","document-content");
+            Element rootEle = dom.createElement("manifest:manifest");
             rootEle.setAttribute("version","1.2");
             e = dom.createElement("body");
 
