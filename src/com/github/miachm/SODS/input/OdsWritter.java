@@ -77,7 +77,7 @@ public class OdsWritter {
                         new StreamResult(o));
 
                 o.close();
-                out.addEntry(o.toByteArray(),"./META-INF/manifest.xml");
+                out.addEntry(o.toByteArray(),"META-INF/manifest.xml");
 
             } catch (TransformerException te) {
                 System.err.println(te.getMessage());
@@ -159,7 +159,7 @@ public class OdsWritter {
                         new StreamResult(o));
 
                 o.close();
-                out.addEntry(o.toByteArray(),"./content.xml");
+                out.addEntry(o.toByteArray(),"content.xml");
 
             } catch (TransformerException te) {
                 System.err.println(te.getMessage());
