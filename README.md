@@ -14,11 +14,11 @@ I needed to generate ODS files in Java. I looked for libraries, but they are:
 So, i decided create my own library from scratch. Everything is possible!
 
 # What is the current state?
-It's under development. Right now you can:
+It's still under development. Right now you can:
 
 - Load the cell's values from an ODS file.
 - Manipulate these values and print them.
-- Save them back as ODS file.
+- Save them back in an ODS file.
 
 This is an example of use:
 
