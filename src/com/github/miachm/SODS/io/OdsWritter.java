@@ -1,4 +1,4 @@
-package com.github.miachm.SODS.input;
+package com.github.miachm.SODS.io;
 
 import com.github.miachm.SODS.spreadsheet.Range;
 import com.github.miachm.SODS.spreadsheet.Sheet;

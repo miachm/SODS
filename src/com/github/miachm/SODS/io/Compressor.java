@@ -1,4 +1,4 @@
-package com.github.miachm.SODS.input;
+package com.github.miachm.SODS.io;
 
 import java.io.Closeable;
 import java.io.IOException;

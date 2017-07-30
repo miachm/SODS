@@ -1,4 +1,4 @@
-package com.github.miachm.SODS.input;
+package com.github.miachm.SODS.io;
 
 import com.github.miachm.SODS.exceptions.NotAnOds;
 import com.github.miachm.SODS.exceptions.OperationNotSupported;
