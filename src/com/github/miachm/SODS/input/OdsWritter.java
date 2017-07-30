@@ -100,7 +100,13 @@ public class OdsWritter {
             DocumentBuilder db = dbf.newDocumentBuilder();
             dom = db.newDocument();
             Element rootEle = dom.createElementNS("office","document-content");
-            rootEle.setAttribute("version","1.2");
+            rootEle.setAttributeNS("office","version","1.2");
+            // xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+            //xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+            //xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0"
+            rootEle.setAttributeNS("xmlns","office","urn:oasis:names:tc:opendocument:xmlns:office:1.0");
+            rootEle.setAttributeNS("xmlns","text","urn:oasis:names:tc:opendocument:xmlns:text:1.0");
+            rootEle.setAttributeNS("xmlns","table","urn:oasis:names:tc:opendocument:xmlns:table:1.0");
             e = dom.createElementNS("office","body");
 
             Element spreadsheet = dom.createElementNS("office","spreadsheet");
