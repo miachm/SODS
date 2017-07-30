@@ -72,7 +72,6 @@ public class OdsReader {
                 throw new NotAnOds("The signature of the manifest is not valid. Is it an ODS file?");
             }
 
-
             NodeList files = doc.getElementsByTagName("manifest:file-entry");
             iterateFilesEntryManifest(files);
 

@@ -52,14 +52,15 @@ public class OdsWritter {
             DocumentBuilder db = dbf.newDocumentBuilder();
             dom = db.newDocument();
 
-            Element rootEle = dom.createElementNS("manifest","manifest");
-            rootEle.setAttributeNS("manifest","version","1.2");
-            rootEle.setAttributeNS("xmlns","manifest","urn:oasis:names:tc:opendocument:xmlns:manifest:1.0");
+            final String namespace = "urn:oasis:names:tc:opendocument:xmlns:manifest:1.0";
 
-            e = dom.createElementNS("manifest","file-entry");
-            e.setAttributeNS("manifest","full-path","/");
-            e.setAttributeNS("manifest","version","1.2");
-            e.setAttributeNS("manifest","media-type",MIMETYPE);
+            Element rootEle = dom.createElementNS(namespace, "manifest:manifest");
+            rootEle.setAttributeNS(namespace, "manifest:version","1.2");
+
+            e = dom.createElementNS(namespace, "manifest:file-entry");
+            e.setAttributeNS(namespace, "manifest:full-path","/");
+            e.setAttributeNS(namespace, "manifest:version","1.2");
+            e.setAttributeNS(namespace, "manifest:media-type",MIMETYPE);
             rootEle.appendChild(e);
 
             dom.appendChild(rootEle);
@@ -99,39 +100,43 @@ public class OdsWritter {
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();
             dom = db.newDocument();
-            Element rootEle = dom.createElementNS("office","document-content");
-            rootEle.setAttributeNS("office","version","1.2");
-            // xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
-            //xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
-            //xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0"
-            rootEle.setAttributeNS("xmlns","office","urn:oasis:names:tc:opendocument:xmlns:office:1.0");
-            rootEle.setAttributeNS("xmlns","text","urn:oasis:names:tc:opendocument:xmlns:text:1.0");
-            rootEle.setAttributeNS("xmlns","table","urn:oasis:names:tc:opendocument:xmlns:table:1.0");
-            e = dom.createElementNS("office","body");
 
-            Element spreadsheet = dom.createElementNS("office","spreadsheet");
+            final String office = "urn:oasis:names:tc:opendocument:xmlns:office:1.0";
+            final String table_namespace = "urn:oasis:names:tc:opendocument:xmlns:table:1.0";
+            final String text_namespace = "urn:oasis:names:tc:opendocument:xmlns:text:1.0";
+            Element rootEle = dom.createElementNS(office,"office:document-content");
+            rootEle.setAttributeNS(office,"office:version","1.2");
+
+            rootEle.setAttributeNS("http://www.w3.org/2000/xmlns/","xmlns:table",table_namespace);
+            rootEle.setAttributeNS("http://www.w3.org/2000/xmlns/","xmlns:text",text_namespace);
+
+            e = dom.createElement("office:body");
+
+            Element spreadsheet = dom.createElement("office:spreadsheet");
+
+            e = dom.createElement("office:body");
             e.appendChild(spreadsheet);
             rootEle.appendChild(e);
             dom.appendChild(rootEle);
 
             for (Sheet sheet : spread.getSheets()) {
-                Element table = dom.createElementNS("table", "table");
-                table.setAttributeNS("table","name",sheet.getName());
+                Element table = dom.createElement("table:table");
+                table.setAttribute("table:name",sheet.getName());
                 for (int i = 0;i < sheet.getMaxColumns();i++){
-                    Element column = dom.createElementNS("table", "column");
+                    Element column = dom.createElementNS(table_namespace, "table:table-column");
                     table.appendChild(column);
                 }
                 for (int i = 0;i < sheet.getMaxRows();i++){
-                    Element row = dom.createElementNS("table", "row");
+                    Element row = dom.createElement("table:table-row");
 
                     Range r = sheet.getRange(i,0,1,sheet.getMaxColumns());
 
                     for (int j = 0;j < sheet.getMaxColumns();j++) {
                         Object v = r.getCell(0,j).getValue();
-                        Element cell = dom.createElementNS("table", "table-cell");
-                        cell.setAttributeNS("calcext","value-type","string"); // TODO change to correct type
+                        Element cell = dom.createElement("table:table-cell");
+                        cell.setAttribute("office:value-type","string"); // TODO change to correct type
 
-                        Element value = dom.createElementNS("text","p");
+                         Element value = dom.createElement("text:p");
                         value.setTextContent(""+v);
                         cell.appendChild(value);
                         row.appendChild(cell);
