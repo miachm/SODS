@@ -4,6 +4,8 @@ A simple library for process ODS files in Java.
 # What is an ODS?
 ODS means Open Document Spreadsheet. It's used in applications like Libreoffice or Open Office.
 
+![Libreoffice Calc](http://i.imgur.com/Mm779of.jpg)
+
 # What is the motivation of this?
 I needed to generate ODS files in Java. I looked for libraries, but they are:
 
