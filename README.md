@@ -1,5 +1,5 @@
 # SODS
-A simple library for and process ODS files in Java.
+A simple library for process ODS files in Java.
 
 # What is an ODS?
 ODS means Open Document Spreadsheet. It's used in applications like Libreoffice or Open Office.
