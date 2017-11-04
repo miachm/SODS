@@ -85,6 +85,19 @@ public class SpreadSheet implements Cloneable {
         return sheets.size();
     }
 
+    public Sheet getSheet(String name)
+    {
+        for (Sheet sheet : sheets)
+            if (sheet.getName().equals(name))
+                return sheet;
+
+        return null;
+    }
+
+    public Sheet getSheet(int index) {
+        return sheets.get(index);
+    }
+
     public void setSheet(Sheet sheet,int pos){
         sheets.set(pos,sheet);
     }

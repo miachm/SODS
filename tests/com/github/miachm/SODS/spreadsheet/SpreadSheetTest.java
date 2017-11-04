@@ -6,8 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.*;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.*;
 
 public class SpreadSheetTest {
 
@@ -165,6 +164,37 @@ public class SpreadSheetTest {
     public void testGetNumSheets() throws Exception {
         SpreadSheet spread = generateASpreadsheet();
         assertEquals(spread.getNumSheets(),3);
+    }
+
+    @Test
+    public void  testGetSheetString() throws Exception {
+        SpreadSheet spread = generateASpreadsheet();
+        Sheet sheet = spread.getSheet("B");
+        assertNotNull(sheet);
+        assertEquals(sheet.getName(),"B");
+        sheet = spread.getSheet("G");
+        assertNull(sheet);
+    }
+
+    @Test
+    public void  testGetSheetInt() throws Exception {
+        SpreadSheet spread = generateASpreadsheet();
+        Sheet sheet = spread.getSheet(1);
+        assertNotNull(sheet);
+        assertEquals(sheet.getName(),"B");
+
+        try {
+            sheet = spread.getSheet(5);
+            fail();
+        }
+        catch (IndexOutOfBoundsException e)
+        {
+            try {
+                sheet = spread.getSheet(-1);
+                fail();
+            }
+            catch (IndexOutOfBoundsException e2) {}
+        }
     }
 
     @Test
