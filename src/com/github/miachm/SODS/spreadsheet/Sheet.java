@@ -10,7 +10,10 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     public Sheet(String name) {
         this.name = name;
         cells.add(new ArrayList<>());
-        cells.get(0).add(new Cell());
+
+        Cell cell = new Cell();
+        cell.setValue("");
+        cells.get(0).add(cell);
     }
 
     public void appendRow(){
