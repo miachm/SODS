@@ -4,6 +4,7 @@ import org.testng.annotations.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.*;
 
 import static org.testng.AssertJUnit.*;
@@ -198,6 +199,22 @@ public class SpreadSheetTest {
     }
 
     @Test
+    public void testLoad() throws Exception {
+        SpreadSheet spread = new SpreadSheet(new File("CAS.ods"));
+        assertEquals(spread.getNumSheets(),2);
+        Object[][] arr = spread.getSheet(0).getDataRange().getValues();
+        assertEquals(arr[0][0],"A");
+        assertEquals(arr[1][0],"C");
+        assertEquals(arr[0][1],"B");
+        assertEquals(arr[1][1],"D");
+        arr = spread.getSheet(1).getDataRange().getValues();
+        assertEquals(arr[0][0],"1");
+        assertEquals(arr[1][0],"3");
+        assertEquals(arr[0][1],"2");
+        assertEquals(arr[1][1],"4");
+    }
+
+    @Test
     public void testSetSheet() throws Exception {
         SpreadSheet spread = generateASpreadsheet();
         spread.setSheet(new Sheet("E"),1);
@@ -213,9 +230,13 @@ public class SpreadSheetTest {
     @Test
     public void testSave() throws Exception {
         SpreadSheet spread = generateASpreadsheet();
+        spread.getSheet(0).getDataRange().setValue("1");
+        spread.getSheet(1).getDataRange().setValue("1");
+        spread.getSheet(2).getDataRange().setValue("1");
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         spread.save(out);
+        spread.save(new File("example.ods"));
 
         byte buff[] = out.toByteArray();
         SpreadSheet loaded = new SpreadSheet(new ByteArrayInputStream(buff));

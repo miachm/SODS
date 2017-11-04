@@ -27,14 +27,11 @@ class Cell {
 
         Cell cell = (Cell) o;
 
-        if (value != null ? !value.equals(cell.value) : cell.value != null) return false;
-        return formula != null ? formula.equals(cell.formula) : cell.formula == null;
+        return value != null ? value.equals(cell.value) : cell.value == null;
     }
 
     @Override
     public int hashCode() {
-        int result = value != null ? value.hashCode() : 0;
-        result = 31 * result + (formula != null ? formula.hashCode() : 0);
-        return result;
+        return value != null ? value.hashCode() : 0;
     }
 }

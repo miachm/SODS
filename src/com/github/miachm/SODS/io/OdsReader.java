@@ -19,7 +19,7 @@ import java.util.Set;
 
 public class OdsReader {
     private static final String CORRECT_MIMETYPE = "application/vnd.oasis.opendocument.spreadsheet";
-    private static final String MANIFEST_PATH = "./META-INF/manifest.xml";
+    private static final String MANIFEST_PATH = "META-INF/manifest.xml";
     private String main_path;
     private SpreadSheet spread;
     private Map<String,byte[]> files;
@@ -169,6 +169,8 @@ public class OdsReader {
         NamedNodeMap atributes = node.getAttributes();
         String name = atributes.getNamedItem("table:name").getNodeValue();
         Sheet sheet = new Sheet(name);
+        sheet.deleteRow(0);
+        sheet.deleteColumn(0);
 
         NodeList new_list = node.getChildNodes();
         for (int i = 0;i < new_list.getLength();i++){
@@ -181,8 +183,6 @@ public class OdsReader {
                 processCells(n.getChildNodes(),sheet);
             }
         }
-        sheet.deleteRow(0);
-        sheet.deleteColumn(sheet.getMaxColumns()-1);
         spread.appendSheet(sheet);
     }
 
@@ -195,13 +195,20 @@ public class OdsReader {
     }
 
     private void processCells(NodeList childNodes,Sheet sheet) {
+        int column = 0;
         for (int i = 0;i < childNodes.getLength();i++){
             Node n = childNodes.item(i);
             if (n.getNodeName().equals("table:table-cell")){
-                Node cell = n.getFirstChild();
-                // TODO : Iterate over the children
-                Range range = sheet.getRange(sheet.getMaxRows()-1,i);
-                range.setValue(cell.getFirstChild().getNodeValue());
+                NodeList cells = n.getChildNodes();
+                for (int j = 0;j < cells.getLength();j++) {
+                    Node cell = cells.item(j);
+                    if (cell.getNodeName().equals("text:p")) {
+                        // TODO : Iterate over the children
+                        Range range = sheet.getRange(sheet.getMaxRows() - 1, column);
+                        range.setValue(cell.getTextContent());
+                    }
+                }
+                column++;
             }
         }
     }

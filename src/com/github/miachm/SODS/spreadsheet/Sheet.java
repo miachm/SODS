@@ -6,6 +6,7 @@ import java.util.List;
 public class Sheet implements Cloneable,Comparable<Sheet> {
     private List<List<Cell>> cells = new ArrayList<List<Cell>>();
     private String name;
+    private int numColumns = 1;
 
     public Sheet(String name) {
         this.name = name;
@@ -52,6 +53,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
                row.remove(column);
            }
         }
+        numColumns -= howmany;
     }
 
     public void deleteRow(int row) {
@@ -68,7 +70,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     public int getMaxColumns() {
-        return cells.isEmpty() ? 0 : cells.get(0).size();
+        return cells.isEmpty() ? numColumns : cells.get(0).size();
     }
 
     public int getMaxRows() {
@@ -113,6 +115,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
                 row.add(columnIndex,new Cell());
             }
         }
+        numColumns += howmany;
     }
     public void insertRowAfter(int afterPosition) {
         insertRowsAfter(afterPosition, 1);
@@ -125,7 +128,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     public void insertRowsBefore(int rowIndex, int howmany) {
         for (int i = 0;i < howmany;i++){
             ArrayList<Cell> row = new ArrayList<>();
-            for (int j = 0;j < getMaxColumns();j++)
+            for (int j = 0;j < numColumns;j++)
                 row.add(new Cell());
             cells.add(rowIndex,row);
         }
