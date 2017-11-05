@@ -139,7 +139,8 @@ public class OdsWritter {
                     for (int j = 0;j < sheet.getMaxColumns();j++) {
                         Object v = r.getCell(0,j).getValue();
                         Element cell = dom.createElement("table:table-cell");
-                        cell.setAttribute("office:value-type","string"); // TODO change to correct type
+
+                        cell.setAttribute("office:value-type",getValueType(v)); // TODO change to correct type
 
                          Element value = dom.createElement("text:p");
                         value.setTextContent(""+v);
@@ -173,6 +174,18 @@ public class OdsWritter {
             }
         } catch (ParserConfigurationException pce) {
             System.err.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
+        }
+    }
+
+    private String getValueType(Object v) {
+        if (v instanceof Integer) {
+            return "integer";
+        }
+        else if (v instanceof Float || v instanceof Double) {
+            return "float";
+        }
+        else {
+            return "string";
         }
     }
 }

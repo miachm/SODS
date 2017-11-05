@@ -199,17 +199,41 @@ public class OdsReader {
         for (int i = 0;i < childNodes.getLength();i++){
             Node n = childNodes.item(i);
             if (n.getNodeName().equals("table:table-cell")){
+                String valueType = getValueType(n);
+
                 NodeList cells = n.getChildNodes();
                 for (int j = 0;j < cells.getLength();j++) {
                     Node cell = cells.item(j);
                     if (cell.getNodeName().equals("text:p")) {
                         // TODO : Iterate over the children
                         Range range = sheet.getRange(sheet.getMaxRows() - 1, column);
-                        range.setValue(cell.getTextContent());
+                        range.setValue(getValue(cell.getTextContent(),valueType));
                     }
                 }
                 column++;
             }
+        }
+    }
+
+    private String getValueType(Node n) {
+        String valueType = "string";
+
+        Node type = n.getAttributes().getNamedItem("office:value-type");
+        if (type !=  null) {
+            valueType = type.getNodeValue();
+        }
+        return valueType;
+    }
+
+    private Object getValue(String value, String valueType) {
+        if (valueType.equals("integer")) {
+            return Integer.parseInt(value);
+        }
+        else if (valueType.equals("float")) {
+            return Double.parseDouble(value);
+        }
+        else {
+            return value;
         }
     }
 
