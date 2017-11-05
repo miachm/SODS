@@ -117,4 +117,11 @@ public class SpreadSheet implements Cloneable {
     public void sortSheets(Comparator<Sheet> comparator){
         sheets.sort(comparator);
     }
+
+    @Override
+    public String toString() {
+        return "SpreadSheet{" +
+                "sheets=" + sheets +
+                '}';
+    }
 }

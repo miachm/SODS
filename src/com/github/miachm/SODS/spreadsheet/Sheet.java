@@ -160,4 +160,12 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     public int compareTo(Sheet o) {
         return name.compareTo(o.getName());
     }
+
+    @Override
+    public String toString() {
+        return "Sheet{" +
+                " name='" + name + '\'' + " ," +
+                "cells=" + getDataRange().toString() +
+                '}';
+    }
 }
