@@ -63,6 +63,11 @@ public class OdsWritter {
             e.setAttributeNS(namespace, "manifest:media-type",MIMETYPE);
             rootEle.appendChild(e);
 
+            e = dom.createElementNS(namespace, "manifest:file-entry");
+            e.setAttributeNS(namespace, "manifest:full-path","content.xml");
+            e.setAttributeNS(namespace, "manifest:media-type","text/xml");
+            rootEle.appendChild(e);
+
             dom.appendChild(rootEle);
 
             try {
