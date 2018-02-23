@@ -4,7 +4,6 @@ import org.testng.annotations.Test;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.fail;
 
 public class RangeTest {
     @Test
@@ -83,12 +82,33 @@ public class RangeTest {
 
     @Test
     public void testGetFormula() throws Exception {
-        fail("Not implemented");
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+
+        final String formula = "=SUM(A1:A2)+A1";
+        final String hardFormula = "=SQRT(A1) * A2";
+
+        Range range = sheet.getDataRange();
+        range.setFormulas(formula,hardFormula);
+
+        assertEquals(range.getFormula(),formula);
+        assertEquals(sheet.getRange(1,0).getFormula(),hardFormula);
     }
 
     @Test
     public void testGetFormulas() throws Exception {
-        fail("Not implemented");
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+
+        final String formula = "=SUM(A1:A2)+A1";
+        final String hardFormula = "=SQRT(A1) * A2";
+
+        Range range = sheet.getDataRange();
+        range.setFormulas(formula,hardFormula);
+
+        String formulas[][] = range.getFormulas();
+        assertEquals(formulas[0][0],formula);
+        assertEquals(formulas[1][0],hardFormula);
     }
 
     @Test
@@ -210,6 +230,59 @@ public class RangeTest {
 
         Range range = sheet.getDataRange();
         assertEquals(range.getNumValues(),6);
+    }
+
+    @Test
+    public void testSetFormula() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+
+        final String formula = "=SUM(A1:A2)+A1";
+
+        Range range = sheet.getDataRange();
+        range.setFormula(formula);
+
+        String formulas[][] = range.getFormulas();
+        assertEquals(formula,formulas[0][0]);
+        assertEquals(formula,formulas[1][0]);
+
+        range = sheet.getRange(1,0);
+        range.setFormula(null);
+        assertEquals(range.getFormula(),null);
+        range.setFormula(formula);
+        assertEquals(range.getFormula(),formula);
+    }
+
+    @Test
+    public void testSetFormulas() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+
+        final String formula = "=SUM(A1:A2)+A1";
+        final String hardFormula = "= A2 - COUNT(A1:A2)";
+
+        Range range = sheet.getDataRange();
+        range.setFormulas(formula,hardFormula);
+
+        String formulas[][] = range.getFormulas();
+        assertEquals(formula,formulas[0][0]);
+        assertEquals(hardFormula,formulas[1][0]);
+    }
+
+    @Test
+    public void testSetFormulasMat() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+
+        final String formula = "=SUM(A1:A2)+A1";
+        final String hardFormula = "= A2 - COUNT(A1:A2)";
+
+        String arr[][] = new String[2][1];
+        arr[0][0] = formula;
+        arr[1][0] = hardFormula;
+
+        Range range = sheet.getDataRange();
+        range.setFormulas(arr);
     }
 
     @Test

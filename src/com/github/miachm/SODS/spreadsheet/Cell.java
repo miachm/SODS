@@ -4,20 +4,45 @@ class Cell {
     private Object value;
     private String formula;
 
-    public void clear(){
+    void clear(){
         value = null;
     }
-
-    public String getFormula() {
+    String getFormula() {
         return formula;
     }
+    String getFormulaFormatOds() { return uncovertFormula(formula);}
 
-    public Object getValue(){
+    Object getValue(){
         return value;
     }
-
-    public void setValue(Object value){
+    void setValue(Object value){
         this.value = value;
+    }
+
+    public void setFormula(String formula) {
+        if (formula != null && formula.startsWith("of:")) {
+            formula = convertFormula(formula);
+        }
+        this.formula = formula;
+    }
+
+    private String convertFormula(String formula) {
+        formula = formula.trim();
+        formula = formula.substring("of:".length());
+
+        StringBuilder result = new StringBuilder();
+        for (int i = 0;i < formula.length();i++) {
+            int character = formula.charAt(i);
+            if (character != '[' && character != ']' && character != '.') {
+                result.append(character);
+            }
+        }
+
+        return result.toString();
+    }
+
+    private String uncovertFormula(String formula) {
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
@@ -27,18 +52,22 @@ class Cell {
 
         Cell cell = (Cell) o;
 
-        return value != null ? value.equals(cell.value) : cell.value == null;
+        if (value != null ? !value.equals(cell.value) : cell.value != null) return false;
+        return formula != null ? formula.equals(cell.formula) : cell.formula == null;
     }
 
     @Override
     public int hashCode() {
-        return value != null ? value.hashCode() : 0;
+        int result = value != null ? value.hashCode() : 0;
+        result = 31 * result + (formula != null ? formula.hashCode() : 0);
+        return result;
     }
 
     @Override
     public String toString() {
         return "Cell{" +
                 "value=" + value +
+                ", formula='" + formula + '\'' +
                 '}';
     }
 }

@@ -45,8 +45,8 @@ public class Range {
         return sheet.getCell(row_init,column_init).getFormula();
     }
 
-    public Object[][] getFormulas(){
-        Object[][] formulas = new Object[getNumRows()][getNumColumns()];
+    public String[][] getFormulas(){
+        String[][] formulas = new String[getNumRows()][getNumColumns()];
 
         iterateRange((cell,row,column) -> formulas[row][column] = cell.getFormula());
 
@@ -137,6 +137,33 @@ public class Range {
             builder.append("\n");
         }
         return builder.toString();
+    }
+
+    public void setFormula(String formula)
+    {
+        iterateRange((cell,row,column) -> cell.setFormula(formula));
+    }
+
+    public void setFormulas(String... formula){
+        if (formula.length != getNumValues())
+            throw new AssertionError("Error in setValues, the number of the arguments doesn't fit ("
+                    + formula.length + " against " + getNumValues() + ")");
+
+        iterateRange((cell,row,column) -> cell.setFormula(formula[row*getNumColumns()+column]));
+    }
+
+    public void setFormulas(String formula[][])
+    {
+        if (formula.length == 0)
+            throw new AssertionError("Error in setValues, the array is empty");
+        if (formula.length != getNumRows())
+            throw new AssertionError("Error in setValues, the number of rows doesn't fit ("
+                    + formula.length + " against " + getNumRows() + ")");
+        if (formula[0].length != getNumColumns())
+            throw new AssertionError("Error in setValues, the number of columns doesn't fit ("
+                    + formula.length + " against " + getNumColumns() + ")");
+
+        iterateRange((cell,row,column) -> cell.setFormula(formula[row][column]));
     }
 
     @Override
