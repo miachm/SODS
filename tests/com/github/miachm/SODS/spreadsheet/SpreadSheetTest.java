@@ -208,10 +208,10 @@ public class SpreadSheetTest {
         assertEquals(arr[0][1],"B");
         assertEquals(arr[1][1],"D");
         arr = spread.getSheet(1).getDataRange().getValues();
-        assertEquals(arr[0][0],"1");
-        assertEquals(arr[1][0],"3");
-        assertEquals(arr[0][1],"2");
-        assertEquals(arr[1][1],"4");
+        assertEquals(arr[0][0],1.0);
+        assertEquals(arr[1][0],3.0);
+        assertEquals(arr[0][1],2.0);
+        assertEquals(arr[1][1],4.0);
     }
 
     @Test
