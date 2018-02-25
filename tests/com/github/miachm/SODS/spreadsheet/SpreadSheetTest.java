@@ -199,7 +199,7 @@ public class SpreadSheetTest {
 
     @Test
     public void testLoad() throws Exception {
-        SpreadSheet spread = new SpreadSheet(new File("CAS.ods"));
+        SpreadSheet spread = new SpreadSheet(new File("resources/CAS.ods"));
         assertEquals(spread.getNumSheets(),2);
         Object[][] arr = spread.getSheet(0).getDataRange().getValues();
         assertEquals(arr[0][0],"A");

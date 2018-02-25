@@ -41,7 +41,7 @@ import java.util.List;
 public class BasicUsage{
     public static void main(String args[]){
         try {
-            SpreadSheet spread = new SpreadSheet(new File("BasicExample.ods"));
+            SpreadSheet spread = new SpreadSheet(new File("resources/BasicExample.ods"));
             System.out.println("Number of sheets: " + spread.getNumSheets());
 
             List<Sheet> sheets = spread.getSheets();
