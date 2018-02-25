@@ -189,18 +189,20 @@ public class OdsReader {
 
     private void processCells(NodeList childNodes,Sheet sheet) {
         int column = 0;
-        for (int i = 0;i < childNodes.getLength();i++){
+        for (int i = 0; i < childNodes.getLength(); i++) {
             Node n = childNodes.item(i);
-            if (n.getNodeName().equals("table:table-cell")){
+            if (n.getNodeName().equals("table:table-cell")) {
+                Range range = sheet.getRange(sheet.getMaxRows() - 1, column);
                 String valueType = getValueType(n);
+                String formula = getFormula(n);
+                range.setFormula(formula);
 
                 NodeList cells = n.getChildNodes();
-                for (int j = 0;j < cells.getLength();j++) {
+                for (int j = 0; j < cells.getLength(); j++) {
                     Node cell = cells.item(j);
                     if (cell.getNodeName().equals("text:p")) {
                         // TODO : Iterate over the children
-                        Range range = sheet.getRange(sheet.getMaxRows() - 1, column);
-                        range.setValue(getValue(cell.getTextContent(),valueType));
+                        range.setValue(getValue(cell.getTextContent(), valueType));
                     }
                 }
                 column++;
@@ -209,13 +211,19 @@ public class OdsReader {
     }
 
     private String getValueType(Node n) {
-        String valueType = "string";
+        return getAtribFromNode(n,"office:value-type","string");
+    }
 
-        Node type = n.getAttributes().getNamedItem("office:value-type");
+    private String getFormula(Node n) {
+        return getAtribFromNode(n,"table:formula",null);
+    }
+
+    private String getAtribFromNode(Node n, String atrib, String defaultValue) {
+        Node type = n.getAttributes().getNamedItem(atrib);
         if (type !=  null) {
-            valueType = type.getNodeValue();
+            defaultValue = type.getNodeValue();
         }
-        return valueType;
+        return defaultValue;
     }
 
     private Object getValue(String value, String valueType) {

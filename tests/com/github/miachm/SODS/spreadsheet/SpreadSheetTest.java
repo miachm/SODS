@@ -61,8 +61,7 @@ public class SpreadSheetTest {
     @Test
     public void testClone() throws Exception {
         SpreadSheet spread = new SpreadSheet();
-        Sheet sheet = new Sheet("A");
-        spread.appendSheet(sheet);
+        spread.appendSheet(new Sheet("A"));
         spread.appendSheet(new Sheet("B"));
         SpreadSheet copy = (SpreadSheet) spread.clone();
         assertEquals(spread,copy);
@@ -207,11 +206,20 @@ public class SpreadSheetTest {
         assertEquals(arr[1][0],"C");
         assertEquals(arr[0][1],"B");
         assertEquals(arr[1][1],"D");
-        arr = spread.getSheet(1).getDataRange().getValues();
+
+        Range range = spread.getSheet(1).getDataRange();
+        arr = range.getValues();
         assertEquals(arr[0][0],1.0);
         assertEquals(arr[1][0],3.0);
         assertEquals(arr[0][1],2.0);
         assertEquals(arr[1][1],4.0);
+
+        String formulas[][] = range.getFormulas();
+        assertEquals(formulas[0][0],null);
+        assertEquals(formulas[1][0],null);
+        assertEquals(formulas[0][1],null);
+        assertEquals(formulas[1][1],null);
+        assertEquals(range.getFormulas()[2][1],"=SUM(A1:A2)+B1+B2");
     }
 
     @Test
@@ -233,6 +241,9 @@ public class SpreadSheetTest {
         spread.getSheet(0).getDataRange().setValue(1);
         spread.getSheet(1).getDataRange().setValue("1");
         spread.getSheet(2).getDataRange().setValue(1.0);
+
+        spread.getSheet(0).appendRow();
+        spread.getSheet(0).getCell(1,0).setFormula("=SUM(A1)");
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         spread.save(out);

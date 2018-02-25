@@ -137,14 +137,23 @@ public class OdsWritter {
                     Range r = sheet.getRange(i,0,1,sheet.getMaxColumns());
 
                     for (int j = 0;j < sheet.getMaxColumns();j++) {
-                        Object v = r.getCell(0,j).getValue();
+                        Range range = r.getCell(0,j);
+                        Object v = range.getValue();
+                        String formula = range.getFormula();
+
                         Element cell = dom.createElement("table:table-cell");
 
-                        cell.setAttribute("office:value-type",getValueType(v)); // TODO change to correct type
+                        if (formula != null) {
+                            cell.setAttribute("table:formula",formula);
+                        }
 
-                         Element value = dom.createElement("text:p");
-                        value.setTextContent(""+v);
-                        cell.appendChild(value);
+                        if (v != null) {
+                            cell.setAttribute("office:value-type", getValueType(v));
+                            Element value = dom.createElement("text:p");
+                            value.setTextContent("" + v);
+                            cell.appendChild(value);
+                        }
+
                         row.appendChild(cell);
                     }
 

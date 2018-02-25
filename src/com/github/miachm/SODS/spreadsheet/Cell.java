@@ -10,7 +10,6 @@ class Cell {
     String getFormula() {
         return formula;
     }
-    String getFormulaFormatOds() { return uncovertFormula(formula);}
 
     Object getValue(){
         return value;
@@ -32,17 +31,13 @@ class Cell {
 
         StringBuilder result = new StringBuilder();
         for (int i = 0;i < formula.length();i++) {
-            int character = formula.charAt(i);
+            char character = formula.charAt(i);
             if (character != '[' && character != ']' && character != '.') {
                 result.append(character);
             }
         }
 
         return result.toString();
-    }
-
-    private String uncovertFormula(String formula) {
-        throw new RuntimeException("Not implemented");
     }
 
     @Override
