@@ -1,4 +1,7 @@
 # SODS
+
+![Travis  build](https://travis-ci.org/miachm/SODS.svg?branch=master)
+
 A simple library for process ODS files in Java.
 
 # What is an ODS?
