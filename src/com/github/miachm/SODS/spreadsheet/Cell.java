@@ -14,7 +14,7 @@ class Cell {
     Object getValue(){
         return value;
     }
-    void setValue(Object value){
+    void setValue(Object value) {
         this.value = value;
     }
 

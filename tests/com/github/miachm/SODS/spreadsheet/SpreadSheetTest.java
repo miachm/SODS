@@ -238,7 +238,7 @@ public class SpreadSheetTest {
     @Test
     public void testSave() throws Exception {
         SpreadSheet spread = generateASpreadsheet();
-        spread.getSheet(0).getDataRange().setValue(1);
+        spread.getSheet(0).getDataRange().setValue(1.0);
         spread.getSheet(1).getDataRange().setValue("1");
         spread.getSheet(2).getDataRange().setValue(1.0);
 

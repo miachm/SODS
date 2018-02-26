@@ -148,9 +148,14 @@ public class OdsWritter {
                         }
 
                         if (v != null) {
-                            cell.setAttribute("office:value-type", getValueType(v));
+                            String valueType = getValueType(v);
+                            cell.setAttribute("office:value-type", valueType);
                             Element value = dom.createElement("text:p");
                             value.setTextContent("" + v);
+
+                            if (!valueType.equals("string")) {
+                                cell.setAttribute("office:value",""+v);
+                            }
                             cell.appendChild(value);
                         }
 
@@ -187,10 +192,7 @@ public class OdsWritter {
     }
 
     private String getValueType(Object v) {
-        if (v instanceof Integer) {
-            return "integer";
-        }
-        else if (v instanceof Float || v instanceof Double) {
+        if (v instanceof Integer || v instanceof Float || v instanceof Double) {
             return "float";
         }
         else {
