@@ -87,6 +87,16 @@ public class Range {
         return values;
     }
 
+    public boolean getFontBold() {
+        return sheet.getCell(row_init,column_init).isBold();
+    }
+
+    public boolean[][] getFontBolds() {
+        boolean[][] arr = new boolean[getNumRows()][getNumColumns()];
+        iterateRange((cell,row,column) -> arr[row][column] = cell.isBold());
+        return arr;
+    }
+
     public int getNumValues(){
         return getNumColumns()*getNumRows();
     }
@@ -114,6 +124,31 @@ public class Range {
                     + o.length + " against " + getNumColumns() + ")");
 
         iterateRange((cell,row,column) -> cell.setValue(o[row][column]));
+    }
+
+    public void setFontBold(boolean bold) {
+        iterateRange((cell,row,column) -> cell.setBold(bold));
+    }
+
+    public void setFontBolds(boolean... bold) {
+        if (bold.length != getNumValues())
+            throw new AssertionError("Error in setFontBold, the number of the arguments doesn't fit ("
+                    + bold.length + " against " + getNumValues() + ")");
+
+        iterateRange((cell,row,column) -> cell.setBold(bold[row*getNumColumns()+column]));
+    }
+
+    public void setFontBolds(boolean[][] bold) {
+        if (bold.length == 0)
+            throw new AssertionError("Error in setFontBold, the array is empty");
+        if (bold.length != getNumRows())
+            throw new AssertionError("Error in setFontBolds, the number of rows doesn't fit ("
+                    + bold.length + " against " + getNumRows() + ")");
+        if (bold[0].length != getNumColumns())
+            throw new AssertionError("Error in setFontBolds, the number of columns doesn't fit ("
+                    + bold.length + " against " + getNumColumns() + ")");
+
+        iterateRange((cell,row,column) -> cell.setBold(bold[row][column]));
     }
 
     private void iterateRange(RangeIterator e){

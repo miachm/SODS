@@ -223,6 +223,36 @@ public class RangeTest {
     }
 
     @Test
+    public void testGetFontBold() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Range range = sheet.getDataRange();
+        range.setFontBolds(true,false,true,true);
+
+        assertEquals(sheet.getRange(0,0).getFontBold(),true);
+        assertEquals(sheet.getRange(0,1).getFontBold(),false);
+    }
+
+    @Test
+    public void testGetFontBolds() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Range range = sheet.getDataRange();
+        range.setFontBolds(true,false,true,true);
+
+        boolean[][] arr = range.getFontBolds();
+
+        assertEquals(arr[0][0],true);
+        assertEquals(arr[0][1],false);
+        assertEquals(arr[1][0],true);
+        assertEquals(arr[1][1],true);
+    }
+
+    @Test
     public void testGetNumValues() throws Exception {
         Sheet sheet = new Sheet("A");
         sheet.appendRows(2);
@@ -283,6 +313,65 @@ public class RangeTest {
 
         Range range = sheet.getDataRange();
         range.setFormulas(arr);
+    }
+
+    @Test
+    public void testSetFontBold() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Range range = sheet.getDataRange();
+        range.setFontBold(true);
+
+        boolean[][] arr = range.getFontBolds();
+
+        assertEquals(arr[0][0],true);
+        assertEquals(arr[0][1],true);
+        assertEquals(arr[1][0],true);
+        assertEquals(arr[1][1],true);
+
+        range = sheet.getRange(1,0);
+        range.setFontBold(false);
+        assertEquals(range.getFontBold(),false);
+    }
+
+    @Test
+    public void testSetFontBolds() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Range range = sheet.getDataRange();
+        range.setFontBolds(false,true,false,true);
+
+        boolean[][] arr = range.getFontBolds();
+
+        assertEquals(arr[0][0],false);
+        assertEquals(arr[0][1],true);
+        assertEquals(arr[1][0],false);
+        assertEquals(arr[1][1],true);
+    }
+
+    @Test
+    public void testSetFontBoldsMat() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        boolean[][] arr = new boolean[2][2];
+        arr[0][1] = true;
+        arr[1][1] = true;
+
+        Range range = sheet.getDataRange();
+        range.setFontBolds(arr);
+
+        arr = range.getFontBolds();
+
+        assertEquals(arr[0][0],false);
+        assertEquals(arr[0][1],true);
+        assertEquals(arr[1][0],false);
+        assertEquals(arr[1][1],true);
     }
 
     @Test

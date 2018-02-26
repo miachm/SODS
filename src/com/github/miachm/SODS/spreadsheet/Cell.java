@@ -3,6 +3,15 @@ package com.github.miachm.SODS.spreadsheet;
 class Cell {
     private Object value;
     private String formula;
+    private boolean bold;
+
+    public boolean isBold() {
+        return bold;
+    }
+
+    public void setBold(boolean bold) {
+        this.bold = bold;
+    }
 
     void clear(){
         value = null;
