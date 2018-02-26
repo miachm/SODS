@@ -181,10 +181,8 @@ public class OdsWritter {
                 o.close();
                 out.addEntry(o.toByteArray(),"content.xml");
 
-            } catch (TransformerException te) {
+            } catch (TransformerException | IOException te) {
                 System.err.println(te.getMessage());
-            } catch (IOException ioe) {
-                System.err.println(ioe.getMessage());
             }
         } catch (ParserConfigurationException pce) {
             System.err.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
