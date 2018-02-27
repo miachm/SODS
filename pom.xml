@@ -7,7 +7,9 @@
     <artifactId>SODS</artifactId>
     <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
+
     <name>Simple ODS library</name>
+    <description>A library for load/save ODS files in java.</description>
     <url>https://github.com/miachm/SODS</url>
 
     <properties>
@@ -29,4 +31,26 @@
         <sourceDirectory>${project.basedir}/src/</sourceDirectory>
         <testSourceDirectory>${project.basedir}/tests/</testSourceDirectory>
     </build>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Miguel Chacon</name>
+            <email>miachm3@gmail.com</email>
+            <organization>SODS</organization>
+            <organizationUrl>https://github.com/miachm</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/miachm/SODS.git</connection>
+        <developerConnection>scm:git:ssh://github.com/miachm/SODS.git</developerConnection>
+        <url>https://github.com/miachm/SODS</url>
+    </scm>
 </project>
