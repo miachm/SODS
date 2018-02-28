@@ -14,6 +14,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,10 +24,14 @@ public class OdsReader {
     private String main_path;
     private SpreadSheet spread;
     private Map<String,byte[]> files;
+    private Map<String,Style> styles = new HashMap<>();
+    private Map<Integer,Style> rows_styles = new HashMap<>();
+    private Map<Integer,Style> columns_styles = new HashMap<>();
 
     private OdsReader(InputStream in,SpreadSheet spread) throws IOException {
         /* TODO This code if for ods files in zip. But we could have XML-ONLY FILES */
         this.spread = spread;
+        styles.put("Default",new Style());
         Uncompressor uncompressor = new Uncompressor(in);
         files = uncompressor.getFiles();
 
@@ -125,6 +130,14 @@ public class OdsReader {
 
             Element root = doc.getDocumentElement();
 
+            NodeList styles = doc.getElementsByTagName("office:automatic-styles");
+
+            if (styles != null) {
+                Node n = styles.item(0);
+                if (n != null)
+                    iterateStyleEntries(n.getChildNodes());
+            }
+
             NodeList files = doc.getElementsByTagName("office:body");
 
             if (files != null) {
@@ -136,6 +149,37 @@ public class OdsReader {
         }catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void iterateStyleEntries(NodeList childNodes) {
+        if (childNodes == null)
+            return;
+        for (int i = 0;i < childNodes.getLength();i++) {
+            Node node = childNodes.item(i);
+            if (node.getNodeName().equals("style:style")) {
+                NamedNodeMap map = node.getAttributes();
+                Node aux = map.getNamedItem("style:name");
+                if (aux != null) {
+                    Style style = readStyleEntry(node.getChildNodes());
+                    styles.put(aux.getNodeValue(),style);
+                }
+            }
+        }
+    }
+
+    private Style readStyleEntry(NodeList childNodes) {
+        Style style = new Style();
+        for (int i = 0;i < childNodes.getLength();i++) {
+            Node n = childNodes.item(i);
+            if (n.getNodeName().equals("style:text-properties")) {
+                NamedNodeMap map = n.getAttributes();
+                Node bold = map.getNamedItem("fo:font-weight");
+                if (bold != null) {
+                    style.bold = bold.getNodeValue().equals("bold");
+                }
+            }
+        }
+        return style;
     }
 
     private void iterateFilesEntries(NodeList files) {
@@ -168,10 +212,19 @@ public class OdsReader {
         NodeList new_list = node.getChildNodes();
         for (int i = 0;i < new_list.getLength();i++){
             Node n = new_list.item(i);
-            if (n.getNodeName().equals("table:table-column")){
-                sheet.appendColumns(getNumberOfColumns(n));
+            Style style = styles.get(getAtribFromNode(n,"table:default-cell-style-name",null));
+            if (n.getNodeName().equals("table:table-column")) {
+                int numColumns = getNumberOfColumns(n);
+
+                if (style != null)
+                    for (int j = sheet.getMaxColumns();j < sheet.getMaxColumns()+numColumns;j++)
+                        columns_styles.put(j,style);
+
+                sheet.appendColumns(numColumns);
             }
-            else if (n.getNodeName().equals("table:table-row")){
+            else if (n.getNodeName().equals("table:table-row")) {
+                if (style != null)
+                    rows_styles.put(sheet.getMaxRows(),style);
                 sheet.appendRow();
                 processCells(n.getChildNodes(),sheet);
             }
@@ -196,6 +249,17 @@ public class OdsReader {
                 String valueType = getValueType(n);
                 String formula = getFormula(n);
                 range.setFormula(formula);
+                Style style = styles.get(getStyle(n));
+
+                if (style == null) {
+                    style = columns_styles.get(column);
+                }
+                if (style == null) {
+                    style = rows_styles.get(sheet.getMaxRows()-1);
+                }
+                if (style != null) {
+                    range.setFontBold(style.bold);
+                }
 
                 NodeList cells = n.getChildNodes();
                 for (int j = 0; j < cells.getLength(); j++) {
@@ -216,6 +280,10 @@ public class OdsReader {
 
     private String getFormula(Node n) {
         return getAtribFromNode(n,"table:formula",null);
+    }
+
+    private String getStyle(Node n) {
+        return getAtribFromNode(n,"table:style-name",null);
     }
 
     private String getAtribFromNode(Node n, String atrib, String defaultValue) {
