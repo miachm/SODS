@@ -20,6 +20,10 @@ public class SpreadSheet implements Cloneable {
         this(new FileInputStream(file));
     }
 
+    public SpreadSheet(InputStream in) throws IOException {
+        OdsReader.load(in,this);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -35,9 +39,6 @@ public class SpreadSheet implements Cloneable {
         return sheets.hashCode();
     }
 
-    public SpreadSheet(InputStream in) throws IOException {
-        OdsReader.load(in,this);
-    }
 
     @Override
     public Object clone() throws CloneNotSupportedException

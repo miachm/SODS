@@ -273,9 +273,17 @@ public class SpreadSheetTest {
     @Test
     public void testSave() throws Exception {
         SpreadSheet spread = generateASpreadsheet();
-        spread.getSheet(0).getDataRange().setValue(1.0);
-        spread.getSheet(1).getDataRange().setValue("1");
-        spread.getSheet(2).getDataRange().setValue(1.0);
+
+        Range dataRange = spread.getSheet(0).getDataRange();
+        dataRange.setValue(1.0);
+
+        dataRange = spread.getSheet(1).getDataRange();
+        dataRange.setValue("1");
+        dataRange.setFontBold(true);
+
+        dataRange = spread.getSheet(2).getDataRange();
+        dataRange.setValue(1.0);
+        dataRange.setFontItalic(true);
 
         spread.getSheet(0).appendRow();
         spread.getSheet(0).getCell(1,0).setFormula("=SUM(A1)");

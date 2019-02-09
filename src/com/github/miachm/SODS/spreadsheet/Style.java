@@ -14,6 +14,11 @@ public final class Style implements Cloneable {
         this.italic = italic;
     }
 
+    public boolean isDefault()
+    {
+        return this.equals(new Style());
+    }
+
     public boolean isBold() {
         return bold;
     }
