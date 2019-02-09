@@ -23,8 +23,8 @@ It's still under development. Right now you can:
 
 - Load the cell's values from an ODS file.
 - Manipulate these values.
-- Some basic formating (bold fonts, italic style...).
-- Save it back in an ODS file.
+- Some basic formating (bold fonts, italic style, underline...).
+- Save it back to an ODS file.
 
 This is an example of use:
 
