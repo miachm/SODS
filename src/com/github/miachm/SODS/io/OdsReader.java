@@ -5,6 +5,7 @@ import com.github.miachm.SODS.exceptions.OperationNotSupported;
 import com.github.miachm.SODS.spreadsheet.Range;
 import com.github.miachm.SODS.spreadsheet.Sheet;
 import com.github.miachm.SODS.spreadsheet.SpreadSheet;
+import com.github.miachm.SODS.spreadsheet.Style;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -31,7 +32,7 @@ public class OdsReader {
     private OdsReader(InputStream in,SpreadSheet spread) throws IOException {
         /* TODO This code if for ods files in zip. But we could have XML-ONLY FILES */
         this.spread = spread;
-        styles.put("Default",new Style());
+        styles.put("Default", new Style());
         Uncompressor uncompressor = new Uncompressor(in);
         files = uncompressor.getFiles();
 
@@ -90,7 +91,7 @@ public class OdsReader {
             NamedNodeMap children = files.item(i).getAttributes();
             boolean main_path = false;
             String path = null;
-            for (int j = 0;j <children.getLength();j++) {
+            for (int j = 0;j < children.getLength();j++) {
                 Node child = children.item(j);
                 if (child.getNodeName().equals("manifest:encryption-data")) {
                     throw new OperationNotSupported("This file has encription technology that it's not supported" +
@@ -175,7 +176,11 @@ public class OdsReader {
                 NamedNodeMap map = n.getAttributes();
                 Node bold = map.getNamedItem("fo:font-weight");
                 if (bold != null) {
-                    style.bold = bold.getNodeValue().equals("bold");
+                    style.setBold(bold.getNodeValue().equals("bold"));
+                }
+                Node italic = map.getNamedItem("fo:font-style");
+                if (italic != null) {
+                    style.setItalic(italic.getNodeValue().equals("italic"));
                 }
             }
         }
@@ -258,7 +263,7 @@ public class OdsReader {
                     style = rows_styles.get(sheet.getMaxRows()-1);
                 }
                 if (style != null) {
-                    range.setFontBold(style.bold);
+                    range.setStyle(style);
                 }
 
                 NodeList cells = n.getChildNodes();

@@ -87,13 +87,14 @@ public class Range {
         return values;
     }
 
-    public boolean getFontBold() {
-        return sheet.getCell(row_init,column_init).isBold();
+    public Style getStyle()
+    {
+        return sheet.getCell(row_init,column_init).getStyle();
     }
 
-    public boolean[][] getFontBolds() {
-        boolean[][] arr = new boolean[getNumRows()][getNumColumns()];
-        iterateRange((cell,row,column) -> arr[row][column] = cell.isBold());
+    public Style[][] getStyles() {
+        Style[][] arr = new Style[getNumRows()][getNumColumns()];
+        iterateRange((cell, row, column) ->  arr[row][column] = cell.getStyle());
         return arr;
     }
 
@@ -127,7 +128,7 @@ public class Range {
     }
 
     public void setFontBold(boolean bold) {
-        iterateRange((cell,row,column) -> cell.setBold(bold));
+        iterateRange((cell,row,column) -> cell.getStyle().setBold(bold));
     }
 
     public void setFontBolds(boolean... bold) {
@@ -135,7 +136,7 @@ public class Range {
             throw new AssertionError("Error in setFontBold, the number of the arguments doesn't fit ("
                     + bold.length + " against " + getNumValues() + ")");
 
-        iterateRange((cell,row,column) -> cell.setBold(bold[row*getNumColumns()+column]));
+        iterateRange((cell,row,column) -> cell.getStyle().setBold(bold[row*getNumColumns()+column]));
     }
 
     public void setFontBolds(boolean[][] bold) {
@@ -148,7 +149,34 @@ public class Range {
             throw new AssertionError("Error in setFontBolds, the number of columns doesn't fit ("
                     + bold.length + " against " + getNumColumns() + ")");
 
-        iterateRange((cell,row,column) -> cell.setBold(bold[row][column]));
+        iterateRange((cell,row,column) -> cell.getStyle().setBold(bold[row][column]));
+    }
+
+    public void setFontItalic(boolean italic)
+    {
+        iterateRange((cell, row, column) -> cell.getStyle().setItalic(italic));
+    }
+
+    public void setFontItalics(boolean... italic) {
+        if (italic.length != getNumValues())
+            throw new AssertionError("Error in setFontItalic, the number of the arguments doesn't fit ("
+                    + italic.length + " against " + getNumValues() + ")");
+
+        iterateRange((cell,row,column) -> cell.getStyle().setItalic(italic[row*getNumColumns()+column]));
+    }
+
+    public void setFontItalics(boolean[][] italic)
+    {
+        if (italic.length == 0)
+            throw new AssertionError("Error in setFontItalics, the array is empty");
+        if (italic.length != getNumRows())
+            throw new AssertionError("Error in setFontItalics, the number of rows doesn't fit ("
+                    + italic.length + " against " + getNumRows() + ")");
+        if (italic[0].length != getNumColumns())
+            throw new AssertionError("Error in setFontItalics, the number of columns doesn't fit ("
+                    + italic.length + " against " + getNumColumns() + ")");
+
+        iterateRange((cell,row,column) -> cell.getStyle().setItalic(italic[row][column]));
     }
 
     private void iterateRange(RangeIterator e){
@@ -202,7 +230,8 @@ public class Range {
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "Range{" +
                 "\ncolumn_init=" + column_init +
                 "\nrow_init=" + row_init +
@@ -210,5 +239,24 @@ public class Range {
                 "\nnumcolumns=" + numcolumns +
                 "\nvalues =\n\n" + valuesToString() +
                 "\n}";
+    }
+
+    public void setStyle(Style style)
+    {
+        iterateRange((cell, row, column) -> cell.setStyle(style));
+    }
+
+    public void setStyles(Style style[][])
+    {
+        if (style.length == 0)
+            throw new AssertionError("Error in setFontItalics, the array is empty");
+        if (style.length != getNumRows())
+            throw new AssertionError("Error in setFontItalics, the number of rows doesn't fit ("
+                    + style.length + " against " + getNumRows() + ")");
+        if (style[0].length != getNumColumns())
+            throw new AssertionError("Error in setFontItalics, the number of columns doesn't fit ("
+                    + style.length + " against " + getNumColumns() + ")");
+
+        iterateRange((cell,row,column) -> cell.setStyle(style[row][column]));
     }
 }

@@ -3,19 +3,27 @@ package com.github.miachm.SODS.spreadsheet;
 class Cell {
     private Object value;
     private String formula;
-    private boolean bold;
+    private Style style = new Style();
 
-    public boolean isBold() {
-        return bold;
+    Style getStyle()
+    {
+        return style;
     }
 
-    public void setBold(boolean bold) {
-        this.bold = bold;
+    void setStyle(Style style)
+    {
+        if (style == null)
+            throw new AssertionError("Style can not be null");
+        this.style = style;
     }
 
-    void clear(){
+    void clear()
+    {
         value = null;
+        formula = null;
+        style = new Style();
     }
+
     String getFormula() {
         return formula;
     }

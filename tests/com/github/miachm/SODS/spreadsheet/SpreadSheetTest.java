@@ -201,11 +201,46 @@ public class SpreadSheetTest {
     public void testLoad() throws Exception {
         SpreadSheet spread = new SpreadSheet(new File("resources/CAS.ods"));
         assertEquals(spread.getNumSheets(),2);
-        Object[][] arr = spread.getSheet(0).getDataRange().getValues();
+
+        Sheet sheet = spread.getSheet(0);
+        Range dataRange = sheet.getDataRange();
+
+        Object[][] arr = dataRange.getValues();
         assertEquals(arr[0][0],"A");
-        assertEquals(arr[1][0],"C");
         assertEquals(arr[0][1],"B");
-        assertEquals(arr[1][1],"D");
+        assertEquals(arr[0][2],"C");
+        assertEquals(arr[0][3],"D");
+        assertEquals(arr[0][4],"E");
+
+        assertEquals(arr[1][0],"F");
+        assertEquals(arr[1][1],"G");
+        assertEquals(arr[1][2],"H");
+        assertEquals(arr[1][3],"I");
+        assertEquals(arr[1][4],"J");
+
+        Style[][] styles = dataRange.getStyles();
+
+        assertFalse(styles[0][0].isBold());
+        assertTrue(styles[0][1].isBold());
+        assertFalse(styles[0][2].isBold());
+        assertFalse(styles[0][3].isBold());
+        assertTrue(styles[0][4].isBold());
+        assertTrue(styles[1][0].isBold());
+        assertFalse(styles[1][1].isBold());
+        assertTrue(styles[1][2].isBold());
+        assertFalse(styles[1][3].isBold());
+        assertFalse(styles[1][4].isBold());
+
+        assertFalse(styles[0][0].isItalic());
+        assertFalse(styles[0][1].isItalic());
+        assertTrue(styles[0][2].isItalic());
+        assertFalse(styles[0][3].isItalic());
+        assertTrue(styles[0][4].isItalic());
+        assertFalse(styles[1][0].isItalic());
+        assertTrue(styles[1][1].isItalic());
+        assertTrue(styles[1][2].isItalic());
+        assertFalse(styles[1][3].isItalic());
+        assertFalse(styles[1][4].isItalic());
 
         Range range = spread.getSheet(1).getDataRange();
         arr = range.getValues();
