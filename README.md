@@ -14,7 +14,7 @@ I needed to generate ODS files in Java. I looked for libraries, but they are:
 
 - Deprecated or dead, like Apache ODF Toolkit. It's not working with Java 8.
 - It has Libre Office as dependency in the user's computer. That's so much (Libre Office Api).
-- Poorly designed or bloated, like jopendocument. I really had bad time with this library.
+- Poorly designed or bloated.
 
 So, i decided create my own library from scratch. Everything is possible!
 
@@ -22,8 +22,9 @@ So, i decided create my own library from scratch. Everything is possible!
 It's still under development. Right now you can:
 
 - Load the cell's values from an ODS file.
-- Manipulate these values and print them.
-- Save them back in an ODS file.
+- Manipulate these values.
+- Some basic formating (bold fonts, italic style...).
+- Save it back in an ODS file.
 
 This is an example of use:
 
