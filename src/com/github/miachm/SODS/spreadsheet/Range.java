@@ -179,6 +179,34 @@ public class Range {
         iterateRange((cell,row,column) -> cell.getStyle().setItalic(italic[row][column]));
     }
 
+    public void setFontUnderline(boolean underline)
+    {
+        iterateRange((cell, row, column) -> cell.getStyle().setUnderline(underline));
+    }
+
+    public void setFontUnderlines(boolean... underline)
+    {
+        if (underline.length != getNumValues())
+            throw new AssertionError("Error in setFontUnderlines, the number of the arguments doesn't fit ("
+                    + underline.length + " against " + getNumValues() + ")");
+
+        iterateRange((cell,row,column) -> cell.getStyle().setUnderline(underline[row*getNumColumns()+column]));
+    }
+
+    public void setFontUnderlines(boolean[][] underline)
+    {
+        if (underline.length == 0)
+            throw new AssertionError("Error in setFontUnderlines, the array is empty");
+        if (underline.length != getNumRows())
+            throw new AssertionError("Error in setFontUnderlines, the number of rows doesn't fit ("
+                    + underline.length + " against " + getNumRows() + ")");
+        if (underline[0].length != getNumColumns())
+            throw new AssertionError("Error in setFontUnderlines, the number of columns doesn't fit ("
+                    + underline.length + " against " + getNumColumns() + ")");
+
+        iterateRange((cell,row,column) -> cell.getStyle().setUnderline(underline[row][column]));
+    }
+
     private void iterateRange(RangeIterator e){
         for (int i = 0;i < numrows;i++){
             for (int j = 0;j < numcolumns;j++){

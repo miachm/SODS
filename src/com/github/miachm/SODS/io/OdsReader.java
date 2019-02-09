@@ -182,6 +182,10 @@ public class OdsReader {
                 if (italic != null) {
                     style.setItalic(italic.getNodeValue().equals("italic"));
                 }
+                Node underline = map.getNamedItem("style:text-underline-style");
+                if (underline != null) {
+                    style.setUnderline(underline.getNodeValue().equals("solid"));
+                }
             }
         }
         return style;

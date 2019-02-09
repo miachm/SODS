@@ -242,6 +242,17 @@ public class SpreadSheetTest {
         assertFalse(styles[1][3].isItalic());
         assertFalse(styles[1][4].isItalic());
 
+        assertFalse(styles[0][0].isUnderline());
+        assertFalse(styles[0][1].isUnderline());
+        assertFalse(styles[0][2].isUnderline());
+        assertTrue(styles[0][3].isUnderline());
+        assertFalse(styles[0][4].isUnderline());
+        assertTrue(styles[1][0].isUnderline());
+        assertTrue(styles[1][1].isUnderline());
+        assertTrue(styles[1][2].isUnderline());
+        assertTrue(styles[1][3].isUnderline());
+        assertFalse(styles[1][4].isUnderline());
+
         Range range = spread.getSheet(1).getDataRange();
         arr = range.getValues();
         assertEquals(arr[0][0],1.0);
@@ -280,6 +291,7 @@ public class SpreadSheetTest {
         dataRange = spread.getSheet(1).getDataRange();
         dataRange.setValue("1");
         dataRange.setFontBold(true);
+        dataRange.setFontUnderline(true);
 
         dataRange = spread.getSheet(2).getDataRange();
         dataRange.setValue(1.0);

@@ -237,6 +237,12 @@ public class OdsWritter {
             if (style.isBold())
                 styleText.setAttribute("fo:font-weight", "bold");
 
+            if (style.isUnderline()) {
+                styleText.setAttribute("style:text-underline-style", "solid");
+                styleText.setAttribute("style:text-underline-type", "single");
+                styleText.setAttribute("style:text-underline-width", "auto");
+                styleText.setAttribute("style:text-underline-color", "font-color");
+            }
             styleTable.appendChild(styleText);
             e.appendChild(styleTable);
 

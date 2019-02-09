@@ -434,6 +434,65 @@ public class RangeTest {
     }
 
     @Test
+    public void testSetFontUnderline() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Range range = sheet.getDataRange();
+        range.setFontUnderline(true);
+
+        Style[][] arr = range.getStyles();
+
+        assertEquals(arr[0][0].isUnderline(),true);
+        assertEquals(arr[0][1].isUnderline(),true);
+        assertEquals(arr[1][0].isUnderline(),true);
+        assertEquals(arr[1][1].isUnderline(),true);
+
+        range = sheet.getRange(1,0);
+        range.setFontUnderline(false);
+        assertEquals(range.getStyle().isUnderline(),false);
+    }
+
+    @Test
+    public void testSetFontUnderlines() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Range range = sheet.getDataRange();
+        range.setFontUnderlines(false,true,false,true);
+
+        Style[][] arr = range.getStyles();
+
+        assertEquals(arr[0][0].isUnderline(),false);
+        assertEquals(arr[0][1].isUnderline(),true);
+        assertEquals(arr[1][0].isUnderline(),false);
+        assertEquals(arr[1][1].isUnderline(),true);
+    }
+
+    @Test
+    public void testSetFontUnderlinesMat() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        boolean[][] arr = new boolean[2][2];
+        arr[0][1] = true;
+        arr[1][1] = true;
+
+        Range range = sheet.getDataRange();
+        range.setFontUnderlines(arr);
+
+        Style[][] result = range.getStyles();
+
+        assertEquals(result[0][0].isUnderline(),false);
+        assertEquals(result[0][1].isUnderline(),true);
+        assertEquals(result[1][0].isUnderline(),false);
+        assertEquals(result[1][1].isUnderline(),true);
+    }
+
+    @Test
     public void testSetValue() throws Exception {
         Sheet sheet = new Sheet("A");
         sheet.appendRow();

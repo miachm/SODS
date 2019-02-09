@@ -1,8 +1,10 @@
 package com.github.miachm.SODS.spreadsheet;
 
+
 public final class Style implements Cloneable {
     private boolean bold;
     private boolean italic;
+    private boolean underline;
 
     public Style()
     {
@@ -18,7 +20,7 @@ public final class Style implements Cloneable {
     {
         return this.equals(new Style());
     }
-
+    
     public boolean isBold() {
         return bold;
     }
@@ -35,6 +37,14 @@ public final class Style implements Cloneable {
     public void setItalic(boolean italic)
     {
         this.italic = italic;
+    }
+
+    public boolean isUnderline() {
+        return underline;
+    }
+
+    public void setUnderline(boolean underline) {
+        this.underline = underline;
     }
 
     public Object clone() throws CloneNotSupportedException {

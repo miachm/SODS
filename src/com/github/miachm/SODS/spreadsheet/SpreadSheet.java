@@ -39,7 +39,6 @@ public class SpreadSheet implements Cloneable {
         return sheets.hashCode();
     }
 
-
     @Override
     public Object clone() throws CloneNotSupportedException
     {
