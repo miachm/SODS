@@ -6,9 +6,6 @@ import com.github.miachm.SODS.spreadsheet.SpreadSheet;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * Created by MiguelPC on 23/04/2017.
- */
 public class SaveOds {
     public static void main(String args[]){
         try {
