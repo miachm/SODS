@@ -211,8 +211,8 @@ public class RangeTest {
         Range range = sheet.getDataRange();
 
         Style[][] styles = new Style[2][1];
-        styles[0][0] = new Style(true, false, false, null);
-        styles[1][0] = new Style(false, true, true, new Color(200, 100, 230));
+        styles[0][0] = new Style(true, false, false, null, new Color(2, 3, 4));
+        styles[1][0] = new Style(false, true, true, new Color(200, 100, 230), null);
         range.setStyles(styles);
 
         Style[][] result = range.getStyles();
@@ -554,6 +554,70 @@ public class RangeTest {
         assertEquals(result[0][1].getFontColor(),new Color(12, 23, 45));
         assertEquals(result[1][0].getFontColor(),null);
         assertEquals(result[1][1].getFontColor(),new Color(23, 45, 67));
+    }
+
+    @Test
+    public void testSetBackgroundColor() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Color color = new Color(240, 23, 45);
+
+        Range range = sheet.getDataRange();
+        range.setBackgroundColor(color);
+
+        Style[][] arr = range.getStyles();
+
+        assertEquals(arr[0][0].getBackgroundColor(),color);
+        assertEquals(arr[0][1].getBackgroundColor(),color);
+        assertEquals(arr[1][0].getBackgroundColor(),color);
+        assertEquals(arr[1][1].getBackgroundColor(),color);
+
+        range = sheet.getRange(1,0);
+        range.setBackgroundColor(color);
+        assertEquals(range.getStyle().getBackgroundColor(),color);
+    }
+
+    @Test
+    public void testSetBackgroundColors() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Color color = new Color(240, 23, 35);
+        Color otherColor = new Color(43, 12, 54);
+
+        Range range = sheet.getDataRange();
+        range.setBackgroundColors(otherColor, color, null, otherColor);
+
+        Style[][] arr = range.getStyles();
+
+        assertEquals(arr[0][0].getBackgroundColor(),otherColor);
+        assertEquals(arr[0][1].getBackgroundColor(),color);
+        assertEquals(arr[1][0].getBackgroundColor(),null);
+        assertEquals(arr[1][1].getBackgroundColor(),otherColor);
+    }
+
+    @Test
+    public void testSetBackgroundColorsMat() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Color[][] arr = new Color[2][2];
+        arr[0][1] = new Color(12,23,45);
+        arr[1][1] = new Color(23,45,67);
+
+        Range range = sheet.getDataRange();
+        range.setBackgroundColors(arr);
+
+        Style[][] result = range.getStyles();
+
+        assertEquals(result[0][0].getBackgroundColor(),null);
+        assertEquals(result[0][1].getBackgroundColor(),new Color(12, 23, 45));
+        assertEquals(result[1][0].getBackgroundColor(),null);
+        assertEquals(result[1][1].getBackgroundColor(),new Color(23, 45, 67));
     }
 
     @Test

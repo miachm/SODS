@@ -268,6 +268,17 @@ public class SpreadSheetTest {
         assertEquals(styles[1][3].getFontColor(), new Color(255, 0 , 0));
         assertEquals(styles[1][4].getFontColor(), null);
 
+        assertEquals(styles[0][0].getBackgroundColor(), null);
+        assertEquals(styles[0][1].getBackgroundColor(), null);
+        assertEquals(styles[0][2].getBackgroundColor(), null);
+        assertEquals(styles[0][3].getBackgroundColor(), null);
+        assertEquals(styles[0][4].getBackgroundColor(), null);
+        assertEquals(styles[1][0].getBackgroundColor(), null);
+        assertEquals(styles[1][1].getBackgroundColor(), null);
+        assertEquals(styles[1][2].getBackgroundColor(), null);
+        assertEquals(styles[1][3].getBackgroundColor(), null);
+        assertEquals(styles[1][4].getBackgroundColor(), new Color("#ffff00"));
+
         Range range = spread.getSheet(1).getDataRange();
         arr = range.getValues();
         assertEquals(arr[0][0],1.0);
@@ -308,6 +319,7 @@ public class SpreadSheetTest {
         dataRange.setFontBold(true);
         dataRange.setFontUnderline(true);
         dataRange.setFontColors(new Color("#43a2f5"));
+        dataRange.setBackgroundColor(new Color(255,2,3));
 
         dataRange = spread.getSheet(2).getDataRange();
         dataRange.setValue(1.0);

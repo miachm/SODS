@@ -6,16 +6,18 @@ public final class Style implements Cloneable {
     private boolean italic;
     private boolean underline;
     private Color fontColor;
+    private Color backgroundColor;
 
     public Style() {
 
     }
 
-    public Style(boolean bold, boolean italic, boolean underline, Color fontColor) {
+    public Style(boolean bold, boolean italic, boolean underline, Color fontColor, Color backgroundColor) {
         this.bold = bold;
         this.italic = italic;
         this.underline = underline;
         this.fontColor = fontColor;
+        this.backgroundColor = backgroundColor;
     }
 
     public boolean isDefault()
@@ -33,6 +35,14 @@ public final class Style implements Cloneable {
 
     public Color getFontColor() {
         return fontColor;
+    }
+
+    public Color getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    public void setBackgroundColor(Color backgroundColor) {
+        this.backgroundColor = backgroundColor;
     }
 
     public void setFontColor(Color fontColor) {
@@ -69,13 +79,19 @@ public final class Style implements Cloneable {
         Style style = (Style) o;
 
         if (bold != style.bold) return false;
-        return italic == style.italic;
+        if (italic != style.italic) return false;
+        if (underline != style.underline) return false;
+        if (fontColor != null ? !fontColor.equals(style.fontColor) : style.fontColor != null) return false;
+        return backgroundColor != null ? backgroundColor.equals(style.backgroundColor) : style.backgroundColor == null;
     }
 
     @Override
     public int hashCode() {
         int result = (bold ? 1 : 0);
         result = 31 * result + (italic ? 1 : 0);
+        result = 31 * result + (underline ? 1 : 0);
+        result = 31 * result + (fontColor != null ? fontColor.hashCode() : 0);
+        result = 31 * result + (backgroundColor != null ? backgroundColor.hashCode() : 0);
         return result;
     }
 }

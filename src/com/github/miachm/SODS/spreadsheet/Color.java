@@ -40,10 +40,21 @@ final public class Color {
         return green;
     }
 
+    private static String fill(String text, int len)
+    {
+        int diff = text.length() - len;
+        while (diff < 0) {
+            text = "0" + text;
+            diff++;
+        }
+
+        return text;
+    }
+
     @Override
     public String toString()
     {
-        return "#" + Integer.toHexString(red) + Integer.toHexString(blue) + Integer.toHexString(green);
+        return "#" + fill(Integer.toHexString(red),2) + fill(Integer.toHexString(blue), 2) + fill(Integer.toHexString(green), 2);
     }
 
     @Override

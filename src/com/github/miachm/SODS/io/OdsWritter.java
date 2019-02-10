@@ -248,6 +248,12 @@ public class OdsWritter {
                 styleText.setAttribute("fo:color", style.getFontColor().toString());
             }
 
+            if (style.getBackgroundColor() != null) {
+                Element styleCell = dom.createElement("style:table-cell-properties");
+                styleCell.setAttribute("fo:background-color", style.getBackgroundColor().toString());
+                styleTable.appendChild(styleCell);
+            }
+
             styleTable.appendChild(styleText);
             e.appendChild(styleTable);
 

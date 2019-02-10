@@ -188,6 +188,14 @@ public class OdsReader {
                     style.setFontColor(new Color(fontcolor.getNodeValue()));
                 }
             }
+            if (n.getNodeName().equals("style:table-cell-properties")) {
+                NamedNodeMap map = n.getAttributes();
+
+                Node backgroundColor = map.getNamedItem("fo:background-color");
+                if (backgroundColor != null) {
+                    style.setBackgroundColor(new Color(backgroundColor.getNodeValue()));
+                }
+            }
         }
         return style;
     }
