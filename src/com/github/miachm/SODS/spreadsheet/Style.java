@@ -5,15 +5,17 @@ public final class Style implements Cloneable {
     private boolean bold;
     private boolean italic;
     private boolean underline;
+    private Color fontColor;
 
-    public Style()
-    {
+    public Style() {
 
     }
 
-    public Style(boolean bold, boolean italic) {
+    public Style(boolean bold, boolean italic, boolean underline, Color fontColor) {
         this.bold = bold;
         this.italic = italic;
+        this.underline = underline;
+        this.fontColor = fontColor;
     }
 
     public boolean isDefault()
@@ -27,6 +29,14 @@ public final class Style implements Cloneable {
 
     public boolean isItalic() {
         return italic;
+    }
+
+    public Color getFontColor() {
+        return fontColor;
+    }
+
+    public void setFontColor(Color fontColor) {
+        this.fontColor = fontColor;
     }
 
     public void setBold(boolean bold)

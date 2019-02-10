@@ -207,6 +207,34 @@ public class Range {
         iterateRange((cell,row,column) -> cell.getStyle().setUnderline(underline[row][column]));
     }
 
+    public void setFontColor(Color color)
+    {
+        iterateRange((cell, row, column) -> cell.getStyle().setFontColor(color));
+    }
+
+    public void setFontColors(Color... color)
+    {
+        if (color.length != getNumValues())
+            throw new AssertionError("Error in setFontColors, the number of the arguments doesn't fit ("
+                    + color.length + " against " + getNumValues() + ")");
+
+        iterateRange((cell,row,column) -> cell.getStyle().setFontColor(color[row*getNumColumns()+column]));
+    }
+
+    public void setFontColors(Color[][] color)
+    {
+        if (color.length == 0)
+            throw new AssertionError("Error in setFontColors, the array is empty");
+        if (color.length != getNumRows())
+            throw new AssertionError("Error in setFontColors, the number of rows doesn't fit ("
+                    + color.length + " against " + getNumRows() + ")");
+        if (color[0].length != getNumColumns())
+            throw new AssertionError("Error in setFontColors, the number of columns doesn't fit ("
+                    + color.length + " against " + getNumColumns() + ")");
+
+        iterateRange((cell,row,column) -> cell.getStyle().setFontColor(color[row][column]));
+    }
+
     private void iterateRange(RangeIterator e){
         for (int i = 0;i < numrows;i++){
             for (int j = 0;j < numcolumns;j++){

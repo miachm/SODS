@@ -243,6 +243,11 @@ public class OdsWritter {
                 styleText.setAttribute("style:text-underline-width", "auto");
                 styleText.setAttribute("style:text-underline-color", "font-color");
             }
+
+            if (style.getFontColor() != null) {
+                styleText.setAttribute("fo:color", style.getFontColor().toString());
+            }
+
             styleTable.appendChild(styleText);
             e.appendChild(styleTable);
 

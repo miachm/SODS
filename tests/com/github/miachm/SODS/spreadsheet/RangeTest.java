@@ -211,8 +211,8 @@ public class RangeTest {
         Range range = sheet.getDataRange();
 
         Style[][] styles = new Style[2][1];
-        styles[0][0] = new Style(true, false);
-        styles[1][0] = new Style(false, true);
+        styles[0][0] = new Style(true, false, false, null);
+        styles[1][0] = new Style(false, true, true, new Color(200, 100, 230));
         range.setStyles(styles);
 
         Style[][] result = range.getStyles();
@@ -490,6 +490,70 @@ public class RangeTest {
         assertEquals(result[0][1].isUnderline(),true);
         assertEquals(result[1][0].isUnderline(),false);
         assertEquals(result[1][1].isUnderline(),true);
+    }
+
+    @Test
+    public void testSetFontColor() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Color color = new Color(240, 23, 45);
+
+        Range range = sheet.getDataRange();
+        range.setFontColor(color);
+
+        Style[][] arr = range.getStyles();
+
+        assertEquals(arr[0][0].getFontColor(),color);
+        assertEquals(arr[0][1].getFontColor(),color);
+        assertEquals(arr[1][0].getFontColor(),color);
+        assertEquals(arr[1][1].getFontColor(),color);
+
+        range = sheet.getRange(1,0);
+        range.setFontColor(color);
+        assertEquals(range.getStyle().getFontColor(),color);
+    }
+
+    @Test
+    public void testSetFontColors() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Color color = new Color(240, 23, 35);
+        Color otherColor = new Color(43, 12, 54);
+
+        Range range = sheet.getDataRange();
+        range.setFontColors(otherColor, color, null, otherColor);
+
+        Style[][] arr = range.getStyles();
+
+        assertEquals(arr[0][0].getFontColor(),otherColor);
+        assertEquals(arr[0][1].getFontColor(),color);
+        assertEquals(arr[1][0].getFontColor(),null);
+        assertEquals(arr[1][1].getFontColor(),otherColor);
+    }
+
+    @Test
+    public void testSetFonColorsMat() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Color[][] arr = new Color[2][2];
+        arr[0][1] = new Color(12,23,45);
+        arr[1][1] = new Color(23,45,67);
+
+        Range range = sheet.getDataRange();
+        range.setFontColors(arr);
+
+        Style[][] result = range.getStyles();
+
+        assertEquals(result[0][0].getFontColor(),null);
+        assertEquals(result[0][1].getFontColor(),new Color(12, 23, 45));
+        assertEquals(result[1][0].getFontColor(),null);
+        assertEquals(result[1][1].getFontColor(),new Color(23, 45, 67));
     }
 
     @Test

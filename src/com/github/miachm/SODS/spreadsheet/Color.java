@@ -1,15 +1,31 @@
 package com.github.miachm.SODS.spreadsheet;
 
-final class Color {
+final public class Color {
 
     private final int red;
     private final int blue;
     private final int green;
 
-    Color(int red, int blue, int green) {
+    public Color(int red, int blue, int green) {
+        if (red < 0 || red > 255 ||
+                blue < 0 || blue > 255 ||
+                green < 0 || green > 255)
+            throw new IllegalArgumentException("Error, parameters out of range (0-255)");
+
         this.red = red;
         this.blue = blue;
         this.green = green;
+    }
+
+    public Color(String hexform)
+    {
+        if (hexform.length() != 7) {
+            throw new IllegalArgumentException("Error in Color, the length of the string is not correct (" + hexform.length() + ")");
+        }
+
+        this.red = Integer.valueOf(hexform.substring(1, 3), 16);
+        this.blue = Integer.valueOf(hexform.substring(3, 5), 16);
+        this.green = Integer.valueOf(hexform.substring(5, 7), 16);
     }
 
     public int getRed() {
@@ -28,5 +44,25 @@ final class Color {
     public String toString()
     {
         return "#" + Integer.toHexString(red) + Integer.toHexString(blue) + Integer.toHexString(green);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Color color = (Color) o;
+
+        if (red != color.red) return false;
+        if (blue != color.blue) return false;
+        return green == color.green;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = red;
+        result = 31 * result + blue;
+        result = 31 * result + green;
+        return result;
     }
 }

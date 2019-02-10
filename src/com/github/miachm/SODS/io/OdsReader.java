@@ -2,10 +2,7 @@ package com.github.miachm.SODS.io;
 
 import com.github.miachm.SODS.exceptions.NotAnOds;
 import com.github.miachm.SODS.exceptions.OperationNotSupported;
-import com.github.miachm.SODS.spreadsheet.Range;
-import com.github.miachm.SODS.spreadsheet.Sheet;
-import com.github.miachm.SODS.spreadsheet.SpreadSheet;
-import com.github.miachm.SODS.spreadsheet.Style;
+import com.github.miachm.SODS.spreadsheet.*;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -185,6 +182,10 @@ public class OdsReader {
                 Node underline = map.getNamedItem("style:text-underline-style");
                 if (underline != null) {
                     style.setUnderline(underline.getNodeValue().equals("solid"));
+                }
+                Node fontcolor = map.getNamedItem("fo:color");
+                if (fontcolor != null) {
+                    style.setFontColor(new Color(fontcolor.getNodeValue()));
                 }
             }
         }
