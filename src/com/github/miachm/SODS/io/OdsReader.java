@@ -253,13 +253,22 @@ public class OdsReader {
         int column = 0;
         for (int i = 0; i < childNodes.getLength(); i++) {
             Node n = childNodes.item(i);
+
+            // number of columns repeated
+            long number_columns_repeated = 0;
+            // value and style to be copied
+            Object last_cell_value = null;
+            Style last_style = null;
+
             if (n.getNodeName().equals("table:table-cell")) {
                 Range range = sheet.getRange(sheet.getMaxRows() - 1, column);
                 String valueType = getValueType(n);
                 String formula = getFormula(n);
+                number_columns_repeated = Long.parseLong(getAtribFromNode(n, "table:number-columns-repeated", "0").toString());
+                
                 range.setFormula(formula);
                 Style style = styles.get(getStyle(n));
-
+                
                 if (style == null) {
                     style = columns_styles.get(column);
                 }
@@ -269,18 +278,35 @@ public class OdsReader {
                 if (style != null) {
                     range.setStyle(style);
                 }
+                
+                last_style = style;
 
                 NodeList cells = n.getChildNodes();
                 for (int j = 0; j < cells.getLength(); j++) {
                     Node cell = cells.item(j);
-                    if (cell.getNodeName().equals("text:p")) {
+                    String cell_name = cell.getNodeName();
+                    Object cell_value = getValue(cell.getTextContent(), valueType);
+                    if (cell_name.equals("text:p")) {
                         // TODO : Iterate over the children
-                        range.setValue(getValue(cell.getTextContent(), valueType));
+                    	last_cell_value = cell_value;
+                        range.setValue(cell_value);
                     }
                 }
                 column++;
             }
-        }
+
+            if(number_columns_repeated > 0) {
+            	for(int j = 0; j < number_columns_repeated-1; j++) {
+            		Range range = sheet.getRange(sheet.getMaxRows() - 1, column);
+            		if(last_style != null) {
+            			range.setStyle(last_style);
+            		}
+
+            		range.setValue(last_cell_value);
+            		column++;
+            	}
+            }
+	}
     }
 
     private String getValueType(Node n) {

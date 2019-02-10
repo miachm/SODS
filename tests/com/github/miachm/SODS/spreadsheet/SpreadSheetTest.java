@@ -218,6 +218,10 @@ public class SpreadSheetTest {
         assertEquals(arr[1][3],"I");
         assertEquals(arr[1][4],"J");
 
+        assertEquals(arr[2][0],"K");
+        assertEquals(arr[2][1],"K");
+        assertEquals(arr[2][2],"K");
+
         Style[][] styles = dataRange.getStyles();
 
         assertFalse(styles[0][0].isBold());
