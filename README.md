@@ -68,7 +68,6 @@ public class BasicUsage{
 }
 ```
 
-Check more examples here:
-https://github.com/miachm/SODS/tree/master/src/com/github/miachm/SODS/examples
+Check more examples [here](https://github.com/miachm/SODS/tree/master/src/com/github/miachm/SODS/examples)
 
 Contributions are welcome!
