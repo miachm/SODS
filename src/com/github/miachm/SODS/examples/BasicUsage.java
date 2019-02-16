@@ -8,6 +8,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+/* A really basic example of the SODS library.
+
+It loads a sample ODS file and prints his content in the stdout
+ */
+
 public class BasicUsage {
     public static void main(String args[]){
         try {
