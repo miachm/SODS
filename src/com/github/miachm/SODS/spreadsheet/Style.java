@@ -1,6 +1,9 @@
 package com.github.miachm.SODS.spreadsheet;
 
 
+import java.util.HashMap;
+import java.util.Map;
+
 public final class Style implements Cloneable {
     private boolean bold;
     private boolean italic;
@@ -105,6 +108,46 @@ public final class Style implements Cloneable {
         result = 31 * result + (fontColor != null ? fontColor.hashCode() : 0);
         result = 31 * result + (backgroundColor != null ? backgroundColor.hashCode() : 0);
         result = 31 * result + fontSize;
+        return result;
+    }
+
+    public Map<String, String> getCssStyles()
+    {
+        Map<String, String> result = new HashMap<>();
+        if (isBold())
+            result.put("font-weight", "bold");
+
+        if (isItalic())
+            result.put("font-style", "italic");
+
+        if (isUnderline())
+            result.put("text-decoration", "underline");
+
+        if (getFontSize() != -1)
+            result.put("font-size", "" + getFontSize());
+
+        if (getFontColor() != null)
+            result.put("color", "" + getFontColor().toString() + ";");
+
+        if (getBackgroundColor() != null)
+            result.put("background-color", getBackgroundColor().toString());
+
+        return result;
+    }
+
+    @Override
+    public String toString()
+    {
+        return toString("");
+    }
+
+    public String toString(String prefix)
+    {
+        String result = "";
+        Map<String,String> styles = getCssStyles();
+        for (Map.Entry<String,String> style : styles.entrySet())
+            result += prefix + style.getKey() + ": " + style.getValue() + ";\n";
+
         return result;
     }
 }
