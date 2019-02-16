@@ -16,17 +16,25 @@ I needed to generate ODS files in Java. I looked for libraries, but they are:
 - It has Libre Office as dependency in the user's computer. That's so much (Libre Office Api).
 - Poorly designed or bloated.
 
-So, i decided create my own library from scratch. Everything is possible!
+So, i decided create my own library from scratch. The objetive is load and generate ODS files in a simple and easy way.
 
 # What is the current state?
-It's still under development. Right now you can:
+Right now you can:
 
 - Load the cell's values from an ODS file.
 - Manipulate these values.
-- Some basic formating (bold fonts, italic style, underline...).
+- Some formating (bold fonts, italic style, underline...).
 - Save it back to an ODS file.
 
-This is an example of use:
+This is an example of an ODS file in LibreOffice
+![Sample Libreoffice](https://i.imgur.com/avJ8aLw.png)
+
+Here, i am using SODS and rendering it with JavaFX
+
+![Sample SODS](https://i.imgur.com/Myfustx.png)
+
+# How it works?
+This is a code example:
 
 ```java
 package com.github.miachm.SODS.examples;
@@ -59,5 +67,8 @@ public class BasicUsage{
     }
 }
 ```
+
+Check more examples here:
+https://github.com/miachm/SODS/tree/master/src/com/github/miachm/SODS/examples
 
 Contributions are welcome!
