@@ -187,6 +187,17 @@ public class OdsReader {
                 if (fontcolor != null) {
                     style.setFontColor(new Color(fontcolor.getNodeValue()));
                 }
+                Node fontsize = map.getNamedItem("fo:font-size");
+                if (fontsize != null) {
+                    String nodeValue = fontsize.getNodeValue();
+                    if (nodeValue.endsWith("pt")) {
+                        int index = nodeValue.lastIndexOf("pt");
+                        int fontSize = Integer.parseInt(nodeValue.substring(0,index));
+                        style.setFontSize(fontSize);
+                    }
+                    else
+                        throw new OperationNotSupported("Error, font size is not measured in PT. Skipping...");
+                }
             }
             if (n.getNodeName().equals("style:table-cell-properties")) {
                 NamedNodeMap map = n.getAttributes();

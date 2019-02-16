@@ -221,6 +221,8 @@ public class SpreadSheetTest {
         assertEquals(arr[2][0],"K");
         assertEquals(arr[2][1],"K");
         assertEquals(arr[2][2],"K");
+        assertEquals(arr[2][3],"L");
+        assertEquals(arr[2][4],"M");
 
         Style[][] styles = dataRange.getStyles();
 
@@ -234,6 +236,11 @@ public class SpreadSheetTest {
         assertTrue(styles[1][2].isBold());
         assertFalse(styles[1][3].isBold());
         assertFalse(styles[1][4].isBold());
+        assertFalse(styles[2][0].isBold());
+        assertFalse(styles[2][1].isBold());
+        assertFalse(styles[2][2].isBold());
+        assertFalse(styles[2][3].isBold());
+        assertFalse(styles[2][4].isBold());
 
         assertFalse(styles[0][0].isItalic());
         assertFalse(styles[0][1].isItalic());
@@ -245,6 +252,11 @@ public class SpreadSheetTest {
         assertTrue(styles[1][2].isItalic());
         assertFalse(styles[1][3].isItalic());
         assertFalse(styles[1][4].isItalic());
+        assertFalse(styles[2][0].isItalic());
+        assertFalse(styles[2][1].isItalic());
+        assertFalse(styles[2][2].isItalic());
+        assertFalse(styles[2][3].isItalic());
+        assertFalse(styles[2][4].isItalic());
 
         assertFalse(styles[0][0].isUnderline());
         assertFalse(styles[0][1].isUnderline());
@@ -256,6 +268,27 @@ public class SpreadSheetTest {
         assertTrue(styles[1][2].isUnderline());
         assertTrue(styles[1][3].isUnderline());
         assertFalse(styles[1][4].isUnderline());
+        assertFalse(styles[2][0].isUnderline());
+        assertFalse(styles[2][1].isUnderline());
+        assertFalse(styles[2][2].isUnderline());
+        assertFalse(styles[2][3].isUnderline());
+        assertFalse(styles[2][4].isUnderline());
+
+        assertEquals(styles[0][0].getFontSize(), -1);
+        assertEquals(styles[0][1].getFontSize(), -1);
+        assertEquals(styles[0][2].getFontSize(), -1);
+        assertEquals(styles[0][3].getFontSize(), -1);
+        assertEquals(styles[0][4].getFontSize(), -1);
+        assertEquals(styles[1][0].getFontSize(), -1);
+        assertEquals(styles[1][1].getFontSize(), -1);
+        assertEquals(styles[1][2].getFontSize(), -1);
+        assertEquals(styles[1][3].getFontSize(), -1);
+        assertEquals(styles[1][4].getFontSize(), -1);
+        assertEquals(styles[2][0].getFontSize(), -1);
+        assertEquals(styles[2][1].getFontSize(), -1);
+        assertEquals(styles[2][2].getFontSize(), -1);
+        assertEquals(styles[2][3].getFontSize(), 26);
+        assertEquals(styles[2][4].getFontSize(), -1);
 
         assertEquals(styles[0][0].getFontColor(), null);
         assertEquals(styles[0][1].getFontColor(), null);
@@ -267,6 +300,11 @@ public class SpreadSheetTest {
         assertEquals(styles[1][2].getFontColor(), null);
         assertEquals(styles[1][3].getFontColor(), new Color(255, 0 , 0));
         assertEquals(styles[1][4].getFontColor(), null);
+        assertEquals(styles[2][0].getFontColor(), null);
+        assertEquals(styles[2][1].getFontColor(), null);
+        assertEquals(styles[2][2].getFontColor(), null);
+        assertEquals(styles[2][3].getFontColor(), null);
+        assertEquals(styles[2][4].getFontColor(), null);
 
         assertEquals(styles[0][0].getBackgroundColor(), null);
         assertEquals(styles[0][1].getBackgroundColor(), null);
@@ -278,6 +316,11 @@ public class SpreadSheetTest {
         assertEquals(styles[1][2].getBackgroundColor(), null);
         assertEquals(styles[1][3].getBackgroundColor(), null);
         assertEquals(styles[1][4].getBackgroundColor(), new Color("#ffff00"));
+        assertEquals(styles[2][0].getFontColor(), null);
+        assertEquals(styles[2][1].getFontColor(), null);
+        assertEquals(styles[2][2].getFontColor(), null);
+        assertEquals(styles[2][3].getFontColor(), null);
+        assertEquals(styles[2][4].getFontColor(), null);
 
         Range range = spread.getSheet(1).getDataRange();
         arr = range.getValues();
@@ -320,6 +363,7 @@ public class SpreadSheetTest {
         dataRange.setFontUnderline(true);
         dataRange.setFontColors(new Color("#43a2f5"));
         dataRange.setBackgroundColor(new Color(255,2,3));
+        dataRange.setFontSize(18);
 
         dataRange = spread.getSheet(2).getDataRange();
         dataRange.setValue(1.0);

@@ -7,6 +7,7 @@ public final class Style implements Cloneable {
     private boolean underline;
     private Color fontColor;
     private Color backgroundColor;
+    private int fontSize = -1;
 
     public Style() {
 
@@ -41,6 +42,10 @@ public final class Style implements Cloneable {
         return backgroundColor;
     }
 
+    public int getFontSize() {
+        return fontSize;
+    }
+
     public void setBackgroundColor(Color backgroundColor) {
         this.backgroundColor = backgroundColor;
     }
@@ -67,6 +72,12 @@ public final class Style implements Cloneable {
         this.underline = underline;
     }
 
+    public void setFontSize(int fontSize) {
+        if (fontSize < -1)
+            throw new AssertionError("Error, font size can be less of -1");
+        this.fontSize = fontSize;
+    }
+
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
@@ -81,6 +92,7 @@ public final class Style implements Cloneable {
         if (bold != style.bold) return false;
         if (italic != style.italic) return false;
         if (underline != style.underline) return false;
+        if (fontSize != style.fontSize) return false;
         if (fontColor != null ? !fontColor.equals(style.fontColor) : style.fontColor != null) return false;
         return backgroundColor != null ? backgroundColor.equals(style.backgroundColor) : style.backgroundColor == null;
     }
@@ -92,6 +104,7 @@ public final class Style implements Cloneable {
         result = 31 * result + (underline ? 1 : 0);
         result = 31 * result + (fontColor != null ? fontColor.hashCode() : 0);
         result = 31 * result + (backgroundColor != null ? backgroundColor.hashCode() : 0);
+        result = 31 * result + fontSize;
         return result;
     }
 }

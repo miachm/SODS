@@ -621,6 +621,70 @@ public class RangeTest {
     }
 
     @Test
+    public void testSetFontSize() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        int fontSize = 15;
+
+        Range range = sheet.getDataRange();
+        range.setFontSize(fontSize);
+
+        Style[][] arr = range.getStyles();
+
+        assertEquals(arr[0][0].getFontSize(),fontSize);
+        assertEquals(arr[0][1].getFontSize(),fontSize);
+        assertEquals(arr[1][0].getFontSize(),fontSize);
+        assertEquals(arr[1][1].getFontSize(),fontSize);
+
+        range = sheet.getRange(1,0);
+        range.setFontSize(fontSize+1);
+        assertEquals(range.getStyle().getFontSize(),fontSize+1);
+    }
+
+    @Test
+    public void testSetFontSizes() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        int fontsize = 16;
+        int otherFontSize = 22;
+
+        Range range = sheet.getDataRange();
+        range.setFontSizes(otherFontSize, fontsize, -1, otherFontSize);
+
+        Style[][] arr = range.getStyles();
+
+        assertEquals(arr[0][0].getFontSize(),otherFontSize);
+        assertEquals(arr[0][1].getFontSize(),fontsize);
+        assertEquals(arr[1][0].getFontSize(),-1);
+        assertEquals(arr[1][1].getFontSize(),otherFontSize);
+    }
+
+    @Test
+    public void testSetFontSizesMat() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        int[][] arr = new int[2][2];
+        arr[0][1] = 11;
+        arr[1][1] = 13;
+
+        Range range = sheet.getDataRange();
+        range.setFontSizes(arr);
+
+        Style[][] result = range.getStyles();
+
+        assertEquals(result[0][0].getFontSize(),0);
+        assertEquals(result[0][1].getFontSize(), 11);
+        assertEquals(result[1][0].getFontSize(),0);
+        assertEquals(result[1][1].getFontSize(), 13);
+    }
+
+    @Test
     public void testSetValue() throws Exception {
         Sheet sheet = new Sheet("A");
         sheet.appendRow();

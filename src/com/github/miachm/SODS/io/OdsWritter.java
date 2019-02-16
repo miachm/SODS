@@ -244,6 +244,10 @@ public class OdsWritter {
                 styleText.setAttribute("style:text-underline-color", "font-color");
             }
 
+            if (style.getFontSize() != -1) {
+                styleText.setAttribute("fo:font-size", "" + style.getFontSize() + "pt");
+            }
+
             if (style.getFontColor() != null) {
                 styleText.setAttribute("fo:color", style.getFontColor().toString());
             }

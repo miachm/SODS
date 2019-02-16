@@ -264,6 +264,34 @@ public class Range {
         iterateRange((cell,row,column) -> cell.getStyle().setBackgroundColor(color[row][column]));
     }
 
+    public void setFontSize(int fontSize)
+    {
+        iterateRange((cell, row, column) -> cell.getStyle().setFontSize(fontSize));
+    }
+
+    public void setFontSizes(int... fontSizes)
+    {
+        if (fontSizes.length != getNumValues())
+            throw new AssertionError("Error in setFontSizes, the number of the arguments doesn't fit ("
+                    + fontSizes.length + " against " + getNumValues() + ")");
+
+        iterateRange((cell,row,column) -> cell.getStyle().setFontSize(fontSizes[row*getNumColumns()+column]));
+    }
+
+    public void setFontSizes(int[][] fontSizes)
+    {
+        if (fontSizes.length == 0)
+            throw new AssertionError("Error in setFontSizes, the array is empty");
+        if (fontSizes.length != getNumRows())
+            throw new AssertionError("Error in setFontSizes, the number of rows doesn't fit ("
+                    + fontSizes.length + " against " + getNumRows() + ")");
+        if (fontSizes[0].length != getNumColumns())
+            throw new AssertionError("Error in setFontSizes, the number of columns doesn't fit ("
+                    + fontSizes.length + " against " + getNumColumns() + ")");
+
+        iterateRange((cell,row,column) -> cell.getStyle().setFontSize(fontSizes[row][column]));
+    }
+
     private void iterateRange(RangeIterator e){
         for (int i = 0;i < numrows;i++){
             for (int j = 0;j < numcolumns;j++){
