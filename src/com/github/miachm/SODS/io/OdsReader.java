@@ -12,13 +12,17 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 public class OdsReader {
     private static final String CORRECT_MIMETYPE = "application/vnd.oasis.opendocument.spreadsheet";
     private static final String MANIFEST_PATH = "META-INF/manifest.xml";
+    private static final Locale defaultLocal = Locale.US;
     private String main_path;
     private SpreadSheet spread;
     private Map<String,byte[]> files;
@@ -284,6 +288,13 @@ public class OdsReader {
                 Range range = sheet.getRange(sheet.getMaxRows() - 1, column);
                 String valueType = getValueType(n);
                 String formula = getFormula(n);
+                Object value = null;
+
+                Node valueNode = n.getAttributes().getNamedItem("office:value");
+                if (valueNode != null) {
+                    value = getValue(valueNode.getNodeValue(), valueType);
+                }
+
                 number_columns_repeated = Long.parseLong(getAtribFromNode(n, "table:number-columns-repeated", "0").toString());
                 
                 range.setFormula(formula);
@@ -301,17 +312,19 @@ public class OdsReader {
                 
                 last_style = style;
 
-                NodeList cells = n.getChildNodes();
-                for (int j = 0; j < cells.getLength(); j++) {
-                    Node cell = cells.item(j);
-                    String cell_name = cell.getNodeName();
-                    Object cell_value = getValue(cell.getTextContent(), valueType);
-                    if (cell_name.equals("text:p")) {
-                        // TODO : Iterate over the children
-                    	last_cell_value = cell_value;
-                        range.setValue(cell_value);
+                if (value == null) {
+                    NodeList cells = n.getChildNodes();
+                    for (int j = 0; j < cells.getLength(); j++) {
+                        Node cell = cells.item(j);
+                        String cell_name = cell.getNodeName();
+                        if (cell_name.equals("text:p")) {
+                            // TODO : Iterate over the children
+                            value = getValue(cell.getTextContent(), valueType);
+                        }
                     }
                 }
+                last_cell_value = value;
+                range.setValue(value);
                 column++;
             }
 
@@ -350,13 +363,18 @@ public class OdsReader {
     }
 
     private Object getValue(String value, String valueType) {
-        if (valueType.equals("integer")) {
-            return Integer.parseInt(value);
+        try {
+            NumberFormat format = NumberFormat.getInstance(defaultLocal);
+            if (valueType.equals("integer")) {
+                return format.parse(value).longValue();
+            }
+            else if (valueType.equals("float")) {
+                return format.parse(value).doubleValue();
+            }
+            else
+                return value;
         }
-        else if (valueType.equals("float")) {
-            return Double.parseDouble(value);
-        }
-        else {
+        catch (ParseException e) {
             return value;
         }
     }
