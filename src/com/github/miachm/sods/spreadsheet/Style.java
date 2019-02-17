@@ -1,4 +1,4 @@
-package com.github.miachm.SODS.spreadsheet;
+package com.github.miachm.sods.spreadsheet;
 
 
 import java.util.HashMap;

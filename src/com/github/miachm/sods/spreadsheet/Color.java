@@ -1,4 +1,4 @@
-package com.github.miachm.SODS.spreadsheet;
+package com.github.miachm.sods.spreadsheet;
 
 final public class Color implements Cloneable {
     private final int red;

@@ -1,9 +1,9 @@
-package com.github.miachm.SODS.io;
+package com.github.miachm.sods.io;
 
-import com.github.miachm.SODS.spreadsheet.Range;
-import com.github.miachm.SODS.spreadsheet.Sheet;
-import com.github.miachm.SODS.spreadsheet.SpreadSheet;
-import com.github.miachm.SODS.spreadsheet.Style;
+import com.github.miachm.sods.spreadsheet.Range;
+import com.github.miachm.sods.spreadsheet.Sheet;
+import com.github.miachm.sods.spreadsheet.SpreadSheet;
+import com.github.miachm.sods.spreadsheet.Style;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

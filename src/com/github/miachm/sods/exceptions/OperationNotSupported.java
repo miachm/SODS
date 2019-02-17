@@ -1,8 +1,5 @@
-package com.github.miachm.SODS.exceptions;
+package com.github.miachm.sods.exceptions;
 
-/**
- * Created by MiguelPC on 29/03/2017.
- */
 public class OperationNotSupported extends RuntimeException {
     private String message;
     public OperationNotSupported(String s) {

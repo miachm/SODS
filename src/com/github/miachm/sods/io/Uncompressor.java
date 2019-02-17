@@ -1,4 +1,4 @@
-package com.github.miachm.SODS.io;
+package com.github.miachm.sods.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

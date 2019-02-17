@@ -1,8 +1,8 @@
-package com.github.miachm.SODS.io;
+package com.github.miachm.sods.io;
 
-import com.github.miachm.SODS.exceptions.NotAnOds;
-import com.github.miachm.SODS.exceptions.OperationNotSupported;
-import com.github.miachm.SODS.spreadsheet.*;
+import com.github.miachm.sods.exceptions.NotAnOds;
+import com.github.miachm.sods.exceptions.OperationNotSupported;
+import com.github.miachm.sods.spreadsheet.*;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
