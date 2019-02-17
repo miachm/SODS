@@ -1,7 +1,6 @@
 package com.github.miachm.SODS.spreadsheet;
 
-final public class Color {
-
+final public class Color implements Cloneable {
     private final int red;
     private final int blue;
     private final int green;
@@ -75,5 +74,10 @@ final public class Color {
         result = 31 * result + blue;
         result = 31 * result + green;
         return result;
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

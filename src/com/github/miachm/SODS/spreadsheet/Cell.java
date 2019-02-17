@@ -1,6 +1,6 @@
 package com.github.miachm.SODS.spreadsheet;
 
-class Cell {
+class Cell implements Cloneable {
     private Object value;
     private String formula;
     private Style style = new Style();
@@ -10,11 +10,24 @@ class Cell {
         return style;
     }
 
+    Style getStyleCopy()
+    {
+        try {
+            return (Style) style.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError(e.toString());
+        }
+    }
+
     void setStyle(Style style)
     {
         if (style == null)
             throw new AssertionError("Style can not be null");
-        this.style = style;
+        try {
+            this.style = (Style) style.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError("Style is not cloneable");
+        }
     }
 
     void clear()
@@ -31,7 +44,8 @@ class Cell {
     Object getValue(){
         return value;
     }
-    void setValue(Object value) {
+    void setValue(Object value)
+    {
         this.value = value;
     }
 
@@ -83,5 +97,10 @@ class Cell {
                 "value=" + value +
                 ", formula='" + formula + '\'' +
                 '}';
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

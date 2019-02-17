@@ -273,10 +273,4 @@ public class OdsWritter {
             return "string";
         }
     }
-
-    public void getStyles() {
-        for (Sheet sheet : spread.getSheets()) {
-
-        }
-    }
 }
