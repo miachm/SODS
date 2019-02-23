@@ -16,12 +16,13 @@ public final class Style implements Cloneable {
 
     }
 
-    public Style(boolean bold, boolean italic, boolean underline, Color fontColor, Color backgroundColor) {
+    public Style(boolean bold, boolean italic, boolean underline, Color fontColor, Color backgroundColor, int fontSize) {
         this.bold = bold;
         this.italic = italic;
         this.underline = underline;
         this.fontColor = fontColor;
         this.backgroundColor = backgroundColor;
+        this.fontSize = fontSize;
     }
 
     public boolean isDefault()
@@ -77,7 +78,7 @@ public final class Style implements Cloneable {
 
     public void setFontSize(int fontSize) {
         if (fontSize < -1)
-            throw new AssertionError("Error, font size can be less of -1");
+            throw new IllegalArgumentException("Error, font size can be less of -1");
         this.fontSize = fontSize;
     }
 

@@ -211,8 +211,8 @@ public class RangeTest {
         Range range = sheet.getDataRange();
 
         Style[][] styles = new Style[2][1];
-        styles[0][0] = new Style(true, false, false, null, new Color(2, 3, 4));
-        styles[1][0] = new Style(false, true, true, new Color(200, 100, 230), null);
+        styles[0][0] = new Style(true, false, false, null, new Color(2, 3, 4), 4);
+        styles[1][0] = new Style(false, true, true, new Color(200, 100, 230), null, 5);
         range.setStyles(styles);
 
         Style[][] result = range.getStyles();
@@ -743,5 +743,91 @@ public class RangeTest {
         assertEquals(arr[1][0],4);
         assertEquals(arr[1][1],5);
         assertEquals(arr[1][2],6);
+    }
+
+    @Test
+    public void testSetStyle() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Style style = new Style();
+        style.setFontSize(4);
+        style.setBackgroundColor(new Color(255,0,0));
+        style.setBold(true);
+
+        Range range = sheet.getDataRange();
+        range.setStyle(style);
+
+        Style[][] arr = range.getStyles();
+
+        assertEquals(arr[0][0],style);
+        assertEquals(arr[0][1],style);
+        assertEquals(arr[1][0],style);
+        assertEquals(arr[1][1],style);
+    }
+
+    @Test
+    public void testSetStyles() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Style style = new Style();
+        style.setFontSize(4);
+        style.setBackgroundColor(new Color(255,0,0));
+        style.setBold(true);
+
+        Style otherStyle = new Style();
+        otherStyle.setUnderline(true);
+        otherStyle.setItalic(true);
+        otherStyle.setFontColor(new Color(0,23,12));
+
+        Range range = sheet.getDataRange();
+        range.setValues(style,new Style(),otherStyle,style);
+
+        Object[][] arr = range.getValues();
+
+        assertEquals(arr[0][0],style);
+        assertEquals(arr[0][1],new Style());
+        assertEquals(arr[1][0],otherStyle);
+        assertEquals(arr[1][1],style);
+    }
+
+    @Test
+    public void testSetStylesMat() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumns(2);
+
+        Style style = new Style();
+        style.setFontSize(4);
+        style.setBackgroundColor(new Color(255,0,0));
+        style.setBold(true);
+
+        Style otherStyle = new Style();
+        otherStyle.setUnderline(true);
+        otherStyle.setItalic(true);
+        otherStyle.setFontColor(new Color(0,23,12));
+
+        Range range = sheet.getDataRange();
+        Style[][] arr = new Style[2][3];
+        arr[0][0] = style;
+        arr[0][1] = new Style();
+        arr[0][2] = otherStyle;
+        arr[1][0] = style;
+        arr[1][1] = otherStyle;
+        arr[1][2] = style;
+
+        range.setStyles(arr);
+
+        arr = range.getStyles();
+
+        assertEquals(arr[0][0],style);
+        assertEquals(arr[0][1],new Style());
+        assertEquals(arr[0][2],otherStyle);
+        assertEquals(arr[1][0],style);
+        assertEquals(arr[1][1],otherStyle);
+        assertEquals(arr[1][2],style);
     }
 }

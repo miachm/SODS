@@ -253,7 +253,7 @@ public class Range {
     /**
      * Set a set of values to the range. The values array must have the same size of the entire range itself
      *
-     * @param o The values 2D-array, it must the same size of the range itself
+     * @param o The values 2D-array, it must have the same size of the range itself
      * @throws IllegalArgumentException if the number of values is not equals to the size of range
      */
     public void setValues(Object[][] o){
@@ -278,7 +278,6 @@ public class Range {
         iterateRange((cell,row,column) -> cell.getStyle().setBold(bold));
     }
 
-
     /**
      * Set a set of font bolds styles to the range. The array must have the same size of the entire range itself
      *
@@ -301,7 +300,7 @@ public class Range {
     /**
      * Set a set of font bolds formatting to the range. The format array must have the same size of the entire range itself
      *
-     * @param o The format 2D-array, it must the same size of the range itself
+     * @param bold The format 2D-array, it must have the same size of the range itself
      * @throws IllegalArgumentException if the number of values is not equals to the size of range
      */
     public void setFontBolds(boolean[][] bold) {
@@ -317,11 +316,27 @@ public class Range {
         iterateRange((cell,row,column) -> cell.getStyle().setBold(bold[row][column]));
     }
 
+    /**
+     * Set a font italic style to the entire range
+     *
+     * @param italic Boolean which indicates if the font has italic style or not
+     */
     public void setFontItalic(boolean italic)
     {
         iterateRange((cell, row, column) -> cell.getStyle().setItalic(italic));
     }
 
+    /**
+     * Set a set of font italics styles to the range. The array must have the same size of the entire range itself
+     *
+     * <pre>
+     *     Range range = sheet.getRange(0, 0, 2, 2); // 2x2 Range
+     *     range.setFontItalics(true, false, true, false); // Set the font italic formatting for the range
+     * </pre>
+     *
+     * @param italic The font italics array, it must the same size of the range itself
+     * @throws IllegalArgumentException if the number of values is not equals to the size of range
+     */
     public void setFontItalics(boolean... italic) {
         if (italic.length != getNumValues())
             throw new IllegalArgumentException("Error in setFontItalic, the number of the arguments doesn't fit ("
@@ -330,6 +345,12 @@ public class Range {
         iterateRange((cell,row,column) -> cell.getStyle().setItalic(italic[row*getNumColumns()+column]));
     }
 
+    /**
+     * Set a set of font italics formatting to the range. The format array must have the same size of the entire range itself
+     *
+     * @param italic The format 2D-array, it must have the same size of the range itself
+     * @throws IllegalArgumentException if the number of values is not equals to the size of range
+     */
     public void setFontItalics(boolean[][] italic)
     {
         if (italic.length == 0)
@@ -344,11 +365,27 @@ public class Range {
         iterateRange((cell,row,column) -> cell.getStyle().setItalic(italic[row][column]));
     }
 
+    /**
+     * Set a font underline style to the entire range
+     *
+     * @param underline Boolean which indicates if the font has underline style or not
+     */
     public void setFontUnderline(boolean underline)
     {
         iterateRange((cell, row, column) -> cell.getStyle().setUnderline(underline));
     }
 
+    /**
+     * Set a set of font underlines styles to the range. The array must have the same size of the entire range itself
+     *
+     * <pre>
+     *     Range range = sheet.getRange(0, 0, 2, 2); // 2x2 Range
+     *     range.setFontUnderlines(true, false, true, false); // Set the font underline formatting for the range
+     * </pre>
+     *
+     * @param underline The font underline array, it must the same size of the range itself
+     * @throws IllegalArgumentException if the number of values is not equals to the size of range
+     */
     public void setFontUnderlines(boolean... underline)
     {
         if (underline.length != getNumValues())
@@ -358,6 +395,12 @@ public class Range {
         iterateRange((cell,row,column) -> cell.getStyle().setUnderline(underline[row*getNumColumns()+column]));
     }
 
+    /**
+     * Set a set of font underlines formatting to the range. The format array must have the same size of the entire range itself
+     *
+     * @param underline The format 2D-array, it must have the same size of the range itself
+     * @throws IllegalArgumentException if the number of values is not equals to the size of range
+     */
     public void setFontUnderlines(boolean[][] underline)
     {
         if (underline.length == 0)
@@ -372,11 +415,30 @@ public class Range {
         iterateRange((cell,row,column) -> cell.getStyle().setUnderline(underline[row][column]));
     }
 
+    /**
+     * Set a font color to the entire range
+     *
+     * @param color The color to aplicate. A null value indicates no color
+     */
     public void setFontColor(Color color)
     {
         iterateRange((cell, row, column) -> cell.getStyle().setFontColor(color));
     }
 
+    /**
+     * Set a set of font colors styles to the range. The array must have the same size of the entire range itself
+     *
+     * <pre>
+     *     Color red = new Color(255, 0, 0);
+     *     Color green = new Color(0, 255, 0);
+     *     Color blue = new Color(0, 0, 255);
+     *     Range range = sheet.getRange(0, 0, 2, 2); // 2x2 Range
+     *     range.setFontColors(red, green, blue, null); // Set the font colors for the range
+     * </pre>
+     *
+     * @param color The font colors array, it must the same size of the range itself. Null values indicates no color
+     * @throws IllegalArgumentException if the number of values is not equals to the size of range
+     */
     public void setFontColors(Color... color)
     {
         if (color.length != getNumValues())
@@ -386,6 +448,12 @@ public class Range {
         iterateRange((cell,row,column) -> cell.getStyle().setFontColor(color[row*getNumColumns()+column]));
     }
 
+    /**
+     * Set a set of font colors formatting to the range. The format array must have the same size of the entire range itself
+     *
+     * @param color The format 2D-array, it must have the same size of the range itself. A null value in the array indicates no color
+     * @throws IllegalArgumentException if the number of values is not equals to the size of range
+     */
     public void setFontColors(Color[][] color)
     {
         if (color.length == 0)
@@ -400,12 +468,30 @@ public class Range {
         iterateRange((cell,row,column) -> cell.getStyle().setFontColor(color[row][column]));
     }
 
-
+    /**
+     * Set a cell background color to the entire range
+     *
+     * @param color The color to aplicate. A null value indicates "no color"
+     */
     public void setBackgroundColor(Color color)
     {
         iterateRange((cell, row, column) -> cell.getStyle().setBackgroundColor(color));
     }
 
+    /**
+     * Set a set of cell background colors to the range. The array must have the same size of the entire range itself
+     *
+     * <pre>
+     *     Color red = new Color(255, 0, 0);
+     *     Color green = new Color(0, 255, 0);
+     *     Color blue = new Color(0, 0, 255);
+     *     Range range = sheet.getRange(0, 0, 2, 2); // 2x2 Range
+     *     range.setBackgroundColors(red, green, blue, null); // Set the background colors for the range
+     * </pre>
+     *
+     * @param color The background colors array, it must the same size of the range itself. Null values indicates no color
+     * @throws IllegalArgumentException if the number of values is not equals to the size of range
+     */
     public void setBackgroundColors(Color... color)
     {
         if (color.length != getNumValues())
@@ -415,6 +501,12 @@ public class Range {
         iterateRange((cell,row,column) -> cell.getStyle().setBackgroundColor(color[row*getNumColumns()+column]));
     }
 
+    /**
+     * Set a set of cell background colors formatting to the range. The format array must have the same size of the entire range itself
+     *
+     * @param color The format 2D-array, it must have the same size of the range itself
+     * @throws IllegalArgumentException if the number of values is not equals to the size of range
+     */
     public void setBackgroundColors(Color[][] color)
     {
         if (color.length == 0)
@@ -429,11 +521,28 @@ public class Range {
         iterateRange((cell,row,column) -> cell.getStyle().setBackgroundColor(color[row][column]));
     }
 
+    /**
+     * Set the font size to the entire range
+     *
+     * @param fontSize The fontsize to aplicate. A value of -1 unsets the font size
+     * @throws IllegalArgumentException if the font size is less of -1
+     */
     public void setFontSize(int fontSize)
     {
         iterateRange((cell, row, column) -> cell.getStyle().setFontSize(fontSize));
     }
 
+    /**
+     * Set a set of font sizes to the range. The array must have the same size of the entire range itself
+     *
+     * <pre>
+     *     Range range = sheet.getRange(0, 0, 2, 2); // 2x2 Range
+     *     range.setBackgroundColors(20, 15, -1, 12); // Set the font sizes for the range
+     * </pre>
+     *
+     * @param fontSizes The background colors array, it must the same size of the range itself. -1 values unsets the font size
+     * @throws IllegalArgumentException if the number of values is not equals to the size of range or a font size is less of -1
+     */
     public void setFontSizes(int... fontSizes)
     {
         if (fontSizes.length != getNumValues())
@@ -443,6 +552,12 @@ public class Range {
         iterateRange((cell,row,column) -> cell.getStyle().setFontSize(fontSizes[row*getNumColumns()+column]));
     }
 
+    /**
+     * Set a set of font sizes to the range. The format array must have the same size of the entire range itself
+     *
+     * @param fontSizes The format 2D-array, it must have the same size of the range itself
+     * @throws IllegalArgumentException if the number of values is not equals to the size of range or a font size is less of -1
+     */
     public void setFontSizes(int[][] fontSizes)
     {
         if (fontSizes.length == 0)
@@ -480,28 +595,49 @@ public class Range {
         return builder.toString();
     }
 
+    /**
+     * Set a formula for every cell in the range. Note that this method doesn't evaluate the formula. It just
+     * sets the formula value for when you decide to save it to a file.
+     *
+     * @param formula The formula string representation in the same format of a regular spreadsheet, a example would be: "A1+A2+A3"
+     */
     public void setFormula(String formula)
     {
         iterateRange((cell,row,column) -> cell.setFormula(formula));
     }
 
+    /**
+     * Set a set of formulas to the range. The array must have the same size of the entire range itself.
+     * Note that this method doesn't evaluate the formulas. It jus sets the formula value for when you decide to save it to a file.
+     *
+     * @param formula The formulas array, it must the same size of the range itself. The format of each formula
+     *                should be same used in a regular spreadsheet, for example: "A1+A2+A3"
+     * @throws IllegalArgumentException if the number of values is not equals to the size of range
+     */
     public void setFormulas(String... formula){
         if (formula.length != getNumValues())
-            throw new IllegalArgumentException("Error in setValues, the number of the arguments doesn't fit ("
+            throw new IllegalArgumentException("Error in setFormulas, the number of the arguments doesn't fit ("
                     + formula.length + " against " + getNumValues() + ")");
 
         iterateRange((cell,row,column) -> cell.setFormula(formula[row*getNumColumns()+column]));
     }
 
+    /**
+     * Set a set of formulas to the range. The formula array must have the same size of the entire range itself
+     * Note that this method doesn't evaluate the formulas. It jus sets the formula value for when you decide to save it to a file.
+     *
+     * @param formula The formula 2D-array, it must have the same size of the range itself
+     * @throws IllegalArgumentException if the number of values is not equals to the size of range
+     */
     public void setFormulas(String formula[][])
     {
         if (formula.length == 0)
-            throw new IllegalArgumentException("Error in setValues, the array is empty");
+            throw new IllegalArgumentException("Error in setFormulas, the array is empty");
         if (formula.length != getNumRows())
-            throw new IllegalArgumentException("Error in setValues, the number of rows doesn't fit ("
+            throw new IllegalArgumentException("Error in setFormulas, the number of rows doesn't fit ("
                     + formula.length + " against " + getNumRows() + ")");
         if (formula[0].length != getNumColumns())
-            throw new IllegalArgumentException("Error in setValues, the number of columns doesn't fit ("
+            throw new IllegalArgumentException("Error in setFormulas, the number of columns doesn't fit ("
                     + formula.length + " against " + getNumColumns() + ")");
 
         iterateRange((cell,row,column) -> cell.setFormula(formula[row][column]));
@@ -519,20 +655,46 @@ public class Range {
                 "\n}";
     }
 
+    /**
+     * Set a format style for all the cells of the range
+     *
+     * @param style The style to apply. Cells will receive a clone of this object.
+     * @throws IllegalArgumentException if the style is null
+     */
     public void setStyle(Style style)
     {
         iterateRange((cell, row, column) -> cell.setStyle(style));
     }
 
+    /**
+     * Set a set of format styles to the range. The array must have the same size of the entire range itself.
+     *
+     * @param style The style array, it must the same size of the range itself.
+     * @throws IllegalArgumentException if the number of values is not equals to the size of range or a style is null
+     */
+    public void setStyles(Style... style){
+        if (style.length != getNumValues())
+            throw new IllegalArgumentException("Error in setStyles, the number of the arguments doesn't fit ("
+                    + style.length + " against " + getNumValues() + ")");
+
+        iterateRange((cell,row,column) -> cell.setStyle(style[row*getNumColumns()+column]));
+    }
+
+    /**
+     * Set a set of styles to the range. The array must have the same size of the entire range itself
+     *
+     * @param style The formula 2D-array, it must have the same size of the range itself
+     * @throws IllegalArgumentException if the number of values is not equals to the size of range or a style is null
+     */
     public void setStyles(Style style[][])
     {
         if (style.length == 0)
-            throw new IllegalArgumentException("Error in setFontItalics, the array is empty");
+            throw new IllegalArgumentException("Error in setStyles, the array is empty");
         if (style.length != getNumRows())
-            throw new IllegalArgumentException("Error in setFontItalics, the number of rows doesn't fit ("
+            throw new IllegalArgumentException("Error in setStyles, the number of rows doesn't fit ("
                     + style.length + " against " + getNumRows() + ")");
         if (style[0].length != getNumColumns())
-            throw new IllegalArgumentException("Error in setFontItalics, the number of columns doesn't fit ("
+            throw new IllegalArgumentException("Error in setStyles, the number of columns doesn't fit ("
                     + style.length + " against " + getNumColumns() + ")");
 
         iterateRange((cell,row,column) -> cell.setStyle(style[row][column]));

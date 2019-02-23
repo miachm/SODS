@@ -22,7 +22,7 @@ class Cell implements Cloneable {
     void setStyle(Style style)
     {
         if (style == null)
-            throw new AssertionError("Style can not be null");
+            throw new IllegalArgumentException("Style can not be null");
         try {
             this.style = (Style) style.clone();
         } catch (CloneNotSupportedException e) {
