@@ -29,7 +29,7 @@ Right now you can:
 This is an example of an ODS file in LibreOffice
 ![Sample Libreoffice](https://i.imgur.com/avJ8aLw.png)
 
-Here, i am using SODS and rendering it with JavaFX
+Here, i am using SODS for load the file and rendering it with JavaFX
 
 ![Sample SODS](https://i.imgur.com/Myfustx.png)
 
