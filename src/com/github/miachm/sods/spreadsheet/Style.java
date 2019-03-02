@@ -1,8 +1,11 @@
 package com.github.miachm.sods.spreadsheet;
 
-
 import java.util.HashMap;
 import java.util.Map;
+
+/**
+ * This a class which represents the formatting of a cell (background color, font size, font style, etc...)
+ */
 
 public final class Style implements Cloneable {
     private boolean bold;
@@ -12,10 +15,12 @@ public final class Style implements Cloneable {
     private Color backgroundColor;
     private int fontSize = -1;
 
+    /**
+     * Constructs an empty-default Style.
+     */
     public Style() {
 
     }
-
     public Style(boolean bold, boolean italic, boolean underline, Color fontColor, Color backgroundColor, int fontSize) {
         this.bold = bold;
         this.italic = italic;
@@ -25,57 +30,122 @@ public final class Style implements Cloneable {
         this.fontSize = fontSize;
     }
 
+    /**
+     * Determine if this has default rules or not
+     *
+     * @return True if the style is not modified.
+     */
     public boolean isDefault()
     {
         return this.equals(new Style());
     }
-    
+
+    /**
+     * Determines if the font has bold style or not.
+     *
+     * @return True if the font has bold style
+     */
     public boolean isBold() {
         return bold;
     }
 
+    /**
+     * Determines if the font has italic style or not.
+     *
+     * @return True if the font has italic style
+     */
     public boolean isItalic() {
         return italic;
     }
 
+    /**
+     * Returns the font color.
+     *
+     * @return The font color. It can be null if it doesn't have a setted font color
+     */
     public Color getFontColor() {
         return fontColor;
     }
 
+    /**
+     * Returns the cell background color.
+     *
+     * @return The background color. It can be null if it doesn't have a setted background color
+     */
     public Color getBackgroundColor() {
         return backgroundColor;
     }
 
+    /**
+     * Returns the font size
+     *
+     * @return The font size. It will be -1 if it doesn't have a setted font size
+     */
     public int getFontSize() {
         return fontSize;
     }
 
+    /**
+     * Set the background color
+     *
+     * @param backgroundColor The background color of the cell. It can be null.
+     */
     public void setBackgroundColor(Color backgroundColor) {
         this.backgroundColor = backgroundColor;
     }
 
+    /**
+     * Set the font color
+     *
+     * @param fontColor The font color of the cell. It can be null.
+     */
     public void setFontColor(Color fontColor) {
         this.fontColor = fontColor;
     }
 
+    /**
+     * Set a bold font style
+     *
+     * @param bold True for sets a bold style font.
+     */
     public void setBold(boolean bold)
     {
         this.bold = bold;
     }
 
+    /**
+     * Set a italic font style
+     *
+     * @param italic True for sets a italic style font.
+     */
     public void setItalic(boolean italic)
     {
         this.italic = italic;
     }
 
+    /**
+     * Returns if the font has a underline style or not
+     *
+     * @return Returns true if the font has an underline style
+     */
     public boolean isUnderline() {
         return underline;
     }
 
+    /**
+     * Set a underline font style
+     *
+     * @param underline True for sets a underline style font.
+     */
     public void setUnderline(boolean underline) {
         this.underline = underline;
     }
 
+    /**
+     * Sets the font size
+     *
+     * @param fontSize The font size to set. It must be greater of -1, a -1 value indicates no font size.
+     */
     public void setFontSize(int fontSize) {
         if (fontSize < -1)
             throw new IllegalArgumentException("Error, font size can be less of -1");
@@ -112,6 +182,15 @@ public final class Style implements Cloneable {
         return result;
     }
 
+    /**
+     * Returns a Map representing this class as css-styles.
+     * For example, if you setted a bold font and a italic font. You will get a Map with 2 keys:
+     *
+     * font-weight => bold
+     * font-style  => italic
+     *
+     * @return A map with the CSS representation of this class
+     */
     public Map<String, String> getCssStyles()
     {
         Map<String, String> result = new HashMap<>();
@@ -136,12 +215,38 @@ public final class Style implements Cloneable {
         return result;
     }
 
+    /**
+     * Returns a String of this class in a CSS way.
+     * For example, if you setted a bold font and a italic font. You will get:
+     *
+     * font-weight: bold;
+     * font-style: italic;
+     *
+     * @return A String with the CSS representation of this class
+     */
     @Override
     public String toString()
     {
         return toString("");
     }
 
+    /**
+     * Overloaded method of toString(), it allows a slight customization in the output.
+     *
+     * <pre>
+     *     style.setBold(true);
+     *     style.setItalic(true);
+     *     style.toString("-fx-");
+     *
+     *     // It returns:
+     *     //
+     *     // -fx-font-weight: bold;
+     *     // -fx-font-style: italic;
+     * </pre>
+     *
+     * @param prefix a prefix to add in every CSS key. For example: "-fx-"
+     * @return A String with the CSS representation of this class
+     */
     public String toString(String prefix)
     {
         String result = "";
