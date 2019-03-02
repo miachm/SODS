@@ -23,6 +23,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * Internal class for generate ODS files.
+ */
 public class OdsWritter {
     private final static String office = "urn:oasis:names:tc:opendocument:xmlns:office:1.0";
     private final static String table_namespace = "urn:oasis:names:tc:opendocument:xmlns:table:1.0";

@@ -36,7 +36,7 @@ public class SpreadSheet implements Cloneable {
      * @throws com.github.miachm.sods.exceptions.NotAnOds If the file isn't an ODS file.
      * @throws com.github.miachm.sods.exceptions.OperationNotSupported If the ODS file has a feature which it's not implemented in this library
      * @throws IOException If an unexpected IO error is produced
-     * @see SpreadSheet(InputStream)
+     * @see #SpreadSheet(InputStream)
      */
     public SpreadSheet(File file) throws IOException {
         this(new FileInputStream(file));
@@ -49,7 +49,7 @@ public class SpreadSheet implements Cloneable {
      * @throws com.github.miachm.sods.exceptions.NotAnOds If the file isn't an ODS file.
      * @throws com.github.miachm.sods.exceptions.OperationNotSupported If the ODS file has a feature which it's not implemented in this library
      * @throws IOException If an unexpected IO error is produced
-     * @see SpreadSheet(InputStream)
+     * @see #SpreadSheet(InputStream)
      */
     public SpreadSheet(InputStream in) throws IOException {
         OdsReader.load(in,this);
@@ -102,7 +102,7 @@ public class SpreadSheet implements Cloneable {
      *
      * @param name The name of the sheet.
      * @return True if the sheet was removed, false otherwise
-     * @see deleteSheet(Sheet)
+     * @see #deleteSheet(Sheet)
      */
     public boolean deleteSheet(String name){
         return sheets.removeIf((sheet) -> sheet.getName().equals(name));
@@ -112,7 +112,7 @@ public class SpreadSheet implements Cloneable {
      * Remove the specified sheet of the book.
      * @param sheet sheet to remove.
      * @return True if the sheet was removed.
-     * @see deleteSheet(String)
+     * @see #deleteSheet(String)
      */
     public boolean deleteSheet(Sheet sheet){
         return sheets.remove(sheet);
@@ -167,6 +167,7 @@ public class SpreadSheet implements Cloneable {
      * Replace the sheet in the position pos.
      *
      * @param sheet The new sheet, it must be not-null.
+     * @param pos The position where insert the sheet
      * @throws NullPointerException if the sheet is null
      * @throws IndexOutOfBoundsException if the position is invalid
      */
@@ -209,6 +210,8 @@ public class SpreadSheet implements Cloneable {
 
     /**
      * Sort the sheets by a custom comparator
+     *
+     * @param comparator The comparator used in the sorting
      */
     public void sortSheets(Comparator<Sheet> comparator){
         sheets.sort(comparator);

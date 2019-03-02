@@ -1,7 +1,7 @@
 package com.github.miachm.sods.spreadsheet;
 
 /**
- * A range represents a subset of a Sheet
+ * A range represents a subset of a Sheet.
  * You use ranges for write/read content in a Sheet
  */
 public class Range {

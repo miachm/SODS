@@ -145,6 +145,7 @@ public final class Style implements Cloneable {
      * Sets the font size
      *
      * @param fontSize The font size to set. It must be greater of -1, a -1 value indicates no font size.
+     * @throws IllegalArgumentException if the font size is less of -1
      */
     public void setFontSize(int fontSize) {
         if (fontSize < -1)
@@ -186,8 +187,8 @@ public final class Style implements Cloneable {
      * Returns a Map representing this class as css-styles.
      * For example, if you setted a bold font and a italic font. You will get a Map with 2 keys:
      *
-     * font-weight => bold
-     * font-style  => italic
+     * font-weight = bold
+     * font-style  = italic
      *
      * @return A map with the CSS representation of this class
      */

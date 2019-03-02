@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Sheet represents a sheet in a Spreadsheet.
+ * Represents a sheet in a Spreadsheet.
  *
  * You can create empty sheets and add to an existing Spreadsheet
  */
@@ -193,7 +193,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * @param numRows How many rows to take
      * @return A range which represents the cell
      * @throws IndexOutOfBoundsException if it represents a invalid range
-     * @see getRange(int,int,int,int)
+     * @see #getRange(int, int, int, int)
      **/
     public Range getRange(int row, int column, int numRows) {
         return getRange(row, column, numRows, 1);
