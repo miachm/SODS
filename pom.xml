@@ -6,7 +6,7 @@
     <groupId>com.github.miachm.sods</groupId>
     <artifactId>SODS</artifactId>
     <packaging>jar</packaging>
-    <version>0.1</version>
+    <version>1.0.0</version>
 
     <name>Simple ODS library</name>
     <description>A library for load/save ODS files in java.</description>
@@ -30,6 +30,21 @@
     <build>
         <sourceDirectory>${project.basedir}/src/</sourceDirectory>
         <testSourceDirectory>${project.basedir}/tests/</testSourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
     <licenses>
