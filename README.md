@@ -14,6 +14,11 @@ Here some help in differents IDE:
 - [Eclipse](https://stackoverflow.com/a/3280384/2489715)
 - [Netbeans](https://www.quora.com/How-can-I-add-jar-files-to-libraries-in-Netbeans-IDE8-0).
 
+## Docs
+[You can access the javadocs here](https://miachm.github.io/SODS/)
+
+There is an [examples folder](https://github.com/miachm/SODS/tree/master/examples) where you can read codes samples.
+
 ## F.A.Q
 
 ### What is an ODS?
