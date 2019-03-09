@@ -1,6 +1,7 @@
 # SODS
 
 [![Build Status](https://travis-ci.org/miachm/SODS.svg?branch=master)](https://travis-ci.org/miachm/SODS)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
 A simple library for process ODS files in Java. It allows read/write ODS files.
 
