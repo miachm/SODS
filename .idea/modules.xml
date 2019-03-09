@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/SODS.iml" filepath="$PROJECT_DIR$/.idea/SODS.iml" />
+      <module fileurl="file://$PROJECT_DIR$/examples/Example.iml" filepath="$PROJECT_DIR$/examples/Example.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/sods.iml" filepath="$PROJECT_DIR$/.idea/sods.iml" />
     </modules>
   </component>
 </project>

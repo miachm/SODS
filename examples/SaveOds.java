@@ -1,7 +1,5 @@
-package com.github.miachm.sods.examples;
-
-import com.github.miachm.sods.spreadsheet.Sheet;
-import com.github.miachm.sods.spreadsheet.SpreadSheet;
+import com.github.miachm.sods.Sheet;
+import com.github.miachm.sods.SpreadSheet;
 
 import java.io.File;
 import java.io.IOException;

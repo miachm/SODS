@@ -1,9 +1,7 @@
-package com.github.miachm.sods.examples;
-
-import com.github.miachm.sods.spreadsheet.Range;
-import com.github.miachm.sods.spreadsheet.Sheet;
-import com.github.miachm.sods.spreadsheet.SpreadSheet;
-import com.github.miachm.sods.spreadsheet.Style;
+import com.github.miachm.sods.Range;
+import com.github.miachm.sods.Sheet;
+import com.github.miachm.sods.SpreadSheet;
+import com.github.miachm.sods.Style;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.HPos;
@@ -56,7 +54,7 @@ public class OdsGuiViewer extends Application{
     public File askUserForAnOdsFile()
     {
         FileChooser chooser = new FileChooser();
-        chooser.setInitialDirectory(new File("."));
+        chooser.setInitialDirectory(new File(""));
 
         FileChooser.ExtensionFilter extFilter = new
                 FileChooser.ExtensionFilter("Spreadsheet files", "*.ods");

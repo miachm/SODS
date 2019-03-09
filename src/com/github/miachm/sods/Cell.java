@@ -1,4 +1,4 @@
-package com.github.miachm.sods.spreadsheet;
+package com.github.miachm.sods;
 
 class Cell implements Cloneable {
     private Object value;

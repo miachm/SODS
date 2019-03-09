@@ -1,4 +1,4 @@
-package com.github.miachm.sods.spreadsheet;
+package com.github.miachm.sods;
 
 /**
  * A range represents a subset of a Sheet.

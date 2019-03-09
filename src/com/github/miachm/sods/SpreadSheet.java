@@ -1,7 +1,4 @@
-package com.github.miachm.sods.spreadsheet;
-
-import com.github.miachm.sods.io.OdsReader;
-import com.github.miachm.sods.io.OdsWritter;
+package com.github.miachm.sods;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -33,8 +30,8 @@ public class SpreadSheet implements Cloneable {
      * @param file The file to load. It must be a valid readable file
      * @throws NullPointerException If the file is null
      * @throws FileNotFoundException If the file doesn't exist or it can be readed
-     * @throws com.github.miachm.sods.exceptions.NotAnOds If the file isn't an ODS file.
-     * @throws com.github.miachm.sods.exceptions.OperationNotSupported If the ODS file has a feature which it's not implemented in this library
+     * @throws NotAnOdsException If the file isn't an ODS file.
+     * @throws OperationNotSupportedException If the ODS file has a feature which it's not implemented in this library
      * @throws IOException If an unexpected IO error is produced
      * @see #SpreadSheet(InputStream)
      */
@@ -46,8 +43,8 @@ public class SpreadSheet implements Cloneable {
      * Load a Spreadsheet from an inputstream.
      * @param in The inputstream to read
      * @throws NullPointerException If the inputstream is null
-     * @throws com.github.miachm.sods.exceptions.NotAnOds If the file isn't an ODS file.
-     * @throws com.github.miachm.sods.exceptions.OperationNotSupported If the ODS file has a feature which it's not implemented in this library
+     * @throws NotAnOdsException If the file isn't an ODS file.
+     * @throws OperationNotSupportedException If the ODS file has a feature which it's not implemented in this library
      * @throws IOException If an unexpected IO error is produced
      * @see #SpreadSheet(InputStream)
      */

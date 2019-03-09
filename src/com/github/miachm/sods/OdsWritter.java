@@ -1,9 +1,5 @@
-package com.github.miachm.sods.io;
+package com.github.miachm.sods;
 
-import com.github.miachm.sods.spreadsheet.Range;
-import com.github.miachm.sods.spreadsheet.Sheet;
-import com.github.miachm.sods.spreadsheet.SpreadSheet;
-import com.github.miachm.sods.spreadsheet.Style;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -26,7 +22,7 @@ import java.util.Map;
 /**
  * Internal class for generate ODS files.
  */
-public class OdsWritter {
+class OdsWritter {
     private final static String office = "urn:oasis:names:tc:opendocument:xmlns:office:1.0";
     private final static String table_namespace = "urn:oasis:names:tc:opendocument:xmlns:table:1.0";
     private final static String text_namespace = "urn:oasis:names:tc:opendocument:xmlns:text:1.0";

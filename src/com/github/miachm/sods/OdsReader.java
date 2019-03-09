@@ -1,8 +1,5 @@
-package com.github.miachm.sods.io;
+package com.github.miachm.sods;
 
-import com.github.miachm.sods.exceptions.NotAnOds;
-import com.github.miachm.sods.exceptions.OperationNotSupported;
-import com.github.miachm.sods.spreadsheet.*;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -22,7 +19,7 @@ import java.util.Set;
 /**
  * Internal class for read ODS files
  */
-public class OdsReader {
+class OdsReader {
     private static final String CORRECT_MIMETYPE = "application/vnd.oasis.opendocument.spreadsheet";
     private static final String MANIFEST_PATH = "META-INF/manifest.xml";
     private static final Locale defaultLocal = Locale.US;
@@ -54,17 +51,17 @@ public class OdsReader {
     private void checkMimeType(Map<String,byte[]> map){
         byte[] mimetype = map.get("mimetype");
         if (mimetype == null)
-            throw new NotAnOds("This file doesn't contain a mimetype");
+            throw new NotAnOdsException("This file doesn't contain a mimetype");
 
         String mimetype_string = new String(mimetype);
         if (!mimetype_string.equals(CORRECT_MIMETYPE))
-            throw new NotAnOds("This file doesn't look like an ODS file. Mimetype: " + mimetype_string);
+            throw new NotAnOdsException("This file doesn't look like an ODS file. Mimetype: " + mimetype_string);
     }
 
     private byte[] getManifest(Map<String,byte[]> map){
         byte[] manifest = map.get(MANIFEST_PATH);
         if (manifest == null) {
-            throw new NotAnOds("Error loading, it doesn't like an ODS file");
+            throw new NotAnOdsException("Error loading, it doesn't like an ODS file");
         }
 
         return manifest;
@@ -79,7 +76,7 @@ public class OdsReader {
 
             Element root = doc.getDocumentElement();
             if (!root.getNodeName().equals("manifest:manifest")) {
-                throw new NotAnOds("The signature of the manifest is not valid. Is it an ODS file?");
+                throw new NotAnOdsException("The signature of the manifest is not valid. Is it an ODS file?");
             }
 
             NodeList files = doc.getElementsByTagName("manifest:file-entry");
@@ -98,7 +95,7 @@ public class OdsReader {
             for (int j = 0;j < children.getLength();j++) {
                 Node child = children.item(j);
                 if (child.getNodeName().equals("manifest:encryption-data")) {
-                    throw new OperationNotSupported("This file has encription technology that it's not supported" +
+                    throw new OperationNotSupportedException("This file has encription technology that it's not supported" +
                             "by this library");
                 }
                 else if (child.getNodeName().equals("manifest:full-path")){
@@ -203,7 +200,7 @@ public class OdsReader {
                         style.setFontSize(fontSize);
                     }
                     else
-                        throw new OperationNotSupported("Error, font size is not measured in PT. Skipping...");
+                        throw new OperationNotSupportedException("Error, font size is not measured in PT. Skipping...");
                 }
             }
             if (n.getNodeName().equals("style:table-cell-properties")) {

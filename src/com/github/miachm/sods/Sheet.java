@@ -1,4 +1,4 @@
-package com.github.miachm.sods.spreadsheet;
+package com.github.miachm.sods;
 
 import java.util.ArrayList;
 import java.util.List;

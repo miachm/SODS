@@ -1,4 +1,4 @@
-package com.github.miachm.sods.io;
+package com.github.miachm.sods;
 
 import java.io.Closeable;
 import java.io.IOException;
