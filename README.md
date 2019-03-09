@@ -2,14 +2,25 @@
 
 [![Build Status](https://travis-ci.org/miachm/SODS.svg?branch=master)](https://travis-ci.org/miachm/SODS)
 
-A simple library for process ODS files in Java.
+A simple library for process ODS files in Java. It allows read/write ODS files.
 
-## What is an ODS?
+## Install
+Check out [![releases section](https://github.com/miachm/SODS/releases)] for download the lastest release in a JAR file. After that, you can add the jar in your java project. You are ready to go:
+
+Here some help in differents IDE:
+
+- [Intellij](https://stackoverflow.com/a/33589628/2489715)
+- [Eclipse](https://stackoverflow.com/a/3280384/2489715)
+- [Netbeans](https://www.quora.com/How-can-I-add-jar-files-to-libraries-in-Netbeans-IDE8-0).
+
+## F.A.Q
+
+### What is an ODS?
 ODS means Open Document Spreadsheet. It's used in applications like Libreoffice or Open Office.
 
 ![Libreoffice Calc](http://i.imgur.com/Mm779of.jpg)
 
-## What is the motivation of this?
+### What is the motivation of this?
 I needed to generate ODS files in Java. I looked for libraries, but they are:
 
   - Deprecated or dead, like Apache ODF Toolkit. It's not working with Java 8.
@@ -18,7 +29,7 @@ I needed to generate ODS files in Java. I looked for libraries, but they are:
 
 So, i decided create my own library from scratch. The objetive is load and generate ODS files in a simple and easy way.
 
-## What is the current state?
+### What is the current state?
 Right now you can:
 
   - Load the cell's values from an ODS file.
@@ -33,7 +44,7 @@ Here, i am using SODS for load the file and rendering it with JavaFX
 
 ![Sample SODS](https://i.imgur.com/Myfustx.png)
 
-## How it works?
+### How it works?
 This is a code example:
 
 ```java
