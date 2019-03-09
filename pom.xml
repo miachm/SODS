@@ -1,12 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.miachm.sods</groupId>
     <artifactId>SODS</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
 
     <name>Simple ODS library</name>
     <description>A library for load/save ODS files in java.</description>
@@ -116,5 +113,6 @@
         <connection>scm:git:git://github.com/miachm/SODS.git</connection>
         <developerConnection>scm:git:ssh://github.com/miachm/SODS.git</developerConnection>
         <url>https://github.com/miachm/SODS</url>
-    </scm>
+      <tag>v1.0.1</tag>
+  </scm>
 </project>
