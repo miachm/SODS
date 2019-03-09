@@ -5,7 +5,7 @@
 A simple library for process ODS files in Java. It allows read/write ODS files.
 
 ## Install
-Check out [releases section](https://github.com/miachm/SODS/releases) for download the lastest release in a JAR file. After that, you can add the jar in your java project. You are ready to go:
+Check out [releases section](https://github.com/miachm/SODS/releases) for download the lastest release in a JAR file. After that, you can add the jar in your java project.
 
 Here some help in differents IDE:
 
