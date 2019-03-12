@@ -1,11 +1,27 @@
 # SODS
 
 [![Build Status](https://travis-ci.org/miachm/SODS.svg?branch=master)](https://travis-ci.org/miachm/SODS)
+[![Maven repository](https://maven-badges.herokuapp.com/maven-central/com.github.miachm.sods/SODS/badge.svg)](https://search.maven.org/artifact/com.github.miachm.sods/SODS/1.0.1/jar)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+
 
 A simple library for process ODS files in Java. It allows read/write ODS files.
 
 ## Install
+
+### Maven
+If you use maven, you can add it to your pom file:
+
+```
+<dependency>
+  <groupId>com.github.miachm.sods</groupId>
+  <artifactId>SODS</artifactId>
+  <version>1.0.1</version>
+</dependency>
+```
+
+### Manually
+
 Check out [releases section](https://github.com/miachm/SODS/releases) for download the lastest release in a JAR file. After that, you can add the jar in your java project.
 
 Here some help in differents IDE:
@@ -15,7 +31,7 @@ Here some help in differents IDE:
 - [Netbeans](https://www.quora.com/How-can-I-add-jar-files-to-libraries-in-Netbeans-IDE8-0).
 
 ## Docs
-[You can access the javadocs here](https://miachm.github.io/SODS/)
+You can access the javadocs [here](https://miachm.github.io/SODS/)
 
 There is an [examples folder](https://github.com/miachm/SODS/tree/master/examples) where you can read codes samples.
 
