@@ -23,7 +23,6 @@ class OdsReader {
     private static final String CORRECT_MIMETYPE = "application/vnd.oasis.opendocument.spreadsheet";
     private static final String MANIFEST_PATH = "META-INF/manifest.xml";
     private static final Locale defaultLocal = Locale.US;
-    private String main_path;
     private SpreadSheet spread;
     private Map<String,byte[]> files;
     private Map<String,Style> styles = new HashMap<>();
@@ -78,36 +77,9 @@ class OdsReader {
             if (!root.getNodeName().equals("manifest:manifest")) {
                 throw new NotAnOdsException("The signature of the manifest is not valid. Is it an ODS file?");
             }
-
-            NodeList files = doc.getElementsByTagName("manifest:file-entry");
-            iterateFilesEntryManifest(files);
-
-        }catch (ParserConfigurationException | SAXException | IOException e) {
-            e.printStackTrace();
         }
-    }
-
-    private void iterateFilesEntryManifest(NodeList files){
-        for (int i = 0;i < files.getLength();i++) {
-            NamedNodeMap children = files.item(i).getAttributes();
-            boolean main_path = false;
-            String path = null;
-            for (int j = 0;j < children.getLength();j++) {
-                Node child = children.item(j);
-                if (child.getNodeName().equals("manifest:encryption-data")) {
-                    throw new OperationNotSupportedException("This file has encription technology that it's not supported" +
-                            "by this library");
-                }
-                else if (child.getNodeName().equals("manifest:full-path")){
-                    path = child.getNodeValue();
-                }
-                else if (child.getNodeName().equals("manifest:media-type")){
-                    main_path = (child.getNodeValue().equals(CORRECT_MIMETYPE));
-                }
-            }
-
-            if (main_path)
-                this.main_path = path;
+        catch (ParserConfigurationException | SAXException | IOException e) {
+            throw new NotAnOdsException("Error parsing the manifest: " + e.getMessage());
         }
     }
 
@@ -130,8 +102,6 @@ class OdsReader {
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document doc = builder.parse(new ByteArrayInputStream(bytes));
 
-            Element root = doc.getDocumentElement();
-
             NodeList styles = doc.getElementsByTagName("office:automatic-styles");
 
             if (styles != null) {
@@ -149,7 +119,7 @@ class OdsReader {
             }
 
         }catch (ParserConfigurationException | SAXException | IOException e) {
-            e.printStackTrace();
+            throw new NotAnOdsException(e.getMessage());
         }
     }
 
@@ -295,7 +265,7 @@ class OdsReader {
                     value = getValue(valueNode.getNodeValue(), valueType);
                 }
 
-                number_columns_repeated = Long.parseLong(getAtribFromNode(n, "table:number-columns-repeated", "0").toString());
+                number_columns_repeated = Long.parseLong(getAtribFromNode(n, "table:number-columns-repeated", "0"));
                 
                 range.setFormula(formula);
                 Style style = styles.get(getStyle(n));
@@ -365,14 +335,14 @@ class OdsReader {
     private Object getValue(String value, String valueType) {
         try {
             NumberFormat format = NumberFormat.getInstance(defaultLocal);
-            if (valueType.equals("integer")) {
-                return format.parse(value).longValue();
+            switch (valueType) {
+                case "integer":
+                    return format.parse(value).longValue();
+                case "float":
+                    return format.parse(value).doubleValue();
+                default:
+                    return value;
             }
-            else if (valueType.equals("float")) {
-                return format.parse(value).doubleValue();
-            }
-            else
-                return value;
         }
         catch (ParseException e) {
             return value;
