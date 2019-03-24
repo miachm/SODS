@@ -16,7 +16,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -53,19 +52,16 @@ class OdsWritter {
     }
 
     private void writeManifest() {
-        Document dom;
-        Element e = null;
-
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();
-            dom = db.newDocument();
+            Document dom = db.newDocument();
 
             final String namespace = "urn:oasis:names:tc:opendocument:xmlns:manifest:1.0";
 
             Element rootEle = dom.createElementNS(namespace, "manifest:manifest");
             rootEle.setAttributeNS(namespace, "manifest:version","1.2");
 
-            e = dom.createElementNS(namespace, "manifest:file-entry");
+            Element e = dom.createElementNS(namespace, "manifest:file-entry");
             e.setAttributeNS(namespace, "manifest:full-path","/");
             e.setAttributeNS(namespace, "manifest:version","1.2");
             e.setAttributeNS(namespace, "manifest:media-type",MIMETYPE);
@@ -78,27 +74,32 @@ class OdsWritter {
 
             dom.appendChild(rootEle);
 
-            try {
-                Transformer tr = TransformerFactory.newInstance().newTransformer();
-                tr.setOutputProperty(OutputKeys.INDENT, "no");
-                tr.setOutputProperty(OutputKeys.METHOD, "xml");
-                tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-                tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+            byte[] bytes = generateXmlFile(dom);
 
-                ByteArrayOutputStream o = new ByteArrayOutputStream();
-                tr.transform(new DOMSource(dom),
-                        new StreamResult(o));
+            out.addEntry(bytes,"META-INF/manifest.xml");
 
-                o.close();
-                out.addEntry(o.toByteArray(),"META-INF/manifest.xml");
+        } catch (ParserConfigurationException | IOException pce) {
+            throw new GenerateOdsException(pce);
+        }
+    }
 
-            } catch (TransformerException te) {
-                System.err.println(te.getMessage());
-            } catch (IOException ioe) {
-                System.err.println(ioe.getMessage());
-            }
-        } catch (ParserConfigurationException pce) {
-            System.err.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
+    private byte[] generateXmlFile(Document dom)
+    {
+        try {
+            Transformer tr = TransformerFactory.newInstance().newTransformer();
+            tr.setOutputProperty(OutputKeys.INDENT, "no");
+            tr.setOutputProperty(OutputKeys.METHOD, "xml");
+            tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+
+            ByteArrayOutputStream o = new ByteArrayOutputStream();
+            tr.transform(new DOMSource(dom),
+                    new StreamResult(o));
+
+            o.close();
+
+            return o.toByteArray();
+        } catch (TransformerException | IOException te) {
+            throw new GenerateOdsException(te);
         }
     }
 
@@ -108,7 +109,6 @@ class OdsWritter {
 
     private void writeSpreadsheet() {
         Document dom;
-        Element e = null;
 
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();
@@ -129,25 +129,11 @@ class OdsWritter {
             rootEle.appendChild(content);
             dom.appendChild(rootEle);
 
-            try {
-                Transformer tr = TransformerFactory.newInstance().newTransformer();
-                tr.setOutputProperty(OutputKeys.INDENT, "no");
-                tr.setOutputProperty(OutputKeys.METHOD, "xml");
-                tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-                tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+            byte[] bytes = generateXmlFile(dom);
+            out.addEntry(bytes,"content.xml");
 
-                ByteArrayOutputStream o = new ByteArrayOutputStream();
-                tr.transform(new DOMSource(dom),
-                        new StreamResult(o));
-
-                o.close();
-                out.addEntry(o.toByteArray(),"content.xml");
-
-            } catch (TransformerException | IOException te) {
-                System.err.println(te.getMessage());
-            }
-        } catch (ParserConfigurationException pce) {
-            System.err.println("UsersXML: Error trying to instantiate DocumentBuilder " + pce);
+        } catch (ParserConfigurationException | IOException pce) {
+            throw new GenerateOdsException(pce);
         }
     }
 
@@ -218,9 +204,7 @@ class OdsWritter {
     {
         Element e = dom.createElement("office:automatic-styles");
 
-        Iterator<Map.Entry<Style, String>> it = stylesUsed.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<Style, String> pair = it.next();
+        for (Map.Entry<Style, String> pair : stylesUsed.entrySet()) {
             Style style = pair.getKey();
             String name = pair.getValue();
 
