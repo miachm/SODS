@@ -12,11 +12,11 @@ A simple library for process ODS files in Java. It allows read/write ODS files.
 ### Maven
 If you use maven, you can add it to your pom file:
 
-```
+```xml
 <dependency>
-  <groupId>com.github.miachm.sods</groupId>
-  <artifactId>SODS</artifactId>
-  <version>1.0.1</version>
+    <groupId>com.github.miachm.sods</groupId>
+    <artifactId>SODS</artifactId>
+    <version>1.0.1</version>
 </dependency>
 ```
 
