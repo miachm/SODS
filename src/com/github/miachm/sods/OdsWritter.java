@@ -1,20 +1,9 @@
 package com.github.miachm.sods;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,14 +19,12 @@ class OdsWritter {
 
     private SpreadSheet spread;
     private Compressor out;
-    private DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     private Map<Style, String> stylesUsed = new HashMap<>();
     private final String MIMETYPE= "application/vnd.oasis.opendocument.spreadsheet";
 
     private OdsWritter(OutputStream o, SpreadSheet spread) throws IOException {
         this.spread = spread;
         this.out = new Compressor(o);
-        dbf.setNamespaceAware(true);
     }
 
     public static void save(OutputStream out,SpreadSheet spread) throws IOException {
@@ -47,59 +34,47 @@ class OdsWritter {
     private void save() throws IOException {
         writeManifest();
         writeMymeType();
-        writeSpreadsheet();
+        try {
+            writeSpreadsheet();
+        } catch (XMLStreamException e) {
+            throw new GenerateOdsException(e);
+        }
         out.close();
     }
 
     private void writeManifest() {
         try {
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            Document dom = db.newDocument();
+            ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
+            XMLStreamWriter out = XMLOutputFactory.newInstance().createXMLStreamWriter(
+                    new OutputStreamWriter(output, "utf-8"));
 
-            final String namespace = "urn:oasis:names:tc:opendocument:xmlns:manifest:1.0";
+            //final String namespace = "urn:oasis:names:tc:opendocument:xmlns:manifest:1.0";
 
-            Element rootEle = dom.createElementNS(namespace, "manifest:manifest");
-            rootEle.setAttributeNS(namespace, "manifest:version","1.2");
+            out.writeStartDocument("UTF-8", "1.0");
+            out.writeStartElement("manifest:manifest");
+            out.writeAttribute("manifest:version", "1.2");
 
-            Element e = dom.createElementNS(namespace, "manifest:file-entry");
-            e.setAttributeNS(namespace, "manifest:full-path","/");
-            e.setAttributeNS(namespace, "manifest:version","1.2");
-            e.setAttributeNS(namespace, "manifest:media-type",MIMETYPE);
-            rootEle.appendChild(e);
+            out.writeStartElement("manifest:file-entry");
+            out.writeAttribute("manifest:full-path", "/");
+            out.writeAttribute("manifest:version", "1.2");
+            out.writeAttribute("manifest:media-type", MIMETYPE);
+            out.writeEndElement();
 
-            e = dom.createElementNS(namespace, "manifest:file-entry");
-            e.setAttributeNS(namespace, "manifest:full-path","content.xml");
-            e.setAttributeNS(namespace, "manifest:media-type","text/xml");
-            rootEle.appendChild(e);
+            out.writeStartElement("manifest:file-entry");
+            out.writeAttribute("manifest:full-path", "content.xml");
+            out.writeAttribute("manifest:media-type", "text/xml");
+            out.writeEndElement();
 
-            dom.appendChild(rootEle);
 
-            byte[] bytes = generateXmlFile(dom);
+            out.writeEndElement();
+            out.writeEndDocument();
+            out.close();
 
-            out.addEntry(bytes,"META-INF/manifest.xml");
+            byte[] bytes = output.toByteArray();
+            this.out.addEntry(bytes, "META-INF/manifest.xml");
 
-        } catch (ParserConfigurationException | IOException pce) {
+        } catch (XMLStreamException | IOException pce) {
             throw new GenerateOdsException(pce);
-        }
-    }
-
-    private byte[] generateXmlFile(Document dom)
-    {
-        try {
-            Transformer tr = TransformerFactory.newInstance().newTransformer();
-            tr.setOutputProperty(OutputKeys.INDENT, "no");
-            tr.setOutputProperty(OutputKeys.METHOD, "xml");
-            tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-
-            ByteArrayOutputStream o = new ByteArrayOutputStream();
-            tr.transform(new DOMSource(dom),
-                    new StreamResult(o));
-
-            o.close();
-
-            return o.toByteArray();
-        } catch (TransformerException | IOException te) {
-            throw new GenerateOdsException(te);
         }
     }
 
@@ -107,145 +82,154 @@ class OdsWritter {
         out.addEntry(MIMETYPE.getBytes(),"mimetype");
     }
 
-    private void writeSpreadsheet() {
-        Document dom;
+    private void writeSpreadsheet() throws UnsupportedEncodingException, XMLStreamException {
+        ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
+        XMLStreamWriter out = XMLOutputFactory.newInstance().createXMLStreamWriter(
+                new OutputStreamWriter(output, "utf-8"));
+
+        out.writeStartDocument("UTF-8", "1.0");
+        out.writeStartElement( "office:document-content");
+        out.writeAttribute("xmlns:office", office);
+        out.writeAttribute("xmlns:table", table_namespace);
+        out.writeAttribute("xmlns:text",text_namespace);
+        out.writeAttribute("xmlns:fo",font_namespace);
+        out.writeAttribute("xmlns:style", style_namespace);
+
+        out.writeAttribute("office:version", "1.2");
+
+        writeStyles(out);
+        writeContent(out);
+
+        out.writeEndElement();
+        out.writeEndDocument();
+        out.close();
 
         try {
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            dom = db.newDocument();
-
-            Element rootEle = dom.createElementNS(office,"office:document-content");
-            rootEle.setAttributeNS(office,"office:version","1.2");
-
-            rootEle.setAttributeNS("http://www.w3.org/2000/xmlns/","xmlns:table",table_namespace);
-            rootEle.setAttributeNS("http://www.w3.org/2000/xmlns/","xmlns:text",text_namespace);
-            rootEle.setAttributeNS("http://www.w3.org/2000/xmlns/","xmlns:fo",font_namespace);
-            rootEle.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:style", style_namespace);
-
-            Element content = writeContent(dom);
-            Element styles = writeStyles(dom);
-
-            rootEle.appendChild(styles);
-            rootEle.appendChild(content);
-            dom.appendChild(rootEle);
-
-            byte[] bytes = generateXmlFile(dom);
-            out.addEntry(bytes,"content.xml");
-
-        } catch (ParserConfigurationException | IOException pce) {
-            throw new GenerateOdsException(pce);
+            this.out.addEntry(output.toByteArray(),"content.xml");
+        } catch (IOException e) {
+            throw new GenerateOdsException(e);
         }
     }
 
-    private Element writeContent(Document dom)
-    {
-        Element spreadsheet = dom.createElement("office:spreadsheet");
-        Element e = dom.createElement("office:body");
-        e.appendChild(spreadsheet);
+    private void writeContent(XMLStreamWriter out/*Document dom*/) throws XMLStreamException {
+        out.writeStartElement("office:body");
+        out.writeStartElement("office:spreadsheet");
+
         for (Sheet sheet : spread.getSheets()) {
-            Element table = dom.createElement("table:table");
-            table.setAttribute("table:name",sheet.getName());
+            out.writeStartElement("table:table");
+            out.writeAttribute("table:name", sheet.getName());
             for (int i = 0;i < sheet.getMaxColumns();i++){
-                Element column = dom.createElementNS(table_namespace, "table:table-column");
-                table.appendChild(column);
+                out.writeStartElement("table:table-column");
+                out.writeEndElement();
             }
-            for (int i = 0;i < sheet.getMaxRows();i++){
-                Element row = dom.createElement("table:table-row");
+            for (int i = 0;i < sheet.getMaxRows();i++) {
+
+                out.writeStartElement("table:table-row");
 
                 Range r = sheet.getRange(i,0,1,sheet.getMaxColumns());
 
-                for (int j = 0;j < sheet.getMaxColumns();j++) {
+                for (int j = 0; j < sheet.getMaxColumns();j++) {
                     Range range = r.getCell(0,j);
                     Object v = range.getValue();
                     String formula = range.getFormula();
                     Style style = range.getStyle();
 
-                    Element cell = dom.createElement("table:table-cell");
+                    out.writeStartElement("table:table-cell");
 
-                    if (formula != null) {
-                        cell.setAttribute("table:formula",formula);
-                    }
-
-                    if (v != null) {
-                        String valueType = getValueType(v);
-                        cell.setAttribute("office:value-type", valueType);
-                        Element value = dom.createElement("text:p");
-                        value.setTextContent("" + v);
-
-                        if (!valueType.equals("string")) {
-                            cell.setAttribute("office:value",""+v);
-                        }
-                        cell.appendChild(value);
-                    }
+                    if (formula != null)
+                        out.writeAttribute("table:formula", formula);
 
                     if (!style.isDefault()) {
                         String key = stylesUsed.get(style);
-                        if (key == null)
-                        {
+                        if (key == null) {
                             key = "cel" + stylesUsed.size();
                             stylesUsed.put(style, key);
                         }
 
-                        cell.setAttribute("table:style-name", key);
+                        out.writeAttribute("table:style-name", key);
                     }
 
-                    row.appendChild(cell);
+                    if (v != null) {
+                        String valueType = getValueType(v);
+
+                        out.writeAttribute("office:value-type", valueType);
+
+                        if (!valueType.equals("string"))
+                            out.writeAttribute("office:value", ""+ v);
+
+                        out.writeStartElement("text:p");
+
+                        out.writeCharacters("" + v);
+
+                        out.writeEndElement();
+                    }
+
+                    out.writeEndElement();
                 }
 
-                table.appendChild(row);
+                out.writeEndElement();
             }
-            spreadsheet.appendChild(table);
+
+            out.writeEndElement();
         }
 
-        return e;
+        out.writeEndElement();
+        out.writeEndElement();
     }
 
-    private Element writeStyles(Document dom)
-    {
-        Element e = dom.createElement("office:automatic-styles");
+    private void writeStyles(XMLStreamWriter out) throws XMLStreamException {
+        out.writeStartElement("office:automatic-styles");
 
-        for (Map.Entry<Style, String> pair : stylesUsed.entrySet()) {
-            Style style = pair.getKey();
-            String name = pair.getValue();
+        for (Sheet sheet : spread.getSheets()) {
+            for (int i = 0; i < sheet.getMaxRows(); i++) {
+                for (int j = 0; j < sheet.getMaxColumns(); j++) {
+                    Range range = sheet.getRange(i,j);
+                    Style style = range.getStyle();
+                        if (!style.isDefault()) {
+                            String key = stylesUsed.get(style);
+                            if (key == null)
+                            {
+                                key = "cel" + stylesUsed.size();
 
-            Element styleTable = dom.createElement("style:style");
-            Element styleText = dom.createElement("style:text-properties");
+                                out.writeStartElement("style:style");
+                                out.writeAttribute("style:family", "table-cell");
+                                out.writeAttribute("style:name", key);
 
-            styleTable.setAttribute("style:family", "table-cell");
-            styleTable.setAttribute("style:name", name);
+                                if (style.getBackgroundColor() != null) {
+                                    out.writeStartElement("style:table-cell-properties");
+                                    out.writeAttribute("fo:background-color", style.getBackgroundColor().toString());
+                                    out.writeEndElement();
+                                }
 
-            if (style.isItalic())
-                styleText.setAttribute("fo:font-style", "italic");
+                                out.writeStartElement("style:text-properties");
+                                if (style.isItalic())
+                                    out.writeAttribute("fo:font-style", "italic");
 
-            if (style.isBold())
-                styleText.setAttribute("fo:font-weight", "bold");
+                                if (style.isBold())
+                                    out.writeAttribute("fo:font-weight", "bold");
 
-            if (style.isUnderline()) {
-                styleText.setAttribute("style:text-underline-style", "solid");
-                styleText.setAttribute("style:text-underline-type", "single");
-                styleText.setAttribute("style:text-underline-width", "auto");
-                styleText.setAttribute("style:text-underline-color", "font-color");
-            }
+                                if (style.isUnderline()) {
+                                    out.writeAttribute("style:text-underline-style", "solid");
+                                    out.writeAttribute("style:text-underline-type", "single");
+                                    out.writeAttribute("style:text-underline-width", "auto");
+                                    out.writeAttribute("style:text-underline-color", "font-color");
+                                }
 
-            if (style.getFontSize() != -1) {
-                styleText.setAttribute("fo:font-size", "" + style.getFontSize() + "pt");
-            }
+                                if (style.getFontSize() != -1)
+                                    out.writeAttribute("fo:font-size", "" + style.getFontSize() + "pt");
 
-            if (style.getFontColor() != null) {
-                styleText.setAttribute("fo:color", style.getFontColor().toString());
-            }
+                                if (style.getFontColor() != null)
+                                    out.writeAttribute("fo:color", style.getFontColor().toString());
 
-            if (style.getBackgroundColor() != null) {
-                Element styleCell = dom.createElement("style:table-cell-properties");
-                styleCell.setAttribute("fo:background-color", style.getBackgroundColor().toString());
-                styleTable.appendChild(styleCell);
-            }
-
-            styleTable.appendChild(styleText);
-            e.appendChild(styleTable);
-
+                                out.writeEndElement();
+                                out.writeEndElement();
+                                stylesUsed.put(style, key);
+                            }
+                        }
+                    }
+                }
         }
-        return e;
+        out.writeEndElement();
     }
 
     private String getValueType(Object v) {
