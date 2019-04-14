@@ -9,7 +9,7 @@ import java.util.zip.ZipOutputStream;
 class Compressor implements Closeable {
     private ZipOutputStream out;
 
-    public Compressor(OutputStream o){
+    Compressor(OutputStream o){
         this.out = new ZipOutputStream(o);
     }
 
@@ -18,7 +18,7 @@ class Compressor implements Closeable {
         out.close();
     }
 
-    public void addEntry(byte[] data,String name) throws IOException {
+    void addEntry(byte[] data,String name) throws IOException {
         out.putNextEntry(new ZipEntry(name));
         out.write(data);
         out.closeEntry();

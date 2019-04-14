@@ -8,6 +8,8 @@ public class GenerateOdsException extends SodsException{
     GenerateOdsException(Exception e)
     {
         cause = e;
+        setStackTrace(e.getStackTrace());
+        initCause(e);
     }
 
     @Override
