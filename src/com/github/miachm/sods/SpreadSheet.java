@@ -14,7 +14,7 @@ import java.util.List;
 
 public class SpreadSheet implements Cloneable {
 
-    private List<Sheet> sheets = new ArrayList<Sheet>();
+    private final List<Sheet> sheets = new ArrayList<Sheet>();
 
     /**
      * Create an empty spreadsheet
@@ -235,13 +235,7 @@ public class SpreadSheet implements Cloneable {
     @Override
     public Object clone() throws CloneNotSupportedException
     {
-        SpreadSheet spread = new SpreadSheet();
-
-        for (Sheet sheet : sheets){
-            spread.appendSheet((Sheet) sheet.clone());
-        }
-
-        return spread;
+        return super.clone();
     }
 
     @Override

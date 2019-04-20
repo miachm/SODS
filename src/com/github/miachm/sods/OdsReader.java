@@ -23,17 +23,26 @@ class OdsReader {
     private static final String CORRECT_MIMETYPE = "application/vnd.oasis.opendocument.spreadsheet";
     private static final String MANIFEST_PATH = "META-INF/manifest.xml";
     private static final Locale defaultLocal = Locale.US;
+    private Uncompressor uncompressor;
     private SpreadSheet spread;
     private Map<String,byte[]> files;
     private Map<String,Style> styles = new HashMap<>();
     private Map<Integer,Style> rows_styles = new HashMap<>();
     private Map<Integer,Style> columns_styles = new HashMap<>();
 
-    private OdsReader(InputStream in,SpreadSheet spread) throws IOException {
+    private OdsReader(InputStream in,SpreadSheet spread) {
         /* TODO This code if for ods files in zip. But we could have XML-ONLY FILES */
         this.spread = spread;
         styles.put("Default", new Style());
-        Uncompressor uncompressor = new Uncompressor(in);
+        uncompressor = new Uncompressor(in);
+    }
+
+    static void load(InputStream in,SpreadSheet spread) throws IOException {
+        OdsReader reader = new OdsReader(in, spread);
+        reader.load();
+    }
+
+    private void load() throws IOException {
         files = uncompressor.getFiles();
 
         checkMimeType(files);
@@ -41,10 +50,6 @@ class OdsReader {
         byte[] manifest = getManifest(files);
         readManifest(manifest);
         readContent();
-    }
-
-    static public void load(InputStream in,SpreadSheet spread) throws IOException {
-        OdsReader reader = new OdsReader(in,spread);
     }
 
     private void checkMimeType(Map<String,byte[]> map){

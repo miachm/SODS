@@ -7,7 +7,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 class Compressor implements Closeable {
-    private ZipOutputStream out;
+    private final ZipOutputStream out;
 
     Compressor(OutputStream o){
         this.out = new ZipOutputStream(o);

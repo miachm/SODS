@@ -11,9 +11,9 @@ import java.util.zip.ZipInputStream;
 class Uncompressor {
 
     private static final int TAM_BUFFER = 1000;
-    private byte buff[] = new byte[TAM_BUFFER];
-    private Map<String,byte[]> map = new HashMap<String,byte[]>();
-    private ZipInputStream zip;
+    private final byte[] buff = new byte[TAM_BUFFER];
+    private final Map<String,byte[]> map = new HashMap<String,byte[]>();
+    private final ZipInputStream zip;
 
     Uncompressor(InputStream in){
         this.zip = new ZipInputStream(in);

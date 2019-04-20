@@ -22,7 +22,7 @@ class OdsWritter {
     private Map<Style, String> stylesUsed = new HashMap<>();
     private final String MIMETYPE= "application/vnd.oasis.opendocument.spreadsheet";
 
-    private OdsWritter(OutputStream o, SpreadSheet spread) throws IOException {
+    private OdsWritter(OutputStream o, SpreadSheet spread) {
         this.spread = spread;
         this.out = new Compressor(o);
     }

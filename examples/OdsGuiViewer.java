@@ -51,7 +51,7 @@ public class OdsGuiViewer extends Application{
         }
     }
 
-    public File askUserForAnOdsFile()
+    private File askUserForAnOdsFile()
     {
         FileChooser chooser = new FileChooser();
         chooser.setInitialDirectory(new File(""));

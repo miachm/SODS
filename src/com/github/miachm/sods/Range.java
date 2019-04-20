@@ -588,7 +588,8 @@ public class Range {
         for (int i = 0;i < values.length;i++){
             builder.append(values[i][0]);
             for (int j = 1;j < values[i].length;j++){
-                builder.append(" , " + values[i][j]);
+                builder.append(" , ");
+                builder.append(values[i][j]);
             }
             builder.append("\n");
         }
