@@ -225,7 +225,7 @@ public class SpreadSheetTest {
         assertEquals(arr[2][4],"M");
 
         Style[][] styles = dataRange.getStyles();
-
+        
         assertFalse(styles[0][0].isBold());
         assertTrue(styles[0][1].isBold());
         assertFalse(styles[0][2].isBold());

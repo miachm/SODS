@@ -4,9 +4,17 @@ package com.github.miachm.sods;
  * The file provided is not an ODS file
  */
 public class NotAnOdsException extends SodsException {
-    private final String message;
-    NotAnOdsException(String s) {
-        this.message = s;
+    private final Exception cause;
+    private String message;
+    NotAnOdsException(String string) {
+        cause = null;
+        message = string;
+    }
+    NotAnOdsException(Exception e) {
+        cause = e;
+        setStackTrace(e.getStackTrace());
+        initCause(e);
+        message = cause.getMessage();
     }
 
     @Override

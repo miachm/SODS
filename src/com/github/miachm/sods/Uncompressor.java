@@ -1,50 +1,35 @@
 package com.github.miachm.sods;
 
-import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-class Uncompressor {
+class Uncompressor implements Closeable{
 
     private static final int TAM_BUFFER = 1000;
-    private final byte[] buff = new byte[TAM_BUFFER];
-    private final Map<String,byte[]> map = new HashMap<String,byte[]>();
     private final ZipInputStream zip;
 
     Uncompressor(InputStream in){
         this.zip = new ZipInputStream(in);
     }
 
-    Map<String,byte[]> getFiles() throws IOException {
+    String nextFile() throws IOException {
         ZipEntry entry = zip.getNextEntry();
-        while (entry != null) {
-            if (!entry.isDirectory()) {
-                processEntry(entry);
-                zip.closeEntry();
-            }
-            entry = zip.getNextEntry();
-        }
-
-        zip.close();
-        return map;
+        if (entry != null)
+            return entry.getName();
+        else
+            return null;
     }
 
-    private void processEntry(ZipEntry entry) throws IOException {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        int len;
+    InputStream getInputStream()
+    {
+        return new UncompressorInputStream(zip);
+    }
 
-        while (true){
-            len = zip.read(buff);
-            if (len == -1) {
-                stream.close();
-                map.put(entry.getName(),stream.toByteArray());
-                return;
-            }
-            stream.write(buff,0,len);
-        }
+    @Override
+    public void close() throws IOException {
+        zip.close();
     }
 }

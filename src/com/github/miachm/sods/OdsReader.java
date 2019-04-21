@@ -1,12 +1,5 @@
 package com.github.miachm.sods;
 
-import org.w3c.dom.*;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.NumberFormat;
@@ -14,7 +7,6 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Internal class for read ODS files
@@ -24,8 +16,8 @@ class OdsReader {
     private static final String MANIFEST_PATH = "META-INF/manifest.xml";
     private static final Locale defaultLocal = Locale.US;
     private Uncompressor uncompressor;
+    private XmlReader reader = new XmlReaderEventImpl();
     private SpreadSheet spread;
-    private Map<String,byte[]> files;
     private Map<String,Style> styles = new HashMap<>();
     private Map<Integer,Style> rows_styles = new HashMap<>();
     private Map<Integer,Style> columns_styles = new HashMap<>();
@@ -43,298 +35,236 @@ class OdsReader {
     }
 
     private void load() throws IOException {
-        files = uncompressor.getFiles();
-
-        checkMimeType(files);
-
-        byte[] manifest = getManifest(files);
-        readManifest(manifest);
-        readContent();
-    }
-
-    private void checkMimeType(Map<String,byte[]> map){
-        byte[] mimetype = map.get("mimetype");
-        if (mimetype == null)
-            throw new NotAnOdsException("This file doesn't contain a mimetype");
-
-        String mimetype_string = new String(mimetype);
-        if (!mimetype_string.equals(CORRECT_MIMETYPE))
-            throw new NotAnOdsException("This file doesn't look like an ODS file. Mimetype: " + mimetype_string);
-    }
-
-    private byte[] getManifest(Map<String,byte[]> map){
-        byte[] manifest = map.get(MANIFEST_PATH);
-        if (manifest == null) {
-            throw new NotAnOdsException("Error loading, it doesn't like an ODS file");
-        }
-
-        return manifest;
-    }
-
-    private void readManifest(byte[] manifest) {
-        try{
-            DocumentBuilderFactory factory =
-                    DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(new ByteArrayInputStream(manifest));
-
-            Element root = doc.getDocumentElement();
-            if (!root.getNodeName().equals("manifest:manifest")) {
-                throw new NotAnOdsException("The signature of the manifest is not valid. Is it an ODS file?");
+        boolean mimetypeChecked = false;
+        String entry = uncompressor.nextFile();
+        while (entry != null) {
+            if (entry.endsWith(".xml"))
+                processContent();
+            else if (entry.equals("mimetype")) {
+                checkMimeType();
+                mimetypeChecked = true;
             }
+            entry = uncompressor.nextFile();
         }
-        catch (ParserConfigurationException | SAXException | IOException e) {
-            throw new NotAnOdsException("Error parsing the manifest: " + e.getMessage());
-        }
+        uncompressor.close();
+
+        if (!mimetypeChecked)
+            throw new NotAnOdsException("This file doesn't contain a mimetype");
     }
 
-    private void readContent() {
-        Set<String> names = files.keySet();
+    private void checkMimeType() throws IOException {
+        byte[] buff = new byte[CORRECT_MIMETYPE.getBytes().length];
+        uncompressor.getInputStream().read(buff);
 
-        for (String name : names){
-            if (name.endsWith(".xml"))
-                processContent(files.get(name));
-        }
+        String mimetype = new String(buff);
+        if (!mimetype.equals(CORRECT_MIMETYPE))
+            throw new NotAnOdsException("This file doesn't look like an ODS file. Mimetype: " + mimetype);
     }
 
-    private void processContent(byte[] bytes) {
-        try{
-            if (bytes.length == 0)
+    private void processContent() throws IOException
+    {
+        InputStream in = uncompressor.getInputStream();
+
+        XmlReaderInstance instance = reader.load(in);
+        if (instance == null)
+            return;
+
+        XmlReaderInstance styles = instance.nextElement("office:automatic-styles");
+        iterateStyleEntries(styles);
+
+        XmlReaderInstance content = instance.nextElement("office:body");
+        iterateFilesEntries(content);
+
+        reader.close();
+    }
+
+    private void iterateStyleEntries(XmlReaderInstance reader) {
+        if (reader == null)
+            return;
+
+        while (reader.hasNext()) {
+            XmlReaderInstance instance = reader.nextElement("style:style");
+            if (instance == null)
                 return;
 
-            DocumentBuilderFactory factory =
-                    DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(new ByteArrayInputStream(bytes));
-
-            NodeList styles = doc.getElementsByTagName("office:automatic-styles");
-
-            if (styles != null) {
-                Node n = styles.item(0);
-                if (n != null)
-                    iterateStyleEntries(n.getChildNodes());
-            }
-
-            NodeList files = doc.getElementsByTagName("office:body");
-
-            if (files != null) {
-                Node n = files.item(0);
-                if (n != null)
-                    iterateFilesEntries(n.getChildNodes());
-            }
-
-        }catch (ParserConfigurationException | SAXException | IOException e) {
-            throw new NotAnOdsException(e.getMessage());
-        }
-    }
-
-    private void iterateStyleEntries(NodeList childNodes) {
-        if (childNodes == null)
-            return;
-        for (int i = 0;i < childNodes.getLength();i++) {
-            Node node = childNodes.item(i);
-            if (node.getNodeName().equals("style:style")) {
-                NamedNodeMap map = node.getAttributes();
-                Node aux = map.getNamedItem("style:name");
-                if (aux != null) {
-                    Style style = readStyleEntry(node.getChildNodes());
-                    styles.put(aux.getNodeValue(),style);
-                }
+            String name = instance.getAttribValue("style:name");
+            if (name != null) {
+                Style style = readStyleEntry(instance);
+                styles.put(name, style);
             }
         }
     }
 
-    private Style readStyleEntry(NodeList childNodes) {
+    private Style readStyleEntry(XmlReaderInstance reader) {
         Style style = new Style();
-        for (int i = 0;i < childNodes.getLength();i++) {
-            Node n = childNodes.item(i);
-            if (n.getNodeName().equals("style:text-properties")) {
-                NamedNodeMap map = n.getAttributes();
-                Node bold = map.getNamedItem("fo:font-weight");
-                if (bold != null) {
-                    style.setBold(bold.getNodeValue().equals("bold"));
-                }
-                Node italic = map.getNamedItem("fo:font-style");
-                if (italic != null) {
-                    style.setItalic(italic.getNodeValue().equals("italic"));
-                }
-                Node underline = map.getNamedItem("style:text-underline-style");
-                if (underline != null) {
-                    style.setUnderline(underline.getNodeValue().equals("solid"));
-                }
-                Node fontcolor = map.getNamedItem("fo:color");
-                if (fontcolor != null) {
-                    style.setFontColor(new Color(fontcolor.getNodeValue()));
-                }
-                Node fontsize = map.getNamedItem("fo:font-size");
+        while (reader.hasNext()) {
+            XmlReaderInstance instance = reader.nextElement("style:text-properties",
+                                                            "style:table-cell-properties");
+
+            if (instance == null)
+                return style;
+
+            if (instance.getTag().equals("style:text-properties")) {
+                String bold = instance.getAttribValue("fo:font-weight");
+                if (bold != null)
+                    style.setBold(bold.equals("bold"));
+
+                String italic = instance.getAttribValue("fo:font-style");
+                if (italic != null)
+                    style.setItalic(italic.equals("italic"));
+
+                String underline = instance.getAttribValue("style:text-underline-style");
+                if (underline != null)
+                    style.setUnderline(underline.equals("solid"));
+
+                String fontcolor = instance.getAttribValue("fo:color");
+                if (fontcolor != null)
+                    style.setFontColor(new Color(fontcolor));
+
+                String fontsize = instance.getAttribValue("fo:font-size");
                 if (fontsize != null) {
-                    String nodeValue = fontsize.getNodeValue();
-                    if (nodeValue.endsWith("pt")) {
-                        int index = nodeValue.lastIndexOf("pt");
-                        int fontSize = Integer.parseInt(nodeValue.substring(0,index));
+                    if (fontsize.endsWith("pt")) {
+                        int index = fontsize.lastIndexOf("pt");
+                        int fontSize = Integer.parseInt(fontsize.substring(0,index));
                         style.setFontSize(fontSize);
                     }
                     else
                         throw new OperationNotSupportedException("Error, font size is not measured in PT. Skipping...");
                 }
             }
-            if (n.getNodeName().equals("style:table-cell-properties")) {
-                NamedNodeMap map = n.getAttributes();
 
-                Node backgroundColor = map.getNamedItem("fo:background-color");
-                if (backgroundColor != null) {
-                    style.setBackgroundColor(new Color(backgroundColor.getNodeValue()));
-                }
+            if (instance.getTag().equals("style:table-cell-properties")) {
+                String backgroundColor = instance.getAttribValue("fo:background-color");
+                if (backgroundColor != null)
+                    style.setBackgroundColor(new Color(backgroundColor));
             }
+
         }
         return style;
     }
 
-    private void iterateFilesEntries(NodeList files) {
-        if (files == null)
+    private void iterateFilesEntries(XmlReaderInstance reader) {
+        if (reader == null)
             return;
-        for (int i = 0;i < files.getLength();i++){
-            Node node = files.item(i);
-            if (node.getNodeName().equals("office:spreadsheet")){
-                processSpreadsheet(node.getChildNodes());
-            }
+
+        XmlReaderInstance instance = reader.nextElement("office:spreadsheet");
+        if (instance != null)
+            processSpreadsheet(instance);
+    }
+
+    private void processSpreadsheet(XmlReaderInstance reader) {
+        while (reader.hasNext()) {
+            XmlReaderInstance instance = reader.nextElement("table:table");
+            if (instance != null)
+                processTable(instance);
         }
     }
 
-    private void processSpreadsheet(NodeList list) {
-        for (int i = 0;i < list.getLength();i++){
-            Node node = list.item(i);
-            if (node.getNodeName().equals("table:table")){
-                processTable(node);
-            }
-        }
-    }
+    private void processTable(XmlReaderInstance reader) {
+        String name = reader.getAttribValue("table:name");
 
-    private void processTable(Node node){
-        NamedNodeMap atributes = node.getAttributes();
-        String name = atributes.getNamedItem("table:name").getNodeValue();
         Sheet sheet = new Sheet(name);
         sheet.deleteRow(0);
         sheet.deleteColumn(0);
 
-        NodeList new_list = node.getChildNodes();
-        for (int i = 0;i < new_list.getLength();i++){
-            Node n = new_list.item(i);
-            Style style = styles.get(getAtribFromNode(n,"table:default-cell-style-name",null));
-            if (n.getNodeName().equals("table:table-column")) {
-                int numColumns = getNumberOfColumns(n);
+        while (reader.hasNext()) {
+            XmlReaderInstance instance = reader.nextElement("table:table-column",
+                                                            "table:table-row");
 
-                if (style != null)
-                    for (int j = sheet.getMaxColumns();j < sheet.getMaxColumns()+numColumns;j++)
-                        columns_styles.put(j,style);
+            if (instance != null) {
+                String styleName = instance.getAttribValue("table:default-cell-style-name");
+                Style style = null;
+                if (styleName != null)
+                    style = styles.get(styleName);
 
-                sheet.appendColumns(numColumns);
-            }
-            else if (n.getNodeName().equals("table:table-row")) {
-                if (style != null)
-                    rows_styles.put(sheet.getMaxRows(),style);
-                sheet.appendRow();
-                processCells(n.getChildNodes(),sheet);
+                if (instance.getTag().equals("table:table-column")) {
+                    int numColumns = 1;
+                    String columnsRepeated = instance.getAttribValue("table:number-columns-repeated");
+                    if (columnsRepeated != null)
+                        numColumns = Integer.parseInt(columnsRepeated);
+
+                    if (style != null) {
+                        for (int j = sheet.getMaxColumns(); j < sheet.getMaxColumns() + numColumns; j++)
+                            columns_styles.put(j, style);
+                    }
+                    sheet.appendColumns(numColumns);
+                }
+                else if (instance.getTag().equals("table:table-row")) {
+                    if (style != null)
+                        rows_styles.put(sheet.getMaxRows(), style);
+                    sheet.appendRow();
+                    processCells(instance, sheet);
+                }
             }
         }
         spread.appendSheet(sheet);
     }
 
-    private int getNumberOfColumns(Node n){
-        Node n5 = n.getAttributes().getNamedItem("table:number-columns-repeated");
-        int incr = 1;
-        if (n5 != null)
-            incr = Integer.parseInt(n5.getNodeValue());
-        return incr;
-    }
-
-    private void processCells(NodeList childNodes,Sheet sheet) {
+    private void processCells(XmlReaderInstance reader, Sheet sheet) {
         int column = 0;
-        for (int i = 0; i < childNodes.getLength(); i++) {
-            Node n = childNodes.item(i);
-
+        while (reader.hasNext()) {
             // number of columns repeated
             long number_columns_repeated = 0;
             // value and style to be copied
             Object last_cell_value = null;
             Style last_style = null;
 
-            if (n.getNodeName().equals("table:table-cell")) {
+            XmlReaderInstance instance = reader.nextElement("table:table-cell");
+            if (instance != null) {
                 Range range = sheet.getRange(sheet.getMaxRows() - 1, column);
-                String valueType = getValueType(n);
-                String formula = getFormula(n);
-                Object value = null;
 
-                Node valueNode = n.getAttributes().getNamedItem("office:value");
-                if (valueNode != null) {
-                    value = getValue(valueNode.getNodeValue(), valueType);
-                }
+                String valueType = instance.getAttribValue("office:value-type");
+                if (valueType == null)
+                    valueType = "string";
 
-                number_columns_repeated = Long.parseLong(getAtribFromNode(n, "table:number-columns-repeated", "0"));
-                
+                String formula = instance.getAttribValue("table:formula");
                 range.setFormula(formula);
-                Style style = styles.get(getStyle(n));
-                
-                if (style == null) {
+
+                Object value = null;
+                String raw = instance.getAttribValue("office:value");
+                if (raw != null)
+                    value = getValue(raw, valueType);
+
+                raw = instance.getAttribValue("table:number-columns-repeated");
+                if (raw != null)
+                    number_columns_repeated = Long.parseLong(raw);
+
+                Style style = styles.get(instance.getAttribValue("table:style-name"));
+
+                if (style == null)
                     style = columns_styles.get(column);
-                }
-                if (style == null) {
-                    style = rows_styles.get(sheet.getMaxRows()-1);
-                }
-                if (style != null) {
+
+                if (style == null)
+                    style = rows_styles.get(sheet.getMaxRows() - 1);
+
+                if (style != null)
                     range.setStyle(style);
-                }
-                
+
                 last_style = style;
 
                 if (value == null) {
-                    NodeList cells = n.getChildNodes();
-                    for (int j = 0; j < cells.getLength(); j++) {
-                        Node cell = cells.item(j);
-                        String cell_name = cell.getNodeName();
-                        if (cell_name.equals("text:p")) {
-                            // TODO : Iterate over the children
-                            value = getValue(cell.getTextContent(), valueType);
-                        }
-                    }
+                    XmlReaderInstance text = instance.nextElement("text:p");
+                    if (text != null)
+                        value = text.getContent();
                 }
+
                 last_cell_value = value;
                 range.setValue(value);
                 column++;
             }
 
-            if(number_columns_repeated > 0) {
-            	for(int j = 0; j < number_columns_repeated-1; j++) {
-            		Range range = sheet.getRange(sheet.getMaxRows() - 1, column);
-            		if(last_style != null) {
-            			range.setStyle(last_style);
-            		}
+            if (number_columns_repeated > 0) {
+                for (int j = 0; j < number_columns_repeated - 1; j++) {
+                    Range range = sheet.getRange(sheet.getMaxRows() - 1, column);
+                    if (last_style != null) {
+                        range.setStyle(last_style);
+                    }
 
-            		range.setValue(last_cell_value);
-            		column++;
-            	}
+                    range.setValue(last_cell_value);
+                    column++;
+                }
             }
-	}
-    }
-
-    private String getValueType(Node n) {
-        return getAtribFromNode(n,"office:value-type","string");
-    }
-
-    private String getFormula(Node n) {
-        return getAtribFromNode(n,"table:formula",null);
-    }
-
-    private String getStyle(Node n) {
-        return getAtribFromNode(n,"table:style-name",null);
-    }
-
-    private String getAtribFromNode(Node n, String atrib, String defaultValue) {
-        Node type = n.getAttributes().getNamedItem(atrib);
-        if (type !=  null) {
-            defaultValue = type.getNodeValue();
         }
-        return defaultValue;
     }
 
     private Object getValue(String value, String valueType) {

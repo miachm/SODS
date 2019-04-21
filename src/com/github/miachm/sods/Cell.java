@@ -96,6 +96,7 @@ class Cell implements Cloneable {
         return "Cell{" +
                 "value=" + value +
                 ", formula='" + formula + '\'' +
+                ", style=" + style +
                 '}';
     }
 

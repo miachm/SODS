@@ -48,10 +48,11 @@ class OdsWritter {
             XMLStreamWriter out = XMLOutputFactory.newInstance().createXMLStreamWriter(
                     new OutputStreamWriter(output, "utf-8"));
 
-            //final String namespace = "urn:oasis:names:tc:opendocument:xmlns:manifest:1.0";
+            final String namespace = "urn:oasis:names:tc:opendocument:xmlns:manifest:1.0";
 
             out.writeStartDocument("UTF-8", "1.0");
             out.writeStartElement("manifest:manifest");
+            out.writeAttribute("xmlns:manifest", namespace);
             out.writeAttribute("manifest:version", "1.2");
 
             out.writeStartElement("manifest:file-entry");
@@ -111,7 +112,7 @@ class OdsWritter {
         }
     }
 
-    private void writeContent(XMLStreamWriter out/*Document dom*/) throws XMLStreamException {
+    private void writeContent(XMLStreamWriter out) throws XMLStreamException {
         out.writeStartElement("office:body");
         out.writeStartElement("office:spreadsheet");
 
