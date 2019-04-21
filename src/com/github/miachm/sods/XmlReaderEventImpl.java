@@ -9,12 +9,10 @@ import java.io.InputStream;
 public class XmlReaderEventImpl implements XmlReader {
     private static XMLInputFactory inputFactory = XMLInputFactory.newInstance();
     private XMLStreamReader reader = null;
-    private InputStream in = null;
 
     @Override
     public XmlReaderInstanceEventImpl load(InputStream in) throws IOException {
         try {
-            this.in = in;
             reader = inputFactory.createXMLStreamReader(in);
             // Skip start of document
             try {
