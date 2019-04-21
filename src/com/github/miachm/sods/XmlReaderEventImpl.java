@@ -6,7 +6,7 @@ import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class XmlReaderEventImpl implements XmlReader {
+class XmlReaderEventImpl implements XmlReader {
     private static XMLInputFactory inputFactory = XMLInputFactory.newInstance();
     private XMLStreamReader reader = null;
 

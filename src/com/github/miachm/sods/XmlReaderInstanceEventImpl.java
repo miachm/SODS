@@ -6,7 +6,7 @@ import javax.xml.stream.XMLStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
-public class XmlReaderInstanceEventImpl implements XmlReaderInstance {
+class XmlReaderInstanceEventImpl implements XmlReaderInstance {
     private XMLStreamReader reader;
     private String tag;
     private String characters;
