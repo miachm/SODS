@@ -374,7 +374,7 @@ public class SpreadSheetTest {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         spread.save(out);
-        spread.save(new File("example.ods"));
+        spread.save(new File("target/example.ods"));
 
         byte buff[] = out.toByteArray();
         SpreadSheet loaded = new SpreadSheet(new ByteArrayInputStream(buff));
