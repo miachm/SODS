@@ -6,6 +6,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
 
 public class RangeTest {
+    private static final Color COLOR0 = new Color("#020304");
+    private static final Color COLOR1 = new Color("blue");
+    
     @Test
     public void testClear() throws Exception {
         Sheet sheet = new Sheet("A");
@@ -211,8 +214,8 @@ public class RangeTest {
         Range range = sheet.getDataRange();
 
         Style[][] styles = new Style[2][1];
-        styles[0][0] = new Style(true, false, false, null, new Color(2, 3, 4), 4);
-        styles[1][0] = new Style(false, true, true, new Color(200, 100, 230), null, 5);
+        styles[0][0] = new Style(true, false, false, null, COLOR0, 4);
+        styles[1][0] = new Style(false, true, true, COLOR1, null, 5);
         range.setStyles(styles);
 
         Style[][] result = range.getStyles();
@@ -498,21 +501,19 @@ public class RangeTest {
         sheet.appendRow();
         sheet.appendColumn();
 
-        Color color = new Color(240, 23, 45);
-
         Range range = sheet.getDataRange();
-        range.setFontColor(color);
+        range.setFontColor(COLOR0);
 
         Style[][] arr = range.getStyles();
 
-        assertEquals(arr[0][0].getFontColor(),color);
-        assertEquals(arr[0][1].getFontColor(),color);
-        assertEquals(arr[1][0].getFontColor(),color);
-        assertEquals(arr[1][1].getFontColor(),color);
+        assertEquals(arr[0][0].getFontColor(),COLOR0);
+        assertEquals(arr[0][1].getFontColor(),COLOR0);
+        assertEquals(arr[1][0].getFontColor(),COLOR0);
+        assertEquals(arr[1][1].getFontColor(),COLOR0);
 
         range = sheet.getRange(1,0);
-        range.setFontColor(color);
-        assertEquals(range.getStyle().getFontColor(),color);
+        range.setFontColor(COLOR0);
+        assertEquals(range.getStyle().getFontColor(),COLOR0);
     }
 
     @Test
@@ -521,18 +522,15 @@ public class RangeTest {
         sheet.appendRow();
         sheet.appendColumn();
 
-        Color color = new Color(240, 23, 35);
-        Color otherColor = new Color(43, 12, 54);
-
         Range range = sheet.getDataRange();
-        range.setFontColors(otherColor, color, null, otherColor);
+        range.setFontColors(COLOR1, COLOR0, null, COLOR1);
 
         Style[][] arr = range.getStyles();
 
-        assertEquals(arr[0][0].getFontColor(),otherColor);
-        assertEquals(arr[0][1].getFontColor(),color);
+        assertEquals(arr[0][0].getFontColor(),COLOR1);
+        assertEquals(arr[0][1].getFontColor(),COLOR0);
         assertEquals(arr[1][0].getFontColor(),null);
-        assertEquals(arr[1][1].getFontColor(),otherColor);
+        assertEquals(arr[1][1].getFontColor(),COLOR1);
     }
 
     @Test
@@ -542,8 +540,8 @@ public class RangeTest {
         sheet.appendColumn();
 
         Color[][] arr = new Color[2][2];
-        arr[0][1] = new Color(12,23,45);
-        arr[1][1] = new Color(23,45,67);
+        arr[0][1] = COLOR0;
+        arr[1][1] = COLOR1;
 
         Range range = sheet.getDataRange();
         range.setFontColors(arr);
@@ -551,9 +549,9 @@ public class RangeTest {
         Style[][] result = range.getStyles();
 
         assertEquals(result[0][0].getFontColor(),null);
-        assertEquals(result[0][1].getFontColor(),new Color(12, 23, 45));
+        assertEquals(result[0][1].getFontColor(),COLOR0);
         assertEquals(result[1][0].getFontColor(),null);
-        assertEquals(result[1][1].getFontColor(),new Color(23, 45, 67));
+        assertEquals(result[1][1].getFontColor(),COLOR1);
     }
 
     @Test
@@ -562,21 +560,19 @@ public class RangeTest {
         sheet.appendRow();
         sheet.appendColumn();
 
-        Color color = new Color(240, 23, 45);
-
         Range range = sheet.getDataRange();
-        range.setBackgroundColor(color);
+        range.setBackgroundColor(COLOR0);
 
         Style[][] arr = range.getStyles();
 
-        assertEquals(arr[0][0].getBackgroundColor(),color);
-        assertEquals(arr[0][1].getBackgroundColor(),color);
-        assertEquals(arr[1][0].getBackgroundColor(),color);
-        assertEquals(arr[1][1].getBackgroundColor(),color);
+        assertEquals(arr[0][0].getBackgroundColor(),COLOR0);
+        assertEquals(arr[0][1].getBackgroundColor(),COLOR0);
+        assertEquals(arr[1][0].getBackgroundColor(),COLOR0);
+        assertEquals(arr[1][1].getBackgroundColor(),COLOR0);
 
         range = sheet.getRange(1,0);
-        range.setBackgroundColor(color);
-        assertEquals(range.getStyle().getBackgroundColor(),color);
+        range.setBackgroundColor(COLOR0);
+        assertEquals(range.getStyle().getBackgroundColor(),COLOR0);
     }
 
     @Test
@@ -585,18 +581,15 @@ public class RangeTest {
         sheet.appendRow();
         sheet.appendColumn();
 
-        Color color = new Color(240, 23, 35);
-        Color otherColor = new Color(43, 12, 54);
-
         Range range = sheet.getDataRange();
-        range.setBackgroundColors(otherColor, color, null, otherColor);
+        range.setBackgroundColors(COLOR1, COLOR0, null, COLOR1);
 
         Style[][] arr = range.getStyles();
 
-        assertEquals(arr[0][0].getBackgroundColor(),otherColor);
-        assertEquals(arr[0][1].getBackgroundColor(),color);
+        assertEquals(arr[0][0].getBackgroundColor(),COLOR1);
+        assertEquals(arr[0][1].getBackgroundColor(),COLOR0);
         assertEquals(arr[1][0].getBackgroundColor(),null);
-        assertEquals(arr[1][1].getBackgroundColor(),otherColor);
+        assertEquals(arr[1][1].getBackgroundColor(),COLOR1);
     }
 
     @Test
@@ -606,8 +599,8 @@ public class RangeTest {
         sheet.appendColumn();
 
         Color[][] arr = new Color[2][2];
-        arr[0][1] = new Color(12,23,45);
-        arr[1][1] = new Color(23,45,67);
+        arr[0][1] = COLOR0;
+        arr[1][1] = COLOR1;
 
         Range range = sheet.getDataRange();
         range.setBackgroundColors(arr);
@@ -615,9 +608,9 @@ public class RangeTest {
         Style[][] result = range.getStyles();
 
         assertEquals(result[0][0].getBackgroundColor(),null);
-        assertEquals(result[0][1].getBackgroundColor(),new Color(12, 23, 45));
+        assertEquals(result[0][1].getBackgroundColor(),COLOR0);
         assertEquals(result[1][0].getBackgroundColor(),null);
-        assertEquals(result[1][1].getBackgroundColor(),new Color(23, 45, 67));
+        assertEquals(result[1][1].getBackgroundColor(),COLOR1);
     }
 
     @Test
@@ -753,7 +746,7 @@ public class RangeTest {
 
         Style style = new Style();
         style.setFontSize(4);
-        style.setBackgroundColor(new Color(255,0,0));
+        style.setBackgroundColor(COLOR0);
         style.setBold(true);
 
         Range range = sheet.getDataRange();
@@ -775,13 +768,13 @@ public class RangeTest {
 
         Style style = new Style();
         style.setFontSize(4);
-        style.setBackgroundColor(new Color(255,0,0));
+        style.setBackgroundColor(COLOR0);
         style.setBold(true);
 
         Style otherStyle = new Style();
         otherStyle.setUnderline(true);
         otherStyle.setItalic(true);
-        otherStyle.setFontColor(new Color(0,23,12));
+        otherStyle.setFontColor(COLOR1);
 
         Range range = sheet.getDataRange();
         range.setValues(style,new Style(),otherStyle,style);
@@ -802,13 +795,13 @@ public class RangeTest {
 
         Style style = new Style();
         style.setFontSize(4);
-        style.setBackgroundColor(new Color(255,0,0));
+        style.setBackgroundColor(COLOR0);
         style.setBold(true);
 
         Style otherStyle = new Style();
         otherStyle.setUnderline(true);
         otherStyle.setItalic(true);
-        otherStyle.setFontColor(new Color(0,23,12));
+        otherStyle.setFontColor(COLOR1);
 
         Range range = sheet.getDataRange();
         Style[][] arr = new Style[2][3];
