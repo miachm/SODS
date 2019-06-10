@@ -2,6 +2,8 @@ package com.github.miachm.sods;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Represents a sheet in a Spreadsheet.
@@ -12,6 +14,8 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     private List<List<Cell>> cells = new ArrayList<List<Cell>>();
     private String name;
     private int numColumns = 1;
+
+    private Map<Integer, Double> columnWidth = new TreeMap<>();
 
     /**
      * Create an empty sheet with a given name.
@@ -133,6 +137,11 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
 
         for (int i = 0;i < howmany;i++)
             cells.remove(row);
+    }
+
+    public Double getColumnWidth(int column)
+    {
+        return columnWidth.get(column);
     }
 
     /**
@@ -310,7 +319,44 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
-     * Equals method, two sheets are considered the same if have the same name and the same content
+     * Set a specific column width to a specific column
+     * @param column The index of the column
+     * @param width The width of the column. It can be a null if you want to "unset" the width
+     * @throws IndexOutOfBoundsException if the column is negative or >= numColumns
+     * @throws IllegalArgumentException Width has to be positive
+     */
+
+    public void setColumnWidth(int column, Double width)
+    {
+        if (column < 0 || column >= numColumns)
+            throw new IndexOutOfBoundsException("Error, index out of bounds");
+
+        if (width != null) {
+            if (width < 0.0)
+                throw new IllegalArgumentException("Width can't be negative!");
+            columnWidth.put(column, width);
+        }
+        else
+            columnWidth.remove(column);
+    }
+
+    /**
+     * Set a column width to a specific set of columns
+     * @param column The index of the column
+     * @param numColumns The number of columns to be modified, starting on index.
+     * @param width The width of the column. It can be a null if you want to "unset" the width
+     * @throws IndexOutOfBoundsException if the column is negative or >= numColumns
+     * @throws IllegalArgumentException Width has to be positive
+     */
+
+    public void setColumnWidths(int column, int numColumns, Double width)
+    {
+        for (int i = 0; i < numColumns; i++)
+            setColumnWidth(column +i, width);
+    }
+
+    /**
+     * Equals method, two sheets are considered the same if have the same name and the same content (include formatting)
      * @param o The object to compare
      */
     @Override
@@ -320,14 +366,16 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
 
         Sheet sheet = (Sheet) o;
 
-        if (!cells.equals(sheet.cells)) return false;
-        return name.equals(sheet.name);
+        if (cells != null ? !cells.equals(sheet.cells) : sheet.cells != null) return false;
+        if (name != null ? !name.equals(sheet.name) : sheet.name != null) return false;
+        return columnWidth != null ? columnWidth.equals(sheet.columnWidth) : sheet.columnWidth == null;
     }
 
     @Override
     public int hashCode() {
-        int result = cells.hashCode();
-        result = 31 * result + name.hashCode();
+        int result = cells != null ? cells.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (columnWidth != null ? columnWidth.hashCode() : 0);
         return result;
     }
 
@@ -344,8 +392,9 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     @Override
     public String toString() {
         return "Sheet{" +
-                " name='" + name + '\'' + " ," +
-                "cells=" + getDataRange().toString() +
+                "\ncells=" + cells +
+                ",\nname='" + name + '\'' +
+                ",\ncolumnWidth=" + columnWidth +
                 '}';
     }
 }

@@ -322,7 +322,14 @@ public class SpreadSheetTest {
         assertEquals(styles[2][3].getFontColor(), null);
         assertEquals(styles[2][4].getFontColor(), null);
 
-        Range range = spread.getSheet(1).getDataRange();
+        assertEquals(sheet.getColumnWidth(0), 22.58);
+        assertEquals(sheet.getColumnWidth(1), 7.11);
+        assertEquals(sheet.getColumnWidth(2), 43.06);
+        assertEquals(sheet.getColumnWidth(3), 22.58);
+        assertEquals(sheet.getColumnWidth(4), 38.31);
+
+        sheet = spread.getSheet(1);
+        Range range = sheet.getDataRange();
         arr = range.getValues();
         assertEquals(arr[0][0],1.0);
         assertEquals(arr[1][0],3.0);
@@ -335,6 +342,9 @@ public class SpreadSheetTest {
         assertEquals(formulas[0][1],null);
         assertEquals(formulas[1][1],null);
         assertEquals(range.getFormulas()[2][1],"=SUM(A1:A2)+B1+B2");
+
+        assertEquals(sheet.getColumnWidth(0), 22.58);
+        assertEquals(sheet.getColumnWidth(1), 22.58);
     }
 
     @Test
@@ -371,6 +381,7 @@ public class SpreadSheetTest {
 
         spread.getSheet(0).appendRow();
         spread.getSheet(0).getCell(1,0).setFormula("=SUM(A1)");
+        spread.getSheet(0).setColumnWidth(0, 42.23);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         spread.save(out);

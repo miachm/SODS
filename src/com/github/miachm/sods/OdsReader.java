@@ -21,6 +21,7 @@ class OdsReader {
     private Map<String,Style> styles = new HashMap<>();
     private Map<Integer,Style> rows_styles = new HashMap<>();
     private Map<Integer,Style> columns_styles = new HashMap<>();
+    private Map<String,ColumnStyle> styleColumn = new HashMap<>();
 
     private OdsReader(InputStream in,SpreadSheet spread) {
         /* TODO This code if for ods files in zip. But we could have XML-ONLY FILES */
@@ -88,14 +89,21 @@ class OdsReader {
                 return;
 
             String name = instance.getAttribValue("style:name");
-            if (name != null) {
-                Style style = readStyleEntry(instance);
-                styles.put(name, style);
+            String family = instance.getAttribValue("style:family");
+            if (name != null && family != null) {
+                if (family.equals("table-cell")) {
+                    Style style = readCellStyleEntry(instance);
+                    styles.put(name, style);
+                }
+                else if (family.equals("table-column")) {
+                    ColumnStyle style = readColumnStyleEntry(instance);
+                    styleColumn.put(name, style);
+                }
             }
         }
     }
 
-    private Style readStyleEntry(XmlReaderInstance reader) {
+    private Style readCellStyleEntry(XmlReaderInstance reader) {
         Style style = new Style();
         while (reader.hasNext()) {
             XmlReaderInstance instance = reader.nextElement("style:text-properties",
@@ -139,6 +147,20 @@ class OdsReader {
                     style.setBackgroundColor(new Color(backgroundColor));
             }
 
+        }
+        return style;
+    }
+
+    private ColumnStyle readColumnStyleEntry(XmlReaderInstance reader) {
+        ColumnStyle style = new ColumnStyle();
+        while (reader.hasNext()) {
+            XmlReaderInstance instance = reader.nextElement("style:table-column-properties");
+            if (instance == null)
+                return style;
+
+            String columnWidth = instance.getAttribValue("style:column-width");
+            if (columnWidth != null)
+                style.setWidth(columnWidth);
         }
         return style;
     }
@@ -187,7 +209,18 @@ class OdsReader {
                         for (int j = sheet.getMaxColumns(); j < sheet.getMaxColumns() + numColumns; j++)
                             columns_styles.put(j, style);
                     }
+
                     sheet.appendColumns(numColumns);
+
+                    String columnStyleName = instance.getAttribValue("table:style-name");
+                    if (columnStyleName != null) {
+                        ColumnStyle columnStyle = styleColumn.get(columnStyleName);
+                        if (columnStyle != null) {
+                            for (int i = 0; i < numColumns; i++) {
+                                sheet.setColumnWidth(sheet.getMaxColumns() - i - 1, columnStyle.getWidth());
+                            }
+                        }
+                    }
                 }
                 else if (instance.getTag().equals("table:table-row")) {
                     if (style != null)

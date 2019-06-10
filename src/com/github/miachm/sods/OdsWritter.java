@@ -20,6 +20,7 @@ class OdsWritter {
     private SpreadSheet spread;
     private Compressor out;
     private Map<Style, String> stylesUsed = new HashMap<>();
+    private Map<ColumnStyle, String> columnStyleStringMap = new HashMap<>();
     private final String MIMETYPE= "application/vnd.oasis.opendocument.spreadsheet";
 
     private OdsWritter(OutputStream o, SpreadSheet spread) {
@@ -121,6 +122,15 @@ class OdsWritter {
             out.writeAttribute("table:name", sheet.getName());
             for (int i = 0;i < sheet.getMaxColumns();i++){
                 out.writeStartElement("table:table-column");
+                Double width = sheet.getColumnWidth(i);
+                if (width != null) {
+                    ColumnStyle columnStyle = new ColumnStyle();
+                    columnStyle.setWidth(width);
+                    String name = columnStyleStringMap.get(columnStyle);
+                    if (name != null)
+                        out.writeAttribute("table:style-name", name);
+                }
+
                 out.writeEndElement();
             }
             for (int i = 0;i < sheet.getMaxRows();i++) {
@@ -186,51 +196,78 @@ class OdsWritter {
                 for (int j = 0; j < sheet.getMaxColumns(); j++) {
                     Range range = sheet.getRange(i,j);
                     Style style = range.getStyle();
-                        if (!style.isDefault()) {
-                            String key = stylesUsed.get(style);
-                            if (key == null)
-                            {
-                                key = "cel" + stylesUsed.size();
-
-                                out.writeStartElement("style:style");
-                                out.writeAttribute("style:family", "table-cell");
-                                out.writeAttribute("style:name", key);
-
-                                if (style.getBackgroundColor() != null) {
-                                    out.writeStartElement("style:table-cell-properties");
-                                    out.writeAttribute("fo:background-color", style.getBackgroundColor().toString());
-                                    out.writeEndElement();
-                                }
-
-                                out.writeStartElement("style:text-properties");
-                                if (style.isItalic())
-                                    out.writeAttribute("fo:font-style", "italic");
-
-                                if (style.isBold())
-                                    out.writeAttribute("fo:font-weight", "bold");
-
-                                if (style.isUnderline()) {
-                                    out.writeAttribute("style:text-underline-style", "solid");
-                                    out.writeAttribute("style:text-underline-type", "single");
-                                    out.writeAttribute("style:text-underline-width", "auto");
-                                    out.writeAttribute("style:text-underline-color", "font-color");
-                                }
-
-                                if (style.getFontSize() != -1)
-                                    out.writeAttribute("fo:font-size", "" + style.getFontSize() + "pt");
-
-                                if (style.getFontColor() != null)
-                                    out.writeAttribute("fo:color", style.getFontColor().toString());
-
-                                out.writeEndElement();
-                                out.writeEndElement();
-                                stylesUsed.put(style, key);
-                            }
-                        }
+                    if (!style.isDefault()) {
+                        writeCellStyle(out, style);
+                    }
+                    Double width = sheet.getColumnWidth(j);
+                    if (width != null) {
+                        writeColumnStyle(out, width);
                     }
                 }
+            }
         }
+
         out.writeEndElement();
+    }
+
+    private void writeCellStyle(XMLStreamWriter out, Style style) throws XMLStreamException {
+        String key = stylesUsed.get(style);
+        if (key == null)
+        {
+            key = "cel" + stylesUsed.size();
+
+            out.writeStartElement("style:style");
+            out.writeAttribute("style:family", "table-cell");
+            out.writeAttribute("style:name", key);
+
+            if (style.getBackgroundColor() != null) {
+                out.writeStartElement("style:table-cell-properties");
+                out.writeAttribute("fo:background-color", style.getBackgroundColor().toString());
+                out.writeEndElement();
+            }
+
+            out.writeStartElement("style:text-properties");
+            if (style.isItalic())
+                out.writeAttribute("fo:font-style", "italic");
+
+            if (style.isBold())
+                out.writeAttribute("fo:font-weight", "bold");
+
+            if (style.isUnderline()) {
+                out.writeAttribute("style:text-underline-style", "solid");
+                out.writeAttribute("style:text-underline-type", "single");
+                out.writeAttribute("style:text-underline-width", "auto");
+                out.writeAttribute("style:text-underline-color", "font-color");
+            }
+
+            if (style.getFontSize() != -1)
+                out.writeAttribute("fo:font-size", "" + style.getFontSize() + "pt");
+
+            if (style.getFontColor() != null)
+                out.writeAttribute("fo:color", style.getFontColor().toString());
+
+            out.writeEndElement();
+            out.writeEndElement();
+            stylesUsed.put(style, key);
+        }
+    }
+
+    private void writeColumnStyle(XMLStreamWriter out, Double width) throws XMLStreamException {
+        ColumnStyle columnStyle = new ColumnStyle();
+        columnStyle.setWidth(width);
+        if (!columnStyleStringMap.containsKey(columnStyle)) {
+            String key = "co" + columnStyleStringMap.size();
+
+            out.writeStartElement("style:style");
+            out.writeAttribute("style:family", "table-column");
+            out.writeAttribute("style:name", key);
+            out.writeStartElement("style:table-column-properties");
+            out.writeAttribute("style:column-width", width.toString() + "mm");
+            out.writeEndElement();
+            out.writeEndElement();
+
+            columnStyleStringMap.put(columnStyle, key);
+        }
     }
 
     private String getValueType(Object v) {
