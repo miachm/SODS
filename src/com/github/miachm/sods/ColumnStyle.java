@@ -17,37 +17,37 @@ class ColumnStyle {
     }
 
     void setWidth(String width) {
-        if (width == null) {
-            this.width = null;
-            return;
-        }
+        this.width = getValue(width);
+    }
 
-        if (width.isEmpty() || width.equals("0")) {
-            this.width = 0.0;
-            return;
-        }
+    public static Double getValue(String value)
+    {
+        if (value == null)
+            return null;
 
-        if (width.length() > 2) {
-            double value = Double.parseDouble(width.substring(0, width.length() - 2));
-            if (width.endsWith("mm"))
-                this.width = value;
-            else if (width.endsWith("cm"))
-                this.width = value * EQUIVALENCE_CM;
-            else if (width.endsWith("in"))
-                this.width = value * EQUIVALENCE_IN;
-            else if (width.endsWith("pt"))
-                this.width = value * EQUIVALENCE_PT;
-            else if (width.endsWith("pc"))
-                this.width = value * EQUIVALENCE_PC;
-            else if (width.endsWith("px"))
-                this.width = value * EQUIVALENCE_PX;
+        if (value.isEmpty() || value.equals("0"))
+            return 0.0;
+
+        if (value.length() > 2) {
+            double number = Double.parseDouble(value.substring(0, value.length() - 2));
+            if (value.endsWith("mm"))
+                return number;
+            else if (value.endsWith("cm"))
+                return number * EQUIVALENCE_CM;
+            else if (value.endsWith("in"))
+                return number * EQUIVALENCE_IN;
+            else if (value.endsWith("pt"))
+                return number * EQUIVALENCE_PT;
+            else if (value.endsWith("pc"))
+                return number * EQUIVALENCE_PC;
+            else if (value.endsWith("px"))
+                return number * EQUIVALENCE_PX;
             else
                 throw new IllegalArgumentException("Unit not recognized");
         }
         else
             throw new IllegalArgumentException("A unit is needed");
     }
-
 
     @Override
     public boolean equals(Object o) {

@@ -443,7 +443,6 @@ public class SheetTest {
     @Test
     public void testSetColumnWidth() throws Exception {
         Sheet a = new Sheet("A");
-        a.getDataRange().setValue(1);
         a.appendColumns(3);
 
         double[] widths = {23.43, 12.412, 4.31, 9.42};
@@ -486,5 +485,54 @@ public class SheetTest {
             assertEquals(23.43, a.getColumnWidth(i));
 
         assertNull(a.getColumnWidth(4));
+    }
+
+
+    @Test
+    public void testSetRowHeight() throws Exception {
+        Sheet a = new Sheet("A");
+        a.getDataRange().setValue(1);
+        a.appendRows(3);
+
+        double[] heights = {23.43, 12.412, 4.31, 9.42};
+        for (int i = 0; i < 4; i++)
+            a.setRowHeight(i, heights[i]);
+
+        for (int i = 0; i < 4; i++)
+            assertEquals(heights[i], a.getRowHeight(i));
+
+        a.setRowHeight(1, null);
+        assertNull(a.getRowHeight(1));
+
+        try {
+            a.setRowHeight(2, -1.0);
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
+
+        try {
+            a.setRowHeight(-2, 3.0);
+            fail();
+        } catch (IndexOutOfBoundsException e) {
+        }
+
+        try {
+            a.setRowHeight(4, 3.0);
+            fail();
+        } catch (IndexOutOfBoundsException e) {
+        }
+    }
+
+    @Test
+    public void testSetRowHeights() throws Exception {
+        Sheet a = new Sheet("A");
+        a.getDataRange().setValue(1);
+        a.appendRows(3);
+        a.setRowHeights(0, 3, 23.43);
+
+        for (int i = 0; i < 3; i++)
+            assertEquals(23.43, a.getRowHeight(i));
+
+        assertNull(a.getRowHeight(4));
     }
 }

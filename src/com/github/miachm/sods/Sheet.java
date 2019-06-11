@@ -16,6 +16,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     private int numColumns = 1;
 
     private Map<Integer, Double> columnWidth = new TreeMap<>();
+    private Map<Integer, Double> rowHeight = new TreeMap<>();
 
     /**
      * Create an empty sheet with a given name.
@@ -139,10 +140,24 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
             cells.remove(row);
     }
 
+    /**
+     * Get the width of a column
+     * @param column The column index where start
+     * @return The width of the column, null if not specified
+     */
+
     public Double getColumnWidth(int column)
     {
         return columnWidth.get(column);
     }
+
+    /**
+     * Get the height of a row
+     * @param row The row index where start
+     * @return The height of the row, null if not specified
+     */
+
+    public Double getRowHeight(int row) { return rowHeight.get(row);}
 
     /**
      * Get a @Range which contains the whole Sheet content. Its useful
@@ -353,6 +368,41 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     {
         for (int i = 0; i < numColumns; i++)
             setColumnWidth(column +i, width);
+    }
+
+    /**
+     * Set a specific row height to a specific row
+     * @param row The index of the row
+     * @param height The height of the row. It can be a null if you want to "unset" the height
+     * @throws IndexOutOfBoundsException if the row is negative or >= numRows
+     * @throws IllegalArgumentException Height has to be positive
+     */
+    public void setRowHeight(int row, Double height)
+    {
+        if (row < 0 || row >= getMaxRows())
+            throw new IndexOutOfBoundsException("Error, index out of bounds");
+
+        if (height != null) {
+            if (height < 0.0)
+                throw new IllegalArgumentException("Height can't be negative!");
+            rowHeight.put(row, height);
+        }
+        else
+            rowHeight.remove(row);
+    }
+
+    /**
+     * Set a row height to a specific set of rows
+     * @param row The index of the row
+     * @param numRows The number of rows to be modified, starting on index.
+     * @param height The height of the row. It can be a null if you want to "unset" the row
+     * @throws IndexOutOfBoundsException if the row is negative or >= numRows
+     * @throws IllegalArgumentException Height has to be positive
+     */
+    public void setRowHeights(int row, int numRows, Double height)
+    {
+        for (int i = 0; i < numRows; i++)
+            setRowHeight(row +i, height);
     }
 
     /**

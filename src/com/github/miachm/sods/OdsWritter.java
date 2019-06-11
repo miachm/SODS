@@ -21,6 +21,7 @@ class OdsWritter {
     private Compressor out;
     private Map<Style, String> stylesUsed = new HashMap<>();
     private Map<ColumnStyle, String> columnStyleStringMap = new HashMap<>();
+    private Map<RowStyle, String> rowStyleStringMap = new HashMap<>();
     private final String MIMETYPE= "application/vnd.oasis.opendocument.spreadsheet";
 
     private OdsWritter(OutputStream o, SpreadSheet spread) {
@@ -136,6 +137,14 @@ class OdsWritter {
             for (int i = 0;i < sheet.getMaxRows();i++) {
 
                 out.writeStartElement("table:table-row");
+                Double height = sheet.getRowHeight(i);
+                if (height != null) {
+                    RowStyle rowStyle = new RowStyle();
+                    rowStyle.setHeight(height);
+                    String name = rowStyleStringMap.get(rowStyle);
+                    if (name != null)
+                        out.writeAttribute("table:style-name", name);
+                }
 
                 Range r = sheet.getRange(i,0,1,sheet.getMaxColumns());
 
@@ -204,6 +213,11 @@ class OdsWritter {
                         writeColumnStyle(out, width);
                     }
                 }
+
+                Double height = sheet.getRowHeight(i);
+                if (height != null) {
+                    writeRowStyle(out, height);
+                }
             }
         }
 
@@ -267,6 +281,23 @@ class OdsWritter {
             out.writeEndElement();
 
             columnStyleStringMap.put(columnStyle, key);
+        }
+    }
+
+    private void writeRowStyle(XMLStreamWriter out, Double height) throws XMLStreamException {
+        RowStyle rowStyle = new RowStyle();
+        rowStyle.setHeight(height);
+        if (!rowStyleStringMap.containsKey(rowStyle)) {
+            String key = "ro" + rowStyleStringMap.size();
+            out.writeStartElement("style:style");
+            out.writeAttribute("style:family", "table-row");
+            out.writeAttribute("style:name", key);
+            out.writeStartElement("style:table-row-properties");
+            out.writeAttribute("style:row-height", height.toString() + "mm");
+            out.writeEndElement();
+            out.writeEndElement();
+
+            rowStyleStringMap.put(rowStyle, key);
         }
     }
 

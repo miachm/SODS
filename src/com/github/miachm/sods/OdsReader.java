@@ -22,6 +22,7 @@ class OdsReader {
     private Map<Integer,Style> rows_styles = new HashMap<>();
     private Map<Integer,Style> columns_styles = new HashMap<>();
     private Map<String,ColumnStyle> styleColumn = new HashMap<>();
+    private Map<String,RowStyle> styleRow = new HashMap<>();
 
     private OdsReader(InputStream in,SpreadSheet spread) {
         /* TODO This code if for ods files in zip. But we could have XML-ONLY FILES */
@@ -99,6 +100,10 @@ class OdsReader {
                     ColumnStyle style = readColumnStyleEntry(instance);
                     styleColumn.put(name, style);
                 }
+                else if (family.equals("table-row")) {
+                    RowStyle style = readRowStyleEntry(instance);
+                    styleRow.put(name, style);
+                }
             }
         }
     }
@@ -165,6 +170,20 @@ class OdsReader {
         return style;
     }
 
+    private RowStyle readRowStyleEntry(XmlReaderInstance reader) {
+        RowStyle style = new RowStyle();
+        while (reader.hasNext()) {
+            XmlReaderInstance instance = reader.nextElement("style:table-row-properties");
+            if (instance == null)
+                return style;
+
+            String rowHeight = instance.getAttribValue("style:row-height");
+            if (rowHeight != null)
+                style.setHeight(rowHeight);
+        }
+        return style;
+    }
+
     private void iterateFilesEntries(XmlReaderInstance reader) {
         if (reader == null)
             return;
@@ -226,6 +245,13 @@ class OdsReader {
                     if (style != null)
                         rows_styles.put(sheet.getMaxRows(), style);
                     sheet.appendRow();
+
+                    String rowStyleName = instance.getAttribValue("table:style-name");
+                    if (rowStyleName != null) {
+                        RowStyle rowStyle = styleRow.get(rowStyleName);
+                        if (rowStyle != null)
+                            sheet.setRowHeight(sheet.getMaxRows() - 1, rowStyle.getHeight());
+                    }
                     processCells(instance, sheet);
                 }
             }

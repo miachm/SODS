@@ -382,6 +382,7 @@ public class SpreadSheetTest {
         spread.getSheet(0).appendRow();
         spread.getSheet(0).getCell(1,0).setFormula("=SUM(A1)");
         spread.getSheet(0).setColumnWidth(0, 42.23);
+        spread.getSheet(0).setRowHeight(1, 74.14);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         spread.save(out);
