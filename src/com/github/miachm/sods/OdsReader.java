@@ -131,7 +131,7 @@ class OdsReader {
                     style.setUnderline(underline.equals("solid"));
 
                 String fontcolor = instance.getAttribValue("fo:color");
-                if (fontcolor != null)
+                if (fontcolor != null && !fontcolor.equals("transparent"))
                     style.setFontColor(new Color(fontcolor));
 
                 String fontsize = instance.getAttribValue("fo:font-size");
@@ -148,7 +148,7 @@ class OdsReader {
 
             if (instance.getTag().equals("style:table-cell-properties")) {
                 String backgroundColor = instance.getAttribValue("fo:background-color");
-                if (backgroundColor != null)
+                if (backgroundColor != null && !backgroundColor.equals("transparent"))
                     style.setBackgroundColor(new Color(backgroundColor));
             }
 

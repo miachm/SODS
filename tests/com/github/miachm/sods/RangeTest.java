@@ -2,6 +2,7 @@ package com.github.miachm.sods;
 
 import org.testng.annotations.Test;
 
+import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
 
@@ -577,6 +578,12 @@ public class RangeTest {
         range = sheet.getRange(1,0);
         range.setBackgroundColor(color);
         assertEquals(range.getStyle().getBackgroundColor(),color);
+
+        try {
+            color = new Color("transparent");
+            fail();
+        }
+        catch (OperationNotSupportedException e) {}
     }
 
     @Test

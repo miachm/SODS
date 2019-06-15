@@ -38,9 +38,12 @@ final public class Color implements Cloneable {
      */
     public Color(String hexform)
     {
-        if (hexform.length() != 7) {
+        hexform = hexform.toLowerCase();
+        if (hexform.equals("transparent"))
+            throw new OperationNotSupportedException("Transparent color not supported, use a null color object instead");
+
+        if (hexform.length() != 7)
             throw new IllegalArgumentException("Error in Color, the length of the string is not correct (" + hexform.length() + ")");
-        }
 
         this.red = Integer.valueOf(hexform.substring(1, 3), 16);
         this.green = Integer.valueOf(hexform.substring(3, 5), 16);
