@@ -303,8 +303,21 @@ class OdsReader {
 
                 if (value == null) {
                     XmlReaderInstance text = instance.nextElement("text:p");
-                    if (text != null)
+                    if (text != null) {
                         value = text.getContent();
+
+                        // Read multiple text tags, used to separate rows of text in a cell.
+                        XmlReaderInstance moreText = text.nextElement("text:p");
+                        String multiLineContent = value == null ? "" : value.toString();  // Only support text type for multiline content for now.
+                        boolean multilineContent = false;
+                        while (moreText != null) {
+                            multilineContent = true;
+                            moreText = text.nextElement("text:p");
+                            if (!multiLineContent.isEmpty()) multiLineContent += "\n"; // Separate contents of text:p tags with newlines.
+                            multiLineContent += moreText.getContent();
+                        }
+                        if (multilineContent) value = multiLineContent;  // We got some multiline content, return it as text
+                    }
                 }
 
                 last_cell_value = value;
