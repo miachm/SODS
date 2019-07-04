@@ -15,22 +15,22 @@ public class MultiLineCellTest {
     @Test
     public void testReadNormalCell() throws Exception {
         // Just to make sure the test file is up to date, and existing functionality works.
-        assertValueInCellEquals(2, 0, 0, "abcdef");
+        assertValueInCellEquals(2, 0, 0, "abc");
     }
 
     @Test
     public void testReadMultiStyleCell() throws Exception {
-        assertValueInCellEquals(2, 0, 1, "abcdef");
+        assertValueInCellEquals(2, 0, 1, "def");
     }
 
     @Test
     public void testReadMultiRowCell() throws Exception {
-        assertValueInCellEquals(2, 1, 0, "abcdef");
+        assertValueInCellEquals(2, 1, 0, "g\nh\ni");
     }
 
     @Test
     public void testReadMultiRowMultiStyleCell() throws Exception {
-        assertValueInCellEquals(2, 1, 1, "abcdef");
+        assertValueInCellEquals(2, 1, 1, "jk\nlm\nno");
     }
 
 

@@ -302,22 +302,7 @@ class OdsReader {
                 last_style = style;
 
                 if (value == null) {
-                    XmlReaderInstance text = instance.nextElement("text:p");
-                    if (text != null) {
-                        value = text.getContent();
-
-                        // Read multiple text tags, used to separate rows of text in a cell.
-                        XmlReaderInstance moreText = text.nextElement("text:p");
-                        String multiLineContent = value == null ? "" : value.toString();  // Only support text type for multiline content for now.
-                        boolean multilineContent = false;
-                        while (moreText != null) {
-                            multilineContent = true;
-                            moreText = text.nextElement("text:p");
-                            if (!multiLineContent.isEmpty()) multiLineContent += "\n"; // Separate contents of text:p tags with newlines.
-                            multiLineContent += moreText.getContent();
-                        }
-                        if (multilineContent) value = multiLineContent;  // We got some multiline content, return it as text
-                    }
+                    value = readCellText(instance);
                 }
 
                 last_cell_value = value;
@@ -336,6 +321,49 @@ class OdsReader {
                     column++;
                 }
             }
+        }
+    }
+
+    private String readCellText(XmlReaderInstance cellReader) {
+        // A cell can contain one or more text:p tags,
+        // that each can contain zero or more text:span tags.
+        // Concatenate all text in them.
+
+        StringBuffer s = new StringBuffer();
+
+        XmlReaderInstance textElement = cellReader.nextElement("text:p");
+        boolean firstTextElement = true;
+        while (textElement != null) {
+            // Each text:p tag seems to represent a separate row.  Separate them with newlines.
+            if (firstTextElement) {
+                firstTextElement = false;
+            } else {
+                s.append("\n");
+            }
+
+            // Add content of any contained text:span tags
+            XmlReaderInstance spanElement = textElement.nextElement("text:span");
+            while (spanElement != null) {
+                String spanContent = spanElement.getContent();
+                if (spanContent != null) s.append(spanContent);
+                spanElement = textElement.nextElement("text:span");
+            }
+
+            // Add direct content of text:p tag (note that this messes up with textElement
+            // reading position, so we have to do it after attempting to read the spans
+            // in the text element)
+            String textContent = textElement.getContent();
+            if (textContent != null) s.append(textContent);
+
+            textElement = cellReader.nextElement("text:p");
+        }
+
+        // Empty cells are supposed to be represented by null, so return that if we got no content.
+        if (s.length() <= 0) {
+            return null;
+        }
+        else {
+            return s.toString();
         }
     }
 
