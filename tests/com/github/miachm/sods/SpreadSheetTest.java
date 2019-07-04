@@ -200,7 +200,7 @@ public class SpreadSheetTest {
     @Test
     public void testLoad() throws Exception {
         SpreadSheet spread = new SpreadSheet(new File("resources/CAS.ods"));
-        assertEquals(spread.getNumSheets(),2);
+        assertEquals(spread.getNumSheets(),3);
 
         Sheet sheet = spread.getSheet(0);
         Range dataRange = sheet.getDataRange();
