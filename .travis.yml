@@ -5,6 +5,6 @@ jdk:
   - oraclejdk9
   - oraclejdk11
   - openjdk8
-  - openjdk9
+#  - openjdk9 # Commented out by a fail in Travis machine
   - openjdk10
   - openjdk11
