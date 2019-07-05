@@ -10,6 +10,9 @@ import java.util.*;
 import static org.testng.AssertJUnit.*;
 
 public class SpreadSheetTest {
+    private static final Color COLOR0 = new Color("#FF0000");
+    private static final Color COLOR1 = new Color("#ffff00");
+    private static final Color COLOR2 = new Color("#ff0203");
 
     private SpreadSheet generateASpreadsheet(){
         SpreadSheet spread = new SpreadSheet();
@@ -298,7 +301,7 @@ public class SpreadSheetTest {
         assertEquals(styles[1][0].getFontColor(), null);
         assertEquals(styles[1][1].getFontColor(), null);
         assertEquals(styles[1][2].getFontColor(), null);
-        assertEquals(styles[1][3].getFontColor(), new Color(255, 0 , 0));
+        assertEquals(styles[1][3].getFontColor(), COLOR0);
         assertEquals(styles[1][4].getFontColor(), null);
         assertEquals(styles[2][0].getFontColor(), null);
         assertEquals(styles[2][1].getFontColor(), null);
@@ -315,7 +318,7 @@ public class SpreadSheetTest {
         assertEquals(styles[1][1].getBackgroundColor(), null);
         assertEquals(styles[1][2].getBackgroundColor(), null);
         assertEquals(styles[1][3].getBackgroundColor(), null);
-        assertEquals(styles[1][4].getBackgroundColor(), new Color("#ffff00"));
+        assertEquals(styles[1][4].getBackgroundColor(), COLOR1);
         assertEquals(styles[2][0].getFontColor(), null);
         assertEquals(styles[2][1].getFontColor(), null);
         assertEquals(styles[2][2].getFontColor(), null);
@@ -372,7 +375,7 @@ public class SpreadSheetTest {
         dataRange.setFontBold(true);
         dataRange.setFontUnderline(true);
         dataRange.setFontColors(new Color("#43a2f5"));
-        dataRange.setBackgroundColor(new Color(255,2,3));
+        dataRange.setBackgroundColor(COLOR2);
         dataRange.setFontSize(18);
 
         dataRange = spread.getSheet(2).getDataRange();
@@ -386,7 +389,7 @@ public class SpreadSheetTest {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         spread.save(out);
-        spread.save(new File("example.ods"));
+        spread.save(new File("target/example.ods"));
 
         byte buff[] = out.toByteArray();
         SpreadSheet loaded = new SpreadSheet(new ByteArrayInputStream(buff));
