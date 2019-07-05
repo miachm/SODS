@@ -325,7 +325,7 @@ class OdsReader {
     }
 
     private String readCellText(XmlReaderInstance cellReader) {
-        // A cell can contain one or more text:p tags,
+        // A cell can contain zero(?) or more text:p tags,
         // that each can contain zero or more text:span tags.
         // Concatenate all text in them.
 
@@ -349,9 +349,8 @@ class OdsReader {
                 spanElement = textElement.nextElement("text:span");
             }
 
-            // Add direct content of text:p tag (note that this messes up with textElement
-            // reading position, so we have to do it after attempting to read the spans
-            // in the text element)
+            // Add direct content of text:p tag (we do it here, as
+            // textElement.nextElement() will not work after textElement.getContent()).
             String textContent = textElement.getContent();
             if (textContent != null) s.append(textContent);
 
