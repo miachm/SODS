@@ -208,6 +208,9 @@ public class SpreadSheetTest {
         Sheet sheet = spread.getSheet(0);
         Range dataRange = sheet.getDataRange();
 
+        Range group[] = dataRange.getMergedCells();
+        assertEquals(group.length, 0);
+
         Object[][] arr = dataRange.getValues();
         assertEquals(arr[0][0],"A");
         assertEquals(arr[0][1],"B");
@@ -335,16 +338,36 @@ public class SpreadSheetTest {
         Range range = sheet.getDataRange();
         arr = range.getValues();
         assertEquals(arr[0][0],1.0);
-        assertEquals(arr[1][0],3.0);
+        assertEquals(arr[1][0],4.0);
+        assertEquals(arr[2][0], null);
         assertEquals(arr[0][1],2.0);
-        assertEquals(arr[1][1],4.0);
+        assertEquals(arr[1][1],2.0);
+        assertEquals(arr[2][1],null);
+        assertEquals(arr[0][2],2.0);
+        assertEquals(arr[1][2],2.0);
+        assertEquals(arr[2][2],null);
+        assertEquals(arr[0][3],4.0);
+        assertEquals(arr[1][3],7.0);
+        assertEquals(arr[2][3],18.0);
 
         String formulas[][] = range.getFormulas();
         assertEquals(formulas[0][0],null);
         assertEquals(formulas[1][0],null);
         assertEquals(formulas[0][1],null);
         assertEquals(formulas[1][1],null);
-        assertEquals(range.getFormulas()[2][1],"=SUM(A1:A2)+B1+B2");
+        assertEquals(formulas[0][2],null);
+        assertEquals(formulas[1][2],null);
+        assertEquals(formulas[2][2],null);
+        assertEquals(formulas[0][3],null);
+        assertEquals(formulas[1][3],null);
+        assertEquals(formulas[2][3],"=SUM(A1:C2)+D1+D2");
+
+        group = range.getMergedCells();
+        assertEquals(group.length, 1);
+        assertEquals(group[0].getRow(), 0);
+        assertEquals(group[0].getColumn(), 1);
+        assertEquals(group[0].getNumRows(), 2);
+        assertEquals(group[0].getNumColumns(), 2);
 
         assertEquals(sheet.getColumnWidth(0), 22.58);
         assertEquals(sheet.getColumnWidth(1), 22.58);
@@ -367,7 +390,8 @@ public class SpreadSheetTest {
     public void testSave() throws Exception {
         SpreadSheet spread = generateASpreadsheet();
 
-        Range dataRange = spread.getSheet(0).getDataRange();
+        Sheet sheet = spread.getSheet(0);
+        Range dataRange = sheet.getDataRange();
         dataRange.setValue(1.0);
 
         dataRange = spread.getSheet(1).getDataRange();
@@ -382,10 +406,14 @@ public class SpreadSheetTest {
         dataRange.setValue(1.0);
         dataRange.setFontItalic(true);
 
-        spread.getSheet(0).appendRow();
-        spread.getSheet(0).getCell(1,0).setFormula("=SUM(A1)");
-        spread.getSheet(0).setColumnWidth(0, 42.23);
-        spread.getSheet(0).setRowHeight(1, 74.14);
+        sheet = spread.getSheet(0);
+        sheet.appendRow();
+        sheet.getCell(1,0).setFormula("=SUM(A1)");
+        sheet.setColumnWidth(0, 42.23);
+        sheet.setRowHeight(1, 74.14);
+        sheet.appendColumn();
+        Range range = sheet.getRange(0,0,1,2);
+        range.merge();
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         spread.save(out);

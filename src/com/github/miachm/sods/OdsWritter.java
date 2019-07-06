@@ -159,6 +159,16 @@ class OdsWritter {
                     if (formula != null)
                         out.writeAttribute("table:formula", formula);
 
+                    int numColumns = 0;
+                    Range mergedCells[] = range.getMergedCells();
+                    if (mergedCells.length > 0) {
+                        numColumns = mergedCells[0].getNumColumns() - 1;
+                        if (mergedCells[0].getNumColumns() > 1)
+                            out.writeAttribute("table:number-columns-spanned", "" + mergedCells[0].getNumColumns());
+                        if (mergedCells[0].getNumRows() > 1)
+                            out.writeAttribute("table:number-rows-spanned", "" + mergedCells[0].getNumRows());
+                    }
+
                     if (!style.isDefault()) {
                         String key = stylesUsed.get(style);
                         if (key == null) {
@@ -185,6 +195,12 @@ class OdsWritter {
                     }
 
                     out.writeEndElement();
+
+                    while (numColumns > 0) {
+                        out.writeStartElement("table:covered-table-cell");
+                        out.writeEndElement();
+                        numColumns--;
+                    }
                 }
 
                 out.writeEndElement();

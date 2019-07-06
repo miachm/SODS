@@ -380,7 +380,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     public void setRowHeight(int row, Double height)
     {
         if (row < 0 || row >= getMaxRows())
-            throw new IndexOutOfBoundsException("Error, index out of bounds");
+            throw new IndexOutOfBoundsException("Error, index out of bounds (" + row + ")");
 
         if (height != null) {
             if (height < 0.0)
@@ -416,16 +416,18 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
 
         Sheet sheet = (Sheet) o;
 
-        if (cells != null ? !cells.equals(sheet.cells) : sheet.cells != null) return false;
-        if (name != null ? !name.equals(sheet.name) : sheet.name != null) return false;
-        return columnWidth != null ? columnWidth.equals(sheet.columnWidth) : sheet.columnWidth == null;
+        if (!cells.equals(sheet.cells)) return false;
+        if (!name.equals(sheet.name)) return false;
+        if (!columnWidth.equals(sheet.columnWidth)) return false;
+        return rowHeight.equals(sheet.rowHeight);
     }
 
     @Override
     public int hashCode() {
-        int result = cells != null ? cells.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (columnWidth != null ? columnWidth.hashCode() : 0);
+        int result = cells.hashCode();
+        result = 31 * result + name.hashCode();
+        result = 31 * result + columnWidth.hashCode();
+        result = 31 * result + rowHeight.hashCode();
         return result;
     }
 
@@ -442,7 +444,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     @Override
     public String toString() {
         return "Sheet{" +
-                "\ncells=" + cells +
+                "\ncells=" + getDataRange().toString() +
                 ",\nname='" + name + '\'' +
                 ",\ncolumnWidth=" + columnWidth +
                 '}';
