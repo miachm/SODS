@@ -131,7 +131,10 @@ class OdsReader {
 
                 String fontcolor = instance.getAttribValue("fo:color");
                 if (fontcolor != null && !fontcolor.equals("transparent"))
-                    style.setFontColor(new Color(fontcolor));
+                    try {
+                        style.setFontColor(new Color(fontcolor));
+                    }
+                    catch (IllegalArgumentException e) { System.err.println(e.getMessage());}
 
                 String fontsize = instance.getAttribValue("fo:font-size");
                 if (fontsize != null) {
@@ -148,7 +151,10 @@ class OdsReader {
             if (instance.getTag().equals("style:table-cell-properties")) {
                 String backgroundColor = instance.getAttribValue("fo:background-color");
                 if (backgroundColor != null && !backgroundColor.equals("transparent"))
-                    style.setBackgroundColor(new Color(backgroundColor));
+                    try {
+                        style.setBackgroundColor(new Color(backgroundColor));
+                    }
+                    catch (IllegalArgumentException e) { System.err.println(e.getMessage());}
             }
 
         }
