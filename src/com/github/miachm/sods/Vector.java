@@ -43,4 +43,12 @@ class Vector implements Comparable<Vector> {
             return o.y - y;
         return o.x - x;
     }
+
+    @Override
+    public String toString() {
+        return "Vector{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
 }

@@ -287,7 +287,12 @@ class OdsReader {
             XmlReaderInstance instance = reader.nextElement("table:table-cell", "table:covered-table-cell");
             if (instance != null) {
                 if (instance.getTag().equals("table:covered-table-cell")) {
-                    column++;
+                    String numColumnsRepeated = instance.getAttribValue("table:number-columns-repeated");
+                    if (numColumnsRepeated == null)
+                        column++;
+                    else {
+                        column += Integer.parseInt(numColumnsRepeated);
+                    }
                     continue;
                 }
                 int rows = 1;
@@ -348,6 +353,7 @@ class OdsReader {
 
                 last_cell_value = value;
                 range.setValue(value);
+
                 column++;
             }
 
