@@ -21,7 +21,7 @@ class OdsReader {
     private Map<Integer,Style> columns_styles = new HashMap<>();
     private Map<String,ColumnStyle> styleColumn = new HashMap<>();
     private Map<String,RowStyle> styleRow = new HashMap<>();
-    private Set<GroupCell> groupCells = new HashSet<>();
+    private Set<Pair<Vector, Vector>> groupCells = new HashSet<>();
 
     private OdsReader(InputStream in,SpreadSheet spread) {
         /* TODO This code if for ods files in zip. But we could have XML-ONLY FILES */
@@ -260,9 +260,9 @@ class OdsReader {
             }
         }
 
-        for (GroupCell groupCell : groupCells) {
-            Vector cord = groupCell.getCord();
-            Vector length = groupCell.getLength();
+        for (Pair<Vector, Vector> pair : groupCells) {
+            Vector cord = pair.first;
+            Vector length = pair.second;
             Range range = sheet.getRange(cord.getX(), cord.getY(), length.getX(), length.getY());
             range.merge();
         }
@@ -299,9 +299,10 @@ class OdsReader {
                 int positionX = sheet.getMaxRows()-1;
                 int positionY = column;
                 if (rows != 1 || columns != 1) {
-                    Cell cell = sheet.getCell(positionX, positionY);
-                    GroupCell groupCell = new GroupCell(new Vector(positionX, positionY), new Vector(rows, columns), cell);
-                    groupCells.add(groupCell);
+                    Pair<Vector, Vector> pair =  new Pair<>();
+                    pair.first = new Vector(positionX, positionY);
+                    pair.second = new Vector(rows, columns);
+                    groupCells.add(pair);
                 }
 
                 Range range = sheet.getRange(positionX, positionY);

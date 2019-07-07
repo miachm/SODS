@@ -2,7 +2,6 @@ package com.github.miachm.sods;
 
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertEquals;
 
 public class MergeCellsTest {
@@ -33,18 +32,12 @@ public class MergeCellsTest {
     public void testMerge() {
         Sheet sheet = new Sheet("A");
         sheet.appendRows(4);
-        sheet.appendColumns(4);;
+        sheet.appendColumns(4);
 
         Range range = sheet.getRange(0,0,2,2);
         range.merge();
         range = sheet.getRange(2,2,2,2);
         range.merge();
-
-        range = sheet.getRange(1,1);
-        try {
-            range.merge();
-            fail();
-        } catch (IllegalArgumentException e) {}
 
         Range[] group = range.getMergedCells();
         assertEquals(group.length, 1);
@@ -81,15 +74,22 @@ public class MergeCellsTest {
     {
         Sheet sheet = new Sheet("A");
         sheet.appendRows(4);
-        sheet.appendColumns(4);;
+        sheet.appendColumns(4);
 
         Range range = sheet.getRange(0,0,2,2);
         range.merge();
         range = sheet.getRange(2,2,2,2);
         range.merge();
 
-        range = sheet.getRange(0,0,3,3);
+        range = sheet.getRange(0,0,2,2);
+        range.split();
+        assertEquals(sheet.getDataRange().getMergedCells().length, 1);
+
+        range = sheet.getRange(0,0,2,2);
+        range.merge();
+        range = sheet.getRange(0,0,4,4);
         range.split();
         assertEquals(sheet.getDataRange().getMergedCells().length, 0);
+
     }
 }

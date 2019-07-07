@@ -408,11 +408,13 @@ public class SpreadSheetTest {
 
         sheet = spread.getSheet(0);
         sheet.appendRow();
+        sheet.appendRows(2);
         sheet.getCell(1,0).setFormula("=SUM(A1)");
         sheet.setColumnWidth(0, 42.23);
         sheet.setRowHeight(1, 74.14);
-        sheet.appendColumn();
-        Range range = sheet.getRange(0,0,1,2);
+        sheet.appendColumns(2);
+
+        Range range = sheet.getRange(0,0,2,2);
         range.merge();
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();

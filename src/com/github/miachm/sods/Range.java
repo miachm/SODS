@@ -7,7 +7,7 @@ import java.util.TreeSet;
 
 /**
  * A range represents a subset of a Sheet.
- * You use ranges for write/read content in a Sheet
+ * You use ranges for write/read content in a Sheet.
  */
 public class Range {
     private final int column_init,row_init;
@@ -625,10 +625,6 @@ public class Range {
     private String valuesToString(){
         StringBuilder builder = new StringBuilder();
 
-        class MutableInteger
-        {
-            int number;
-        };
         MutableInteger lastRow = new MutableInteger();
         iterateRange((cell, i, j) -> {
             if (lastRow.number != i) {
@@ -640,16 +636,6 @@ public class Range {
             }
             builder.append(cell.getValue());
         });
-        /*
-        for (int i = 0;i < values.length;i++){
-            //builder.append(values[i][0]);
-            builder.append(sheet.getCell([i][0]);
-            for (int j = 1;j < values[i].length;j++){
-                builder.append(" , ");
-                builder.append(values[i][j]);
-            }
-            builder.append("\n");
-        }*/
         return builder.toString();
     }
 
@@ -759,16 +745,14 @@ public class Range {
     }
 
     /**
-     * Merges the cells in the range together into a single block.
+     * Merges the cells in the range together into a single block. If the range only contiains a cell, no actions will be taken
      *
-     * @throws IllegalArgumentException if the range contains only a single cell
      * @throws AssertionError if a cell is already in a group. No changes will be done
      */
     public void merge()
     {
-        if (getNumValues() <= 1) {
-            throw new IllegalArgumentException("The range has a size of 1. You can't merge a simple cell");
-        }
+        if (getNumValues() <= 1)
+            return;
 
         if (getMergedCells().length > 0)
             throw new AssertionError("Error, one of the cells is already on a group");
@@ -777,18 +761,45 @@ public class Range {
         Vector length = new Vector(getNumRows(), getNumColumns());
         Cell firstCell = sheet.getCell(row_init,column_init);
         GroupCell groupCell = new GroupCell(cord, length, firstCell);
-        iterateRange((cell,row,column) -> {
-            cell.setGroup(groupCell);
-        });
+        iterateRange((cell,row,column) -> cell.setGroup(groupCell));
     }
+
+    private boolean rowInRange(int row)
+    {
+        return row >= getRow() && row <= getLastRow();
+    }
+
+    private boolean columnsInrange(int column)
+    {
+        return column >= getColumn() && column <= getLastColumn();
+    }
+
+    /**
+     * Breaks apart any combined cells on the range.
+     * The full group must be inside of the range or a IllegalArgumentException would be thrown.
+     *
+     * @throws IllegalArgumentException If a group is not fully included on the range, no changes will be done
+     */
 
     public void split()
     {
         Range[] groupRange = getMergedCells();
+
+        for (Range range : groupRange) {
+            if (!rowInRange(range.getRow()) || !rowInRange(range.getLastRow())) {
+                throw new IllegalArgumentException("All the combined cells must be inside the range. The row interval (" + range.getRow() + " - " + range.getLastRow() + ") is not fully included");
+            }
+            if (!columnsInrange(range.getColumn()) || !columnsInrange(range.getLastColumn())) {
+                throw new IllegalArgumentException("All the combined cells must be inside the range. The column interval (" + range.getColumn() + " , " + range.getLastColumn() + ") is not fully included");
+            }
+        }
+
         for (Range range : groupRange) {
             for (int i = 0; i < range.getNumRows(); i++){
                 for (int j = 0; j < range.getNumColumns(); j++) {
                     Cell cell = sheet.getCell(range.getRow()+i,range.getColumn()+j);
+                    if (i > 0 || j > 0)
+                        cell.clear();
                     cell.setGroup(null);
                 }
             }

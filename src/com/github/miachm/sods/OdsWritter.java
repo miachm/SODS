@@ -121,100 +121,114 @@ class OdsWritter {
         for (Sheet sheet : spread.getSheets()) {
             out.writeStartElement("table:table");
             out.writeAttribute("table:name", sheet.getName());
-            for (int i = 0;i < sheet.getMaxColumns();i++){
-                out.writeStartElement("table:table-column");
-                Double width = sheet.getColumnWidth(i);
-                if (width != null) {
-                    ColumnStyle columnStyle = new ColumnStyle();
-                    columnStyle.setWidth(width);
-                    String name = columnStyleStringMap.get(columnStyle);
-                    if (name != null)
-                        out.writeAttribute("table:style-name", name);
-                }
-
-                out.writeEndElement();
-            }
-            for (int i = 0;i < sheet.getMaxRows();i++) {
-
-                out.writeStartElement("table:table-row");
-                Double height = sheet.getRowHeight(i);
-                if (height != null) {
-                    RowStyle rowStyle = new RowStyle();
-                    rowStyle.setHeight(height);
-                    String name = rowStyleStringMap.get(rowStyle);
-                    if (name != null)
-                        out.writeAttribute("table:style-name", name);
-                }
-
-                Range r = sheet.getRange(i,0,1,sheet.getMaxColumns());
-
-                for (int j = 0; j < sheet.getMaxColumns();j++) {
-                    Range range = r.getCell(0,j);
-                    Object v = range.getValue();
-                    String formula = range.getFormula();
-                    Style style = range.getStyle();
-
-
-                    Range mergedCells[] = range.getMergedCells();
-                    if (mergedCells.length > 0) {
-                        if (mergedCells[0].getColumn() == j) {
-                            out.writeStartElement("table:table-cell");
-                            if (formula != null)
-                                out.writeAttribute("table:formula", formula);
-
-                            if (mergedCells[0].getNumColumns() > 1)
-                                out.writeAttribute("table:number-columns-spanned", "" + mergedCells[0].getNumColumns());
-                            if (mergedCells[0].getNumRows() > 1)
-                                out.writeAttribute("table:number-rows-spanned", "" + mergedCells[0].getNumRows());
-                        }
-                        else {
-                            out.writeStartElement("table:covered-table-cell");
-                            out.writeEndElement();
-                            continue;
-                        }
-                    }
-                    else {
-                        out.writeStartElement("table:table-cell");
-                        if (formula != null)
-                            out.writeAttribute("table:formula", formula);
-                    }
-
-                    if (!style.isDefault()) {
-                        String key = stylesUsed.get(style);
-                        if (key == null) {
-                            key = "cel" + stylesUsed.size();
-                            stylesUsed.put(style, key);
-                        }
-
-                        out.writeAttribute("table:style-name", key);
-                    }
-
-                    if (v != null) {
-                        String valueType = getValueType(v);
-
-                        out.writeAttribute("office:value-type", valueType);
-
-                        if (!valueType.equals("string"))
-                            out.writeAttribute("office:value", ""+ v);
-
-                        out.writeStartElement("text:p");
-
-                        out.writeCharacters("" + v);
-
-                        out.writeEndElement();
-                    }
-
-                    out.writeEndElement();
-                }
-
-                out.writeEndElement();
-            }
+            writeColumnsStyles(out, sheet);
+            writeContent(out, sheet);
 
             out.writeEndElement();
         }
 
         out.writeEndElement();
         out.writeEndElement();
+    }
+
+    private void writeColumnsStyles(XMLStreamWriter out, Sheet sheet) throws XMLStreamException {
+        for (int i = 0;i < sheet.getMaxColumns();i++){
+            out.writeStartElement("table:table-column");
+            Double width = sheet.getColumnWidth(i);
+            if (width != null) {
+                ColumnStyle columnStyle = new ColumnStyle();
+                columnStyle.setWidth(width);
+                String name = columnStyleStringMap.get(columnStyle);
+                if (name != null)
+                    out.writeAttribute("table:style-name", name);
+            }
+
+            out.writeEndElement();
+        }
+    }
+
+    private void writeContent(XMLStreamWriter out, Sheet sheet) throws XMLStreamException {
+        for (int i = 0;i < sheet.getMaxRows();i++) {
+
+            out.writeStartElement("table:table-row");
+            writeRowHeight(out, sheet, i);
+
+            for (int j = 0; j < sheet.getMaxColumns();j++) {
+                Range cell = sheet.getRange(i, j);
+                writeCell(out, cell);
+            }
+
+            out.writeEndElement();
+        }
+    }
+
+    private void writeCell(XMLStreamWriter out, Range range) throws XMLStreamException {
+        Object v = range.getValue();
+        String formula = range.getFormula();
+        Style style = range.getStyle();
+
+        Range mergedCells[] = range.getMergedCells();
+        if (mergedCells.length > 0) {
+            if (mergedCells[0].getColumn() != range.getColumn() || mergedCells[0].getRow() != range.getRow()) {
+                out.writeStartElement("table:covered-table-cell");
+                out.writeEndElement();
+                return;
+            }
+        }
+        out.writeStartElement("table:table-cell");
+        if (mergedCells.length > 0) {
+            if (mergedCells[0].getNumColumns() > 1)
+                out.writeAttribute("table:number-columns-spanned", "" + mergedCells[0].getNumColumns());
+            if (mergedCells[0].getNumRows() > 1)
+                out.writeAttribute("table:number-rows-spanned", "" + mergedCells[0].getNumRows());
+        }
+
+        if (formula != null)
+            out.writeAttribute("table:formula", formula);
+
+        setCellStyle(out, style);
+        writeValue(out, v);
+        out.writeEndElement();
+    }
+
+    private void setCellStyle(XMLStreamWriter out, Style style) throws XMLStreamException {
+        if (!style.isDefault()) {
+            String key = stylesUsed.get(style);
+            if (key == null) {
+                key = "cel" + stylesUsed.size();
+                stylesUsed.put(style, key);
+            }
+
+            out.writeAttribute("table:style-name", key);
+        }
+    }
+
+    private void writeValue(XMLStreamWriter out, Object v) throws XMLStreamException {
+        if (v != null) {
+            String valueType = getValueType(v);
+
+            out.writeAttribute("office:value-type", valueType);
+
+            if (!valueType.equals("string"))
+                out.writeAttribute("office:value", ""+ v);
+
+            out.writeStartElement("text:p");
+
+            out.writeCharacters("" + v);
+
+            out.writeEndElement();
+        }
+    }
+
+    private void writeRowHeight(XMLStreamWriter out, Sheet sheet, int i) throws XMLStreamException {
+        Double height = sheet.getRowHeight(i);
+        if (height != null) {
+            RowStyle rowStyle = new RowStyle();
+            rowStyle.setHeight(height);
+            String name = rowStyleStringMap.get(rowStyle);
+            if (name != null)
+                out.writeAttribute("table:style-name", name);
+        }
     }
 
     private void writeStyles(XMLStreamWriter out) throws XMLStreamException {
