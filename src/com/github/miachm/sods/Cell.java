@@ -4,6 +4,15 @@ class Cell implements Cloneable {
     private Object value;
     private String formula;
     private Style style = new Style();
+    private GroupCell group;
+
+    GroupCell getGroup() {
+        return group;
+    }
+
+    void setGroup(GroupCell group) {
+        this.group = group;
+    }
 
     Style getStyle()
     {
@@ -78,26 +87,44 @@ class Cell implements Cloneable {
 
         Cell cell = (Cell) o;
 
+        GroupCell groupCell = getGroup();
+        if (groupCell != null && groupCell.getCell() != this) {
+            if (!groupCell.equals(cell.getGroup())) {
+                return false;
+            }
+            return groupCell.getCell().equals(cell.getGroup().getCell());
+        }
+
         if (value != null ? !value.equals(cell.value) : cell.value != null) return false;
         if (formula != null ? !formula.equals(cell.formula) : cell.formula != null) return false;
-        return style.equals(cell.style);
+        return style.equals(cell.getStyle());
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
+        GroupCell groupCell = getGroup();
+        if (groupCell != null && groupCell.getCell() != this)
+            return groupCell.getCell().hashCode();
+
         int result = value != null ? value.hashCode() : 0;
         result = 31 * result + (formula != null ? formula.hashCode() : 0);
         result = 31 * result + style.hashCode();
+        result = 31 * result + (group != null ? group.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return "Cell{" +
-                "value=" + value +
-                ", formula='" + formula + '\'' +
-                ", style=" + style +
-                '}';
+        if (getGroup() != null)
+            return "Cell{" +
+                    "value=" + value +
+                    ", formula='" + formula + '\'' +
+                    ", style=" + style +
+                    '}';
+        else {
+            return getGroup().getCell().toString();
+        }
     }
 
     @Override

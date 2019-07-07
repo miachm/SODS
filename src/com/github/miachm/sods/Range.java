@@ -1,8 +1,13 @@
 package com.github.miachm.sods;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 /**
  * A range represents a subset of a Sheet.
- * You use ranges for write/read content in a Sheet
+ * You use ranges for write/read content in a Sheet.
  */
 public class Range {
     private final int column_init,row_init;
@@ -88,13 +93,21 @@ public class Range {
         return column_init;
     }
 
+    private Cell getFirstCell()
+    {
+        Cell cell = sheet.getCell(row_init,column_init);
+        if (cell.getGroup() != null)
+            cell = cell.getGroup().getCell();
+        return cell;
+    }
+
     /**
      * Get the formula String of the first cell of the range
      *
      * @return the formula text representation, it can be null
      */
     public String getFormula(){
-        return sheet.getCell(row_init,column_init).getFormula();
+        return getFirstCell().getFormula();
     }
 
     /**
@@ -127,6 +140,30 @@ public class Range {
      */
     public int getLastRow(){
         return row_init + getNumRows()-1;
+    }
+
+    /**
+     * Returns an array of Range objects representing merged cells that either
+     * are fully within the current range, or contain at least one cell in the current range.
+     *
+     * @return An array with all the Ranges[]
+     */
+    public Range[] getMergedCells() {
+        Set<GroupCell> groupCells = new TreeSet<>();
+        iterateRange((cell, row, column) -> {
+            if (cell.getGroup() != null)
+                groupCells.add(cell.getGroup());
+        });
+
+        List<Range> result = new ArrayList<>();
+        for (GroupCell groupCell : groupCells) {
+            Vector cord = groupCell.getCord();
+            Vector length = groupCell.getLength();
+            Range range = new Range(sheet, cord.getX(), cord.getY(), length.getX(), length.getY());
+            result.add(range);
+        }
+
+        return result.toArray(new Range[result.size()]);
     }
 
     /**
@@ -173,8 +210,9 @@ public class Range {
      *
      * @return the value in this cell
      */
-    public Object getValue(){
-        return sheet.getCell(row_init,column_init).getValue();
+    public Object getValue()
+    {
+        return getFirstCell().getValue();
     }
 
     /**
@@ -198,7 +236,7 @@ public class Range {
      */
     public Style getStyle()
     {
-        return sheet.getCell(row_init,column_init).getStyleCopy();
+        return getFirstCell().getStyleCopy();
     }
 
     /**
@@ -574,8 +612,11 @@ public class Range {
 
     private void iterateRange(RangeIterator e){
         for (int i = 0;i < numrows;i++){
-            for (int j = 0;j < numcolumns;j++){
+            for (int j = 0;j < numcolumns;j++) {
                 Cell cell = sheet.getCell(row_init+i,column_init+j);
+                GroupCell groupCell = cell.getGroup();
+                if (groupCell != null)
+                    cell = groupCell.getCell();
                 e.call(cell,i,j);
             }
         }
@@ -583,16 +624,18 @@ public class Range {
 
     private String valuesToString(){
         StringBuilder builder = new StringBuilder();
-        Object[][] values = getValues();
 
-        for (int i = 0;i < values.length;i++){
-            builder.append(values[i][0]);
-            for (int j = 1;j < values[i].length;j++){
-                builder.append(" , ");
-                builder.append(values[i][j]);
+        MutableInteger lastRow = new MutableInteger();
+        iterateRange((cell, i, j) -> {
+            if (lastRow.number != i) {
+                builder.append("\n");
+                lastRow.number = i;
             }
-            builder.append("\n");
-        }
+            if (j > 0) {
+                builder.append(" , ");
+            }
+            builder.append(cell.getValue());
+        });
         return builder.toString();
     }
 
@@ -699,5 +742,67 @@ public class Range {
                     + style.length + " against " + getNumColumns() + ")");
 
         iterateRange((cell,row,column) -> cell.setStyle(style[row][column]));
+    }
+
+    /**
+     * Merges the cells in the range together into a single block. If the range only contiains a cell, no actions will be taken
+     *
+     * @throws AssertionError if a cell is already in a group. No changes will be done
+     */
+    public void merge()
+    {
+        if (getNumValues() <= 1)
+            return;
+
+        if (getMergedCells().length > 0)
+            throw new AssertionError("Error, one of the cells is already on a group");
+
+        Vector cord = new Vector(getRow(), getColumn());
+        Vector length = new Vector(getNumRows(), getNumColumns());
+        Cell firstCell = sheet.getCell(row_init,column_init);
+        GroupCell groupCell = new GroupCell(cord, length, firstCell);
+        iterateRange((cell,row,column) -> cell.setGroup(groupCell));
+    }
+
+    private boolean rowInRange(int row)
+    {
+        return row >= getRow() && row <= getLastRow();
+    }
+
+    private boolean columnsInrange(int column)
+    {
+        return column >= getColumn() && column <= getLastColumn();
+    }
+
+    /**
+     * Breaks apart any combined cells on the range.
+     * The full group must be inside of the range or a IllegalArgumentException would be thrown.
+     *
+     * @throws IllegalArgumentException If a group is not fully included on the range, no changes will be done
+     */
+
+    public void split()
+    {
+        Range[] groupRange = getMergedCells();
+
+        for (Range range : groupRange) {
+            if (!rowInRange(range.getRow()) || !rowInRange(range.getLastRow())) {
+                throw new IllegalArgumentException("All the combined cells must be inside the range. The row interval (" + range.getRow() + " - " + range.getLastRow() + ") is not fully included");
+            }
+            if (!columnsInrange(range.getColumn()) || !columnsInrange(range.getLastColumn())) {
+                throw new IllegalArgumentException("All the combined cells must be inside the range. The column interval (" + range.getColumn() + " , " + range.getLastColumn() + ") is not fully included");
+            }
+        }
+
+        for (Range range : groupRange) {
+            for (int i = 0; i < range.getNumRows(); i++){
+                for (int j = 0; j < range.getNumColumns(); j++) {
+                    Cell cell = sheet.getCell(range.getRow()+i,range.getColumn()+j);
+                    if (i > 0 || j > 0)
+                        cell.clear();
+                    cell.setGroup(null);
+                }
+            }
+        }
     }
 }

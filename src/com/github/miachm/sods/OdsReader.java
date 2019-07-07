@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Internal class for read ODS files
@@ -23,6 +21,7 @@ class OdsReader {
     private Map<Integer,Style> columns_styles = new HashMap<>();
     private Map<String,ColumnStyle> styleColumn = new HashMap<>();
     private Map<String,RowStyle> styleRow = new HashMap<>();
+    private Set<Pair<Vector, Vector>> groupCells = new HashSet<>();
 
     private OdsReader(InputStream in,SpreadSheet spread) {
         /* TODO This code if for ods files in zip. But we could have XML-ONLY FILES */
@@ -208,6 +207,9 @@ class OdsReader {
         sheet.deleteRow(0);
         sheet.deleteColumn(0);
 
+        int rowCount = 0;
+        groupCells.clear();
+
         while (reader.hasNext()) {
             XmlReaderInstance instance = reader.nextElement("table:table-column",
                                                             "table:table-row");
@@ -243,7 +245,8 @@ class OdsReader {
                 }
                 else if (instance.getTag().equals("table:table-row")) {
                     if (style != null)
-                        rows_styles.put(sheet.getMaxRows(), style);
+                        rows_styles.put(rowCount, style);
+
                     sheet.appendRow();
 
                     String rowStyleName = instance.getAttribValue("table:style-name");
@@ -255,6 +258,13 @@ class OdsReader {
                     processCells(instance, sheet);
                 }
             }
+        }
+
+        for (Pair<Vector, Vector> pair : groupCells) {
+            Vector cord = pair.first;
+            Vector length = pair.second;
+            Range range = sheet.getRange(cord.getX(), cord.getY(), length.getX(), length.getY());
+            range.merge();
         }
         spread.appendSheet(sheet);
     }
@@ -268,9 +278,34 @@ class OdsReader {
             Object last_cell_value = null;
             Style last_style = null;
 
-            XmlReaderInstance instance = reader.nextElement("table:table-cell");
+            XmlReaderInstance instance = reader.nextElement("table:table-cell", "table:covered-table-cell");
             if (instance != null) {
-                Range range = sheet.getRange(sheet.getMaxRows() - 1, column);
+                if (instance.getTag().equals("table:covered-table-cell")) {
+                    column++;
+                    continue;
+                }
+                int rows = 1;
+                int columns = 1;
+                String rowsSpanned = instance.getAttribValue("table:number-rows-spanned");
+                if (rowsSpanned != null) {
+                    rows = Integer.parseInt(rowsSpanned);
+                }
+
+                String columnsSpanned = instance.getAttribValue("table:number-columns-spanned");
+                if (columnsSpanned != null) {
+                    columns = Integer.parseInt(columnsSpanned);
+                }
+
+                int positionX = sheet.getMaxRows()-1;
+                int positionY = column;
+                if (rows != 1 || columns != 1) {
+                    Pair<Vector, Vector> pair =  new Pair<>();
+                    pair.first = new Vector(positionX, positionY);
+                    pair.second = new Vector(rows, columns);
+                    groupCells.add(pair);
+                }
+
+                Range range = sheet.getRange(positionX, positionY);
 
                 String valueType = instance.getAttribValue("office:value-type");
                 if (valueType == null)
