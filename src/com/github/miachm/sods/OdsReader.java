@@ -298,7 +298,7 @@ class OdsReader {
 
                 int positionX = sheet.getMaxRows()-1;
                 int positionY = column;
-                if (rows != 1 && columns != 1) {
+                if (rows != 1 || columns != 1) {
                     Cell cell = sheet.getCell(positionX, positionY);
                     GroupCell groupCell = new GroupCell(new Vector(positionX, positionY), new Vector(rows, columns), cell);
                     groupCells.add(groupCell);

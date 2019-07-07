@@ -154,19 +154,29 @@ class OdsWritter {
                     String formula = range.getFormula();
                     Style style = range.getStyle();
 
-                    out.writeStartElement("table:table-cell");
 
-                    if (formula != null)
-                        out.writeAttribute("table:formula", formula);
-
-                    int numColumns = 0;
                     Range mergedCells[] = range.getMergedCells();
                     if (mergedCells.length > 0) {
-                        numColumns = mergedCells[0].getNumColumns() - 1;
-                        if (mergedCells[0].getNumColumns() > 1)
-                            out.writeAttribute("table:number-columns-spanned", "" + mergedCells[0].getNumColumns());
-                        if (mergedCells[0].getNumRows() > 1)
-                            out.writeAttribute("table:number-rows-spanned", "" + mergedCells[0].getNumRows());
+                        if (mergedCells[0].getColumn() == j) {
+                            out.writeStartElement("table:table-cell");
+                            if (formula != null)
+                                out.writeAttribute("table:formula", formula);
+
+                            if (mergedCells[0].getNumColumns() > 1)
+                                out.writeAttribute("table:number-columns-spanned", "" + mergedCells[0].getNumColumns());
+                            if (mergedCells[0].getNumRows() > 1)
+                                out.writeAttribute("table:number-rows-spanned", "" + mergedCells[0].getNumRows());
+                        }
+                        else {
+                            out.writeStartElement("table:covered-table-cell");
+                            out.writeEndElement();
+                            continue;
+                        }
+                    }
+                    else {
+                        out.writeStartElement("table:table-cell");
+                        if (formula != null)
+                            out.writeAttribute("table:formula", formula);
                     }
 
                     if (!style.isDefault()) {
@@ -195,12 +205,6 @@ class OdsWritter {
                     }
 
                     out.writeEndElement();
-
-                    while (numColumns > 0) {
-                        out.writeStartElement("table:covered-table-cell");
-                        out.writeEndElement();
-                        numColumns--;
-                    }
                 }
 
                 out.writeEndElement();

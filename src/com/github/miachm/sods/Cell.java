@@ -101,7 +101,12 @@ class Cell implements Cloneable {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
+        GroupCell groupCell = getGroup();
+        if (groupCell != null && groupCell.getCell() != this)
+            return groupCell.getCell().hashCode();
+
         int result = value != null ? value.hashCode() : 0;
         result = 31 * result + (formula != null ? formula.hashCode() : 0);
         result = 31 * result + style.hashCode();
@@ -111,11 +116,15 @@ class Cell implements Cloneable {
 
     @Override
     public String toString() {
-        return "Cell{" +
-                "value=" + value +
-                ", formula='" + formula + '\'' +
-                ", style=" + style +
-                '}';
+        if (getGroup() != null)
+            return "Cell{" +
+                    "value=" + value +
+                    ", formula='" + formula + '\'' +
+                    ", style=" + style +
+                    '}';
+        else {
+            return getGroup().getCell().toString();
+        }
     }
 
     @Override

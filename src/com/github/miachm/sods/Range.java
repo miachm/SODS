@@ -624,16 +624,32 @@ public class Range {
 
     private String valuesToString(){
         StringBuilder builder = new StringBuilder();
-        Object[][] values = getValues();
 
+        class MutableInteger
+        {
+            int number;
+        };
+        MutableInteger lastRow = new MutableInteger();
+        iterateRange((cell, i, j) -> {
+            if (lastRow.number != i) {
+                builder.append("\n");
+                lastRow.number = i;
+            }
+            if (j > 0) {
+                builder.append(" , ");
+            }
+            builder.append(cell.getValue());
+        });
+        /*
         for (int i = 0;i < values.length;i++){
-            builder.append(values[i][0]);
+            //builder.append(values[i][0]);
+            builder.append(sheet.getCell([i][0]);
             for (int j = 1;j < values[i].length;j++){
                 builder.append(" , ");
                 builder.append(values[i][j]);
             }
             builder.append("\n");
-        }
+        }*/
         return builder.toString();
     }
 
