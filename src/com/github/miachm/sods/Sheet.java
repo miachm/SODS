@@ -337,7 +337,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * Set a specific column width to a specific column
      * @param column The index of the column
      * @param width The width of the column. It can be a null if you want to "unset" the width
-     * @throws IndexOutOfBoundsException if the column is negative or >= numColumns
+     * @throws IndexOutOfBoundsException if the column is negative or &gt;= numColumns
      * @throws IllegalArgumentException Width has to be positive
      */
 
@@ -360,7 +360,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * @param column The index of the column
      * @param numColumns The number of columns to be modified, starting on index.
      * @param width The width of the column. It can be a null if you want to "unset" the width
-     * @throws IndexOutOfBoundsException if the column is negative or >= numColumns
+     * @throws IndexOutOfBoundsException if the column is negative or &gt;= numColumns
      * @throws IllegalArgumentException Width has to be positive
      */
 
@@ -374,7 +374,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * Set a specific row height to a specific row
      * @param row The index of the row
      * @param height The height of the row. It can be a null if you want to "unset" the height
-     * @throws IndexOutOfBoundsException if the row is negative or >= numRows
+     * @throws IndexOutOfBoundsException if the row is negative or &gt;= numRows
      * @throws IllegalArgumentException Height has to be positive
      */
     public void setRowHeight(int row, Double height)
@@ -396,7 +396,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * @param row The index of the row
      * @param numRows The number of rows to be modified, starting on index.
      * @param height The height of the row. It can be a null if you want to "unset" the row
-     * @throws IndexOutOfBoundsException if the row is negative or >= numRows
+     * @throws IndexOutOfBoundsException if the row is negative or &gt;= numRows
      * @throws IllegalArgumentException Height has to be positive
      */
     public void setRowHeights(int row, int numRows, Double height)
