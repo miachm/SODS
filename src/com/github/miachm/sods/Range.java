@@ -754,7 +754,7 @@ public class Range {
         if (getNumValues() <= 1)
             return;
 
-        if (getMergedCells().length > 0)
+        if (isPartOfMerge())
             throw new AssertionError("Error, one of the cells is already on a group");
 
         Vector cord = new Vector(getRow(), getColumn());
@@ -804,5 +804,15 @@ public class Range {
                 }
             }
         }
+    }
+
+    /**
+     * Determines if the range is part of an existing cell's block
+     *
+     * @return True if the range overlap any merged cells
+     */
+    public boolean isPartOfMerge()
+    {
+        return getMergedCells().length > 0;
     }
 }

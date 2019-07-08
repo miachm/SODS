@@ -90,6 +90,23 @@ public class MergeCellsTest {
         range = sheet.getRange(0,0,4,4);
         range.split();
         assertEquals(sheet.getDataRange().getMergedCells().length, 0);
-
     }
+
+    @Test
+    public void isPartOfMerge()
+    {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRows(4);
+        sheet.appendColumns(4);
+
+        Range range = sheet.getRange(0,0,2,2);
+        range.merge();
+
+        assertEquals(sheet.getDataRange().isPartOfMerge(), true);
+        assertEquals(sheet.getRange(2,2,2,2).isPartOfMerge(), false);
+
+        assertEquals(sheet.getRange(1,1).isPartOfMerge(),true);
+        assertEquals(sheet.getRange(1,1,2,2).isPartOfMerge(), true);
+    }
+
 }
