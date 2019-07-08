@@ -11,14 +11,14 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.*;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /*
 This sample implements a very simple ODS reader in JavaFX.
@@ -38,15 +38,19 @@ public class OdsGuiViewer extends Application{
                 return;
             }
 
+            System.out.println("Loading...");
             SpreadSheet spreadSheet = new SpreadSheet(file);
+            System.out.println("Rendering...");
             Parent output = renderOdsView(spreadSheet);
-            
+            System.out.println("Creating window...");
+
             Scene scene = new Scene(output, 800, 600);
             primaryStage.setScene(scene);
             primaryStage.setTitle("Ods viewer");
             primaryStage.show();
         }
         catch (Exception e) {
+            showExceptionDialog(e);
             e.printStackTrace();
         }
     }
@@ -54,7 +58,7 @@ public class OdsGuiViewer extends Application{
     private File askUserForAnOdsFile()
     {
         FileChooser chooser = new FileChooser();
-        chooser.setInitialDirectory(new File(""));
+        chooser.setInitialDirectory(new File("."));
 
         FileChooser.ExtensionFilter extFilter = new
                 FileChooser.ExtensionFilter("Spreadsheet files", "*.ods");
@@ -83,15 +87,21 @@ public class OdsGuiViewer extends Application{
         gridPane.setMinWidth(600);
         gridPane.setMinHeight(300);
 
-        Range range = sheet.getDataRange();
-        Object[][] values = range.getValues();
-        Style[][] styles = range.getStyles();
+        setRowHeights(sheet, gridPane);
+        setColumnWidths(sheet, gridPane);
 
-        for (int i = 0; i < values.length; i++) {
-            for (int j = 0; j < values[i].length; j++) {
-                Object value = values[i][j];
-                Style style = styles[i][j];
-                gridPane.add(renderCellView(value, style), j, i);
+        for (int i = 0; i < sheet.getMaxRows(); i++) {
+            for (int j = 0; j < sheet.getMaxColumns(); j++) {
+                Range range = sheet.getRange(i, j);
+                if (hasContent(range)) {
+                    Node node = renderCellView(range.getValue(), range.getStyle());
+                    if (range.isPartOfMerge()) {
+                        Range group = range.getMergedCells()[0];
+                        mergeCells(group.getNumRows(), group.getNumColumns(), node);
+                    }
+
+                    gridPane.add(node, j, i);
+                }
             }
         }
 
@@ -99,6 +109,67 @@ public class OdsGuiViewer extends Application{
         tab.setContent(scrollPane);
 
         return tab;
+    }
+
+    private void mergeCells(int rows, int columns, Node node) {
+        GridPane.setRowSpan(node, rows);
+        GridPane.setColumnSpan(node, columns);
+    }
+
+    private boolean hasContent(Range range) {
+        if (range.isPartOfMerge()) {
+            return isHeadOfMerge(range);
+        }
+
+        Object value = range.getValue();
+        if (value != null && !value.toString().isEmpty())
+            return true;
+
+        Style style = range.getStyle();
+        return !style.isDefault();
+    }
+
+    private boolean isHeadOfMerge(Range range)
+    {
+        if (range.isPartOfMerge()) {
+            Range group = range.getMergedCells()[0];
+            return group.getRow() == range.getRow() &&
+                    group.getColumn() == range.getColumn();
+        }
+        return false;
+    }
+
+    private void setColumnWidths(Sheet sheet, GridPane gridPane) {
+        for (int i = 0; i < sheet.getMaxColumns(); i++) {
+            ColumnConstraints columnConstraints;
+            Double n = sheet.getColumnWidth(i);
+            if (n != null) {
+                columnConstraints = new ColumnConstraints(n*3.77);
+                columnConstraints.setHgrow(Priority.NEVER);
+            }
+            else {
+                columnConstraints = new ColumnConstraints();
+            }
+
+            gridPane.getColumnConstraints().add(columnConstraints);
+        }
+    }
+
+    private void setRowHeights(Sheet sheet, GridPane gridPane) {
+        for (int i = 0; i < sheet.getMaxRows(); i++) {
+            RowConstraints rowConstraints;
+            Double n = sheet.getRowHeight(i);
+
+            if (n != null) {
+                rowConstraints = new RowConstraints(n*3.77);
+                rowConstraints.setVgrow(Priority.NEVER);
+            }
+            else {
+                rowConstraints = new RowConstraints();
+            }
+
+            gridPane.getRowConstraints().add(rowConstraints);
+        }
     }
 
     private Node renderCellView(Object value, Style style)
@@ -142,10 +213,43 @@ public class OdsGuiViewer extends Application{
         // Center the text of the cell
         GridPane.setHalignment(node, HPos.CENTER);
 
-        // Responsive cells
-        GridPane.setHgrow(node, Priority.ALWAYS);
-        GridPane.setVgrow(node, Priority.ALWAYS);
-
         return node;
+    }
+
+    public void showExceptionDialog(Throwable t)
+    {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        t.printStackTrace(pw);
+        String msg = t.getMessage();
+        String exception = sw.toString();
+        showExceptionDialog(msg, exception);
+    }
+
+    public void showExceptionDialog(String msg,String exception)
+    {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Exception error");
+        alert.setContentText(msg);
+
+        Label label = new Label("Backtrace: \n");
+
+        TextArea textArea = new TextArea(exception);
+        textArea.setEditable(false);
+        textArea.setWrapText(true);
+
+        textArea.setMaxWidth(Double.MAX_VALUE);
+        textArea.setMaxHeight(Double.MAX_VALUE);
+        GridPane.setVgrow(textArea, Priority.ALWAYS);
+        GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+        GridPane expContent = new GridPane();
+        expContent.setMaxWidth(Double.MAX_VALUE);
+        expContent.add(label, 0, 0);
+        expContent.add(textArea, 0, 1);
+
+        // Set expandable Exception into the dialog pane.
+        alert.getDialogPane().setExpandableContent(expContent);
+        alert.show();
     }
 }
