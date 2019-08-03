@@ -10,7 +10,6 @@ class XmlReaderInstanceEventImpl implements XmlReaderInstance {
     private XMLStreamReader reader;
     private String tag;
     private String characters;
-    private boolean notAnidated = false;
     private boolean end = false;
     private Map<String, String> atributes = new HashMap<>();
 
@@ -25,6 +24,10 @@ class XmlReaderInstanceEventImpl implements XmlReaderInstance {
                 String value = reader.getAttributeValue(i);
                 atributes.put(name, value);
             }
+        else if (reader.isCharacters()) {
+            characters = reader.getText();
+            end = true;
+        }
     }
 
     @Override
@@ -42,7 +45,6 @@ class XmlReaderInstanceEventImpl implements XmlReaderInstance {
             while (reader.hasNext() && !end) {
                 reader.next();
                 if (reader.isStartElement()) {
-                    notAnidated = true;
                     QName qName = reader.getName();
                     String elementName = qNameToString(qName);
                     if (contains(names, elementName))
@@ -56,8 +58,9 @@ class XmlReaderInstanceEventImpl implements XmlReaderInstance {
                         return null;
                     }
                 }
-                else if (reader.isCharacters() && !notAnidated) {
-                    characters = reader.getText();
+                else if (reader.isCharacters()) {
+                    if (contains(names, CHARACTERS))
+                        return new XmlReaderInstanceEventImpl(reader, CHARACTERS);
                 }
             }
             return null;
@@ -75,27 +78,7 @@ class XmlReaderInstanceEventImpl implements XmlReaderInstance {
     @Override
     public String getContent()
     {
-        if (end)
-            return characters;
-        else {
-            try {
-                while (reader.hasNext()) {
-                    reader.next();
-
-                    if (reader.isStartElement()) {
-                        notAnidated = true;
-                        return null;
-                    }
-                    else if (reader.isCharacters() && !notAnidated) {
-                        characters = reader.getText();
-                        return characters;
-                    }
-                }
-                return characters;
-            } catch (XMLStreamException e) {
-                throw new NotAnOdsException(e);
-            }
-        }
+        return characters;
     }
 
     @Override

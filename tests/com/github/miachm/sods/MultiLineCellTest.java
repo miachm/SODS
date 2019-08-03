@@ -33,7 +33,6 @@ public class MultiLineCellTest {
         assertValueInCellEquals(2, 1, 1, "jk\nlm\nno");
     }
 
-
     private void assertValueInCellEquals(int sheetNumber, int row, int column, String expectedValue) throws IOException {
         // Load example spreadsheet
         File testFile = new File("resources/CAS.ods");
@@ -45,6 +44,5 @@ public class MultiLineCellTest {
         // Get correct cell and compare value
         assertEquals(expectedValue, sheet.getRange(row, column).getValue());
     }
-
 
 }

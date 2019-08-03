@@ -378,7 +378,8 @@ class OdsReader {
 
         StringBuffer s = new StringBuffer();
 
-        XmlReaderInstance textElement = cellReader.nextElement("text:p");
+        XmlReaderInstance textElement = cellReader.nextElement( "text:p",
+                                                                "text:h");
         boolean firstTextElement = true;
         while (textElement != null) {
             // Each text:p tag seems to represent a separate row.  Separate them with newlines.
@@ -389,19 +390,40 @@ class OdsReader {
             }
 
             // Add content of any contained text:span tags
-            XmlReaderInstance spanElement = textElement.nextElement("text:span");
+            XmlReaderInstance spanElement = textElement.nextElement("text:s",
+                                                                    XmlReaderInstance.CHARACTERS);
+
             while (spanElement != null) {
+
+                if (spanElement.getTag().equals("text:s")) {
+                    int num = 1;
+                    String atrib = spanElement.getAttribValue("text:c");
+                    if (atrib != null && !atrib.isEmpty()) {
+                        try {
+                            num = Integer.parseInt(atrib);
+                        }
+                        catch (NumberFormatException e){
+                            System.err.println("Invalid number of characters: " + atrib);
+                        }
+                    }
+                    while (num > 0) {
+                        s.append(" ");
+                        num--;
+                    }
+                }
+
                 String spanContent = spanElement.getContent();
                 if (spanContent != null) s.append(spanContent);
-                spanElement = textElement.nextElement("text:span");
+
+                spanElement = textElement.nextElement("text:s",
+                        XmlReaderInstance.CHARACTERS);
             }
 
             // Add direct content of text:p tag (we do it here, as
             // textElement.nextElement() will not work after textElement.getContent()).
-            String textContent = textElement.getContent();
-            if (textContent != null) s.append(textContent);
 
-            textElement = cellReader.nextElement("text:p");
+            textElement = cellReader.nextElement("text:p",
+                    "text:h");
         }
 
         // Empty cells are supposed to be represented by null, so return that if we got no content.

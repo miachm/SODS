@@ -220,13 +220,15 @@ public class SpreadSheetTest {
 
         assertEquals(arr[1][0],"F");
         assertEquals(arr[1][1],"G");
-        assertEquals(arr[1][2],"H");
+        assertEquals(arr[1][2],"  H  ASF ASG ");
         assertEquals(arr[1][3],"I");
         assertEquals(arr[1][4],"J");
 
         assertEquals(arr[2][0],"K");
         assertEquals(arr[2][1],"K");
-        assertEquals(arr[2][2],"K");
+        assertEquals(arr[2][2]," Fas K\n" +
+                "Afsafasf\n" +
+                "Safasgasg\n");
         assertEquals(arr[2][3],"L");
         assertEquals(arr[2][4],"M");
 
@@ -394,13 +396,16 @@ public class SpreadSheetTest {
         Range dataRange = sheet.getDataRange();
         dataRange.setValue(1.0);
 
-        dataRange = spread.getSheet(1).getDataRange();
-        dataRange.setValue("1");
+        sheet = spread.getSheet(1);
+        dataRange = sheet.getDataRange();
+        dataRange.setValue(" 1\nadasas ");// Testing leading spaces
         dataRange.setFontBold(true);
         dataRange.setFontUnderline(true);
         dataRange.setFontColors(new Color("#43a2f5"));
         dataRange.setBackgroundColor(COLOR2);
         dataRange.setFontSize(18);
+        sheet.setRowHeight(0, 40.0);
+        sheet.setColumnWidth(0, 30.0);
 
         dataRange = spread.getSheet(2).getDataRange();
         dataRange.setValue(1.0);
@@ -409,7 +414,7 @@ public class SpreadSheetTest {
         sheet = spread.getSheet(0);
         sheet.appendRow();
         sheet.appendRows(2);
-        sheet.getCell(1,0).setFormula("=SUM(A1)");
+        sheet.getCell(3,0).setFormula("=SUM(A1)");
         sheet.setColumnWidth(0, 42.23);
         sheet.setRowHeight(1, 74.14);
         sheet.appendColumns(2);

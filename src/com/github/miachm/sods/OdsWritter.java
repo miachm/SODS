@@ -213,8 +213,30 @@ class OdsWritter {
                 out.writeAttribute("office:value", ""+ v);
 
             out.writeStartElement("text:p");
+            String text = v.toString();
 
-            out.writeCharacters("" + v);
+            for (int i = 0; i < text.length(); i++) {
+                if (text.charAt(i) == ' ') {
+                    out.writeStartElement("text:s");
+                    int cnt = 0;
+                    while (i+cnt < text.length() && text.charAt(i + cnt) == ' ') {
+                        cnt++;
+                    }
+                    if (cnt > 1)
+                        out.writeAttribute("text:c", "" + cnt);
+                    i += cnt - 1 ;
+                    out.writeEndElement();
+                }
+                else if (text.charAt(i) == '\t') {
+                    out.writeEmptyElement("text:tab");
+                }
+                else if (text.charAt(i) == '\n') {
+                    out.writeEndElement();
+                    out.writeStartElement("text:p");
+                }
+                else
+                    out.writeCharacters("" + text.charAt(i));
+            }
 
             out.writeEndElement();
         }
