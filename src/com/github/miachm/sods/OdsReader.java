@@ -318,19 +318,13 @@ class OdsReader {
 
                 Range range = sheet.getRange(positionX, positionY);
 
-                String valueType = instance.getAttribValue("office:value-type");
-                if (valueType == null)
-                    valueType = "string";
-
                 String formula = instance.getAttribValue("table:formula");
                 range.setFormula(formula);
 
-                Object value = null;
-                String raw = instance.getAttribValue("office:value");
-                if (raw != null)
-                    value = getValue(raw, valueType);
+                OfficeValueType valueType = OfficeValueType.ofReader(instance);
+                Object value = valueType.read(instance);
 
-                raw = instance.getAttribValue("table:number-columns-repeated");
+                String raw = instance.getAttribValue("table:number-columns-repeated");
                 if (raw != null)
                     number_columns_repeated = Long.parseLong(raw);
 
@@ -432,23 +426,6 @@ class OdsReader {
         }
         else {
             return s.toString();
-        }
-    }
-
-    private Object getValue(String value, String valueType) {
-        try {
-            NumberFormat format = NumberFormat.getInstance(defaultLocal);
-            switch (valueType) {
-                case "integer":
-                    return format.parse(value).longValue();
-                case "float":
-                    return format.parse(value).doubleValue();
-                default:
-                    return value;
-            }
-        }
-        catch (ParseException e) {
-            return value;
         }
     }
 
