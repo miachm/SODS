@@ -205,12 +205,8 @@ class OdsWritter {
 
     private void writeValue(XMLStreamWriter out, Object v) throws XMLStreamException {
         if (v != null) {
-            String valueType = getValueType(v);
-
-            out.writeAttribute("office:value-type", valueType);
-
-            if (!valueType.equals("string"))
-                out.writeAttribute("office:value", ""+ v);
+            OfficeValueType valueType = OfficeValueType.ofJavaType(v.getClass());
+            valueType.write(v, out);
 
             out.writeStartElement("text:p");
             String text = v.toString();
@@ -354,15 +350,6 @@ class OdsWritter {
             out.writeEndElement();
 
             rowStyleStringMap.put(rowStyle, key);
-        }
-    }
-
-    private String getValueType(Object v) {
-        if (v instanceof Integer || v instanceof Float || v instanceof Double) {
-            return "float";
-        }
-        else {
-            return "string";
         }
     }
 }
