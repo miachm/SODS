@@ -4,6 +4,13 @@ class Pair<X, Y> {
     public X first;
     public Y second;
 
+    Pair() {}
+    Pair(X x, Y y)
+    {
+        first = x;
+        second = y;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

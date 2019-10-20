@@ -234,7 +234,34 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * @return A range which represents the cell
      **/
     public Range getRange(int row, int column, int numRows, int numColumns) {
-        return new Range(this,row,column,numRows,numColumns);
+        return new Range(this, row, column, numRows, numColumns);
+    }
+
+    /**
+     * Obtains a @Range using the A1 Notation format.
+     * A1 notation is a string representation of a subset in a Spreadsheet where the column
+     * is represented by a capital letter (starting in A) and the row by a row number (starting in 1).
+     * For example, you would write: "B3" to obtain the Cell of column B and row 3.
+     * You would write "A2:D2" to obtain the cells between A2 and D2 (included).
+     *
+     * Inconsistent ranges ("C2:A3") are reinterpreted when it's possible. In the example
+     * would be ("A3:C2")
+     *
+     * @param a1Notation The string representation of the range in A1Notation
+     * @throws NullPointerException If the argument is null
+     * @throws IllegalArgumentException If the argument is not a valid A1Notation
+     * @throws IndexOutOfBoundsException If it represents a invalid range
+     * @return The range requested
+     */
+
+    public Range getRange(String a1Notation)
+    {
+        A1NotationCord cord = new A1NotationCord(a1Notation);
+        int row = cord.getInitRow();
+        int column = cord.getInitColumn();
+        int numRows = cord.getLastRow() - cord.getInitRow() + 1;
+        int numColumns = cord.getLastColumn() - cord.getInitColumn() + 1;
+        return getRange(row, column, numRows, numColumns);
     }
 
     Cell getCell(int row,int column){
