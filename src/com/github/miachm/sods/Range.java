@@ -205,7 +205,7 @@ public class Range {
 
     /**
      * Returns the value of the top-left cell in the range.
-     * The value could be String, Float or Integer
+     * The value could be String, Float, Integer or a OfficeCurrency.
      * Empty cells returns a null object
      *
      * @return the value in this cell

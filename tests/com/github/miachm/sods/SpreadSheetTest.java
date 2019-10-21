@@ -413,7 +413,7 @@ public class SpreadSheetTest {
 
         sheet = spread.getSheet(0);
         sheet.appendRow();
-        sheet.appendRows(2);
+        sheet.appendRows(3);
         sheet.getCell(3,0).setFormula("=SUM(A1)");
         sheet.setColumnWidth(0, 42.23);
         sheet.setRowHeight(1, 74.14);
@@ -421,6 +421,9 @@ public class SpreadSheetTest {
 
         Range range = sheet.getRange(0,0,2,2);
         range.merge();
+
+        range = sheet.getRange(4,0,1,1);
+        range.setValue(new OfficeCurrency(Currency.getInstance(Locale.FRANCE), 5.0));
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         spread.save(out);

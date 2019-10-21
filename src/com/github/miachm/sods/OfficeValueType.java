@@ -1,12 +1,16 @@
 package com.github.miachm.sods;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
+import java.util.Currency;
+import java.util.Locale;
 
 /**
  * see
@@ -39,15 +43,38 @@ enum OfficeValueType {
             }
         }
     },
-    CURRENCY("currency") {
+    CURRENCY("currency", OfficeCurrency.class) {
         @Override
         public Object read(XmlReaderInstance reader) {
-            return null; // TODO
+            String tag = reader.getAttribValue("office:currency");
+            Currency currency = Currency.getInstance(tag);
+
+            NumberFormat nf = NumberFormat.getInstance(Locale.US);
+            Double value = null;
+            try {
+                value = nf.parse(reader.getAttribValue("office:value")).doubleValue();
+            }
+            catch (ParseException e)
+            {}
+
+            return new OfficeCurrency(currency, value);
         }
 
         @Override
         public void write(Object value, XMLStreamWriter writer) throws XMLStreamException {
-            // TODO
+            if (value instanceof OfficeCurrency) {
+                writer.writeAttribute("office:value-type", getId());
+
+                OfficeCurrency currency = (OfficeCurrency) value;
+
+                if (currency.getValue() != null) {
+                    NumberFormat formatter = NumberFormat.getInstance(Locale.US);
+                    writer.writeAttribute("office:value", formatter.format(currency.getValue()));
+                }
+
+                if (currency.getCurrency() != null)
+                    writer.writeAttribute("office:currency", currency.getCurrency().getCurrencyCode());
+            }
         }
     },
     DATE("date", LocalDateTime.class, LocalDate.class) {
@@ -86,11 +113,15 @@ enum OfficeValueType {
             if (raw == null) {
                 return null;
             }
+
+            NumberFormat nf = NumberFormat.getInstance(Locale.US);
+            Double value = null;
             try {
-                return Double.parseDouble(raw);
-            } catch (NumberFormatException ex) {
-                return null;
+                value = nf.parse(reader.getAttribValue("office:value")).doubleValue();
             }
+            catch (ParseException e)
+            {}
+            return value;
         }
 
         @Override
