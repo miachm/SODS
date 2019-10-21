@@ -10,13 +10,9 @@ import java.io.IOException;
 public class SaveOds {
     public static void main(String args[]){
         try {
-            Sheet sheet = new Sheet("A");
-
-            // Implicitly, sheet already contains a row/column (1x1).
-            // So, if we append 2 rows and 2 columns. We will have a 3x3 sheet.
-
-            sheet.appendRows(2);
-            sheet.appendColumns(2);
+            int rows = 3;
+            int columns = 3;
+            Sheet sheet = new Sheet("A", rows, columns);
 
             sheet.getDataRange().setValues(1,2,3,4,5,6,7,8,9);
 

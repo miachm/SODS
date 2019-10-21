@@ -9,11 +9,7 @@ public class A1NotationTest {
 
     private Sheet generateSheet(int size)
     {
-        Sheet sheet = new Sheet("A");
-        sheet.deleteRow(0);
-        sheet.deleteColumn(0);
-        sheet.appendRows(size);
-        sheet.appendColumns(size);
+        Sheet sheet = new Sheet("A", size, size);
 
         int cnt = 0;
         for (int i = 0; i < size; i++)

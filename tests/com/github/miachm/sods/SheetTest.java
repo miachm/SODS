@@ -46,6 +46,17 @@ public class SheetTest {
     }
 
     @Test
+    public void construct() throws Exception {
+        Sheet sheet = new Sheet("A");
+        assertEquals(sheet.getMaxRows(), 1);
+        assertEquals(sheet.getMaxColumns(), 1);
+
+        sheet = new Sheet("A", 4, 6);
+        assertEquals(sheet.getMaxRows(), 4);
+        assertEquals(sheet.getMaxColumns(), 6);
+    }
+
+    @Test
     public void testClear() throws Exception {
         Sheet sheet = generateASheet();
         int rows = sheet.getMaxRows();

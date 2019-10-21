@@ -13,7 +13,7 @@ import java.util.TreeMap;
 public class Sheet implements Cloneable,Comparable<Sheet> {
     private List<List<Cell>> cells = new ArrayList<List<Cell>>();
     private String name;
-    private int numColumns = 1;
+    private int numColumns = 0;
 
     private Map<Integer, Double> columnWidth = new TreeMap<>();
     private Map<Integer, Double> rowHeight = new TreeMap<>();
@@ -26,12 +26,26 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      */
     public Sheet(String name)
     {
-        this.name = name;
-        cells.add(new ArrayList<>());
+        this(name, 1, 1);
+    }
 
-        Cell cell = new Cell();
-        cell.setValue("");
-        cells.get(0).add(cell);
+    /**
+     * Create an empty sheet with a given name and dimmensions
+     *
+     * @param name A name which identifies this sheet
+     * @param rows Number of rows in the sheet
+     * @param columns Number of columns in the sheet
+     *
+     * @throws IllegalArgumentException If the number of rows/columns are negative
+     */
+    public Sheet(String name, int rows, int columns)
+    {
+        if (rows < 0 || columns < 0)
+            throw new IllegalArgumentException("Rows/Columns can't be negative");
+
+        this.name = name;
+        appendColumns(columns);
+        appendRows(rows);
     }
 
     /**
