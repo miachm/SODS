@@ -422,6 +422,9 @@ public class SpreadSheetTest {
         Range range = sheet.getRange(0,0,2,2);
         range.merge();
 
+        range = sheet.getRange(3,0,1,1);
+        range.setValue(new OfficePercentage(0.3));
+
         range = sheet.getRange(4,0,1,1);
         range.setValue(new OfficeCurrency(Currency.getInstance(Locale.FRANCE), 5.0));
 

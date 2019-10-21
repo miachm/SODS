@@ -132,16 +132,32 @@ enum OfficeValueType {
             }
         }
     },
-    PERCENTAGE("percentage") {
+    PERCENTAGE("percentage", OfficePercentage.class) {
         @Override
         public Object read(XmlReaderInstance reader) {
-//            String raw = reader.getAttribValue("office:value");
-            return null; // TODO
+            String raw = reader.getAttribValue("office:value");
+            NumberFormat nf = NumberFormat.getInstance(Locale.US);
+            Double value = null;
+            try {
+                value = nf.parse(raw).doubleValue();
+            }
+            catch (ParseException e)
+            {}
+            return new OfficePercentage(value);
         }
 
         @Override
         public void write(Object value, XMLStreamWriter writer) throws XMLStreamException {
-            // TODO
+            if (value instanceof OfficePercentage) {
+                writer.writeAttribute("office:value-type", getId());
+
+                OfficePercentage percentage = (OfficePercentage) value;
+
+                if (percentage.getValue() != null) {
+                    NumberFormat formatter = NumberFormat.getInstance(Locale.US);
+                    writer.writeAttribute("office:value", formatter.format(percentage.getValue()));
+                }
+            }
         }
     },
     STRING("string", String.class) {
@@ -250,6 +266,5 @@ enum OfficeValueType {
         return DEFAULT_VALUE;
     }
 
-    // FIXME: should it be VOID instead?
     private static final OfficeValueType DEFAULT_VALUE = OfficeValueType.STRING;
 }
