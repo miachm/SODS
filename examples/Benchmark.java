@@ -10,6 +10,9 @@ import java.util.Random;
 
 public class Benchmark {
 
+    public static final int ROWS = 10000;
+    public static final int COLUMNS = 40;
+
     public static void main(String[] args) {
         byte[] testInput = writeTest();
         readTest(testInput);
@@ -54,8 +57,8 @@ public class Benchmark {
         Random random = new Random();
         SpreadSheet spreadSheet = new SpreadSheet();
         Sheet sheet = new Sheet("Test");
-        sheet.appendRows(10000);
-        sheet.appendColumns(40);
+        sheet.appendRows(ROWS);
+        sheet.appendColumns(COLUMNS);
 
         for (int i = 0; i < sheet.getMaxRows(); i++) {
             for (int j = 0; j < sheet.getMaxColumns(); j++) {
