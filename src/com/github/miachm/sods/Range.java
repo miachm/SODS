@@ -205,9 +205,11 @@ public class Range {
 
     /**
      * Returns the value of the top-left cell in the range.
-     * The value could be String, Float, Integer or a OfficeCurrency.
+     * The values could be String, Float, Integer, OfficeCurrency, OfficePercentage or a Date
      * Empty cells returns a null object
      *
+     * @see OfficeCurrency
+     * @see OfficePercentage
      * @return the value in this cell
      */
     public Object getValue()
@@ -217,9 +219,11 @@ public class Range {
 
     /**
      * Returns the rectangular grid of values for this range.
-     * The values could be String, Float or Integer
+     * The values could be String, Float, Integer, OfficeCurrency, OfficePercentage or a Date
      * Empty cells returns a null object
      *
+     * @see OfficeCurrency
+     * @see OfficePercentage
      * @return A two-dimensional array of values.
      */
     public Object[][] getValues(){
@@ -262,8 +266,12 @@ public class Range {
     /**
      * Set a value to the entire range
      *
-     * @param o The value object, it can be Integer, Float, String or null. Differents values types
+     * @param o The value object, it can be Integer, Float, Date, OfficeCurrency, OfficePercentage. Differents values types
      *          will be considered as Strings and toString() will be invoked
+     *
+     * @see OfficeCurrency
+     * @see OfficePercentage
+     *
      */
     public void setValue(Object o){
         iterateRange((cell,row,column) -> cell.setValue(o));
@@ -745,7 +753,7 @@ public class Range {
     }
 
     /**
-     * Merges the cells in the range together into a single block. If the range only contiains a cell, no actions will be taken
+     * Merges the cells in the range together into a single block. If the range only contains a cell, no actions will be taken
      *
      * @throws AssertionError if a cell is already in a group. No changes will be done
      */

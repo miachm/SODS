@@ -1,6 +1,7 @@
 package com.github.miachm.sods;
 
-public class RowStyle {
+
+class RowStyle {
     private Double height;
 
     public double getHeight() {
