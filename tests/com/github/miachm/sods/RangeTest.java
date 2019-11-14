@@ -725,6 +725,29 @@ public class RangeTest {
         assertEquals(arr[1][1], 4);
     }
 
+    @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Error in setValues, the number of rows doesn't fit \\(3 against 2\\)")
+    public void testSetValuesShouldThrowExceptionWithNotValidRows() {
+
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Range range = sheet.getDataRange();
+        range.setValues(new Integer[][] {{1, 2}, {3, 4}, {5, 6}});
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Error in setValues, the number of columns doesn't fit \\(3 against 2\\)")
+    public void testSetValuesShouldThrowExceptionWithNotValidColumns() {
+
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Range range = sheet.getDataRange();
+        range.setValues(new Integer[][] {{1, 2, 6}, {3, 4, 5}});
+    }
+
+
     @Test
     public void testSetValuesMat() throws Exception {
         Sheet sheet = new Sheet("A");

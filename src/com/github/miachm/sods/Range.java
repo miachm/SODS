@@ -310,7 +310,7 @@ public class Range {
                     + o.length + " against " + getNumRows() + ")");
         if (o[0].length != getNumColumns())
             throw new IllegalArgumentException("Error in setValues, the number of columns doesn't fit ("
-                    + o.length + " against " + getNumColumns() + ")");
+                    + o[0].length + " against " + getNumColumns() + ")");
 
         iterateRange((cell,row,column) -> cell.setValue(o[row][column]));
     }
@@ -357,7 +357,7 @@ public class Range {
                     + bold.length + " against " + getNumRows() + ")");
         if (bold[0].length != getNumColumns())
             throw new IllegalArgumentException("Error in setFontBolds, the number of columns doesn't fit ("
-                    + bold.length + " against " + getNumColumns() + ")");
+                    + bold[0].length + " against " + getNumColumns() + ")");
 
         iterateRange((cell,row,column) -> cell.getStyle().setBold(bold[row][column]));
     }
@@ -406,7 +406,7 @@ public class Range {
                     + italic.length + " against " + getNumRows() + ")");
         if (italic[0].length != getNumColumns())
             throw new IllegalArgumentException("Error in setFontItalics, the number of columns doesn't fit ("
-                    + italic.length + " against " + getNumColumns() + ")");
+                    + italic[0].length + " against " + getNumColumns() + ")");
 
         iterateRange((cell,row,column) -> cell.getStyle().setItalic(italic[row][column]));
     }
@@ -456,7 +456,7 @@ public class Range {
                     + underline.length + " against " + getNumRows() + ")");
         if (underline[0].length != getNumColumns())
             throw new IllegalArgumentException("Error in setFontUnderlines, the number of columns doesn't fit ("
-                    + underline.length + " against " + getNumColumns() + ")");
+                    + underline[0].length + " against " + getNumColumns() + ")");
 
         iterateRange((cell,row,column) -> cell.getStyle().setUnderline(underline[row][column]));
     }
@@ -509,7 +509,7 @@ public class Range {
                     + color.length + " against " + getNumRows() + ")");
         if (color[0].length != getNumColumns())
             throw new IllegalArgumentException("Error in setFontColors, the number of columns doesn't fit ("
-                    + color.length + " against " + getNumColumns() + ")");
+                    + color[0].length + " against " + getNumColumns() + ")");
 
         iterateRange((cell,row,column) -> cell.getStyle().setFontColor(color[row][column]));
     }
@@ -562,7 +562,7 @@ public class Range {
                     + color.length + " against " + getNumRows() + ")");
         if (color[0].length != getNumColumns())
             throw new IllegalArgumentException("Error in setBackgroundColors, the number of columns doesn't fit ("
-                    + color.length + " against " + getNumColumns() + ")");
+                    + color[0].length + " against " + getNumColumns() + ")");
 
         iterateRange((cell,row,column) -> cell.getStyle().setBackgroundColor(color[row][column]));
     }
@@ -613,7 +613,7 @@ public class Range {
                     + fontSizes.length + " against " + getNumRows() + ")");
         if (fontSizes[0].length != getNumColumns())
             throw new IllegalArgumentException("Error in setFontSizes, the number of columns doesn't fit ("
-                    + fontSizes.length + " against " + getNumColumns() + ")");
+                    + fontSizes[0].length + " against " + getNumColumns() + ")");
 
         iterateRange((cell,row,column) -> cell.getStyle().setFontSize(fontSizes[row][column]));
     }
@@ -690,7 +690,7 @@ public class Range {
                     + formula.length + " against " + getNumRows() + ")");
         if (formula[0].length != getNumColumns())
             throw new IllegalArgumentException("Error in setFormulas, the number of columns doesn't fit ("
-                    + formula.length + " against " + getNumColumns() + ")");
+                    + formula[0].length + " against " + getNumColumns() + ")");
 
         iterateRange((cell,row,column) -> cell.setFormula(formula[row][column]));
     }
@@ -747,7 +747,7 @@ public class Range {
                     + style.length + " against " + getNumRows() + ")");
         if (style[0].length != getNumColumns())
             throw new IllegalArgumentException("Error in setStyles, the number of columns doesn't fit ("
-                    + style.length + " against " + getNumColumns() + ")");
+                    + style[0].length + " against " + getNumColumns() + ")");
 
         iterateRange((cell,row,column) -> cell.setStyle(style[row][column]));
     }
