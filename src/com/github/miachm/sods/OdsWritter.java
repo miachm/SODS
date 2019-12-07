@@ -22,6 +22,7 @@ class OdsWritter {
     private Map<Style, String> stylesUsed = new HashMap<>();
     private Map<ColumnStyle, String> columnStyleStringMap = new HashMap<>();
     private Map<RowStyle, String> rowStyleStringMap = new HashMap<>();
+    private Map<TableStyle, String> tableStyleStringMap = new HashMap<>();
     private final String MIMETYPE= "application/vnd.oasis.opendocument.spreadsheet";
 
     private OdsWritter(OutputStream o, SpreadSheet spread) {
@@ -121,6 +122,14 @@ class OdsWritter {
         for (Sheet sheet : spread.getSheets()) {
             out.writeStartElement("table:table");
             out.writeAttribute("table:name", sheet.getName());
+            if (sheet.isHidden()) {
+                TableStyle tableStyle = new TableStyle();
+                tableStyle.setHidden(true);
+                String name = tableStyleStringMap.get(tableStyle);
+                if (name != null)
+                    out.writeAttribute("table:style-name", name);
+            }
+
             writeColumnsStyles(out, sheet);
             writeContent(out, sheet);
 
@@ -281,6 +290,10 @@ class OdsWritter {
                     writeRowStyle(out, height);
                 }
             }
+
+            if (sheet.isHidden()) {
+                writeTableStyle(out, sheet);
+            }
         }
 
         out.writeEndElement();
@@ -360,6 +373,23 @@ class OdsWritter {
             out.writeEndElement();
 
             rowStyleStringMap.put(rowStyle, key);
+        }
+    }
+
+    private void writeTableStyle(XMLStreamWriter out, Sheet sheet) throws XMLStreamException {
+        TableStyle tableStyle = new TableStyle();
+        tableStyle.setHidden(sheet.isHidden());
+        if (!tableStyleStringMap.containsKey(tableStyle)) {
+            String key = "tb" + tableStyleStringMap.size();
+            out.writeStartElement("style:style");
+            out.writeAttribute("style:family", "table");
+            out.writeAttribute("style:name", key);
+            out.writeStartElement("style:table-properties");
+            out.writeAttribute("table:display", tableStyle.isHidden() ? "false" : "true");
+            out.writeEndElement();
+            out.writeEndElement();
+
+            tableStyleStringMap.put(tableStyle, key);
         }
     }
 }

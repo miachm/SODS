@@ -1,6 +1,5 @@
 package com.github.miachm.sods;
 
-
 class RowStyle {
     private Double height;
 

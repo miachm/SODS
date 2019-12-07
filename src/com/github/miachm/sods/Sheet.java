@@ -532,6 +532,30 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
+     * Determinies if the sheet is marked as hidden or not
+     * @return True if the sheet is hidden
+     */
+
+    public boolean isHidden() {
+        return isHidden;
+    }
+
+    /**
+     * Mark this sheet as hidden
+     */
+
+    public void hideSheet() {
+        isHidden = true;
+    }
+
+    /**
+     * Mark this sheet as visible
+    */
+    public void showSheet() {
+        isHidden = false;
+    }
+
+    /**
      * Equals method, two sheets are considered the same if have the same name and the same content (include formatting)
      * @param o The object to compare
      */
@@ -581,6 +605,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
                 ",\ncolumnWidth=" + columnWidth +
                 ",\ncolumnshidden=" + hiddenColumns +
                 ",\nrowshidden=" + hiddenRows +
+                ",\nishidden=" + isHidden +
                 '}';
     }
 }

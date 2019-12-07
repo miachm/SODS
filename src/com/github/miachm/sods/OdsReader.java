@@ -19,6 +19,7 @@ class OdsReader {
     private Map<Integer,Style> columns_styles = new HashMap<>();
     private Map<String,ColumnStyle> styleColumn = new HashMap<>();
     private Map<String,RowStyle> styleRow = new HashMap<>();
+    private Map<String,TableStyle> styleTable = new HashMap<>();
     private Set<Pair<Vector, Vector>> groupCells = new HashSet<>();
 
     private OdsReader(InputStream in,SpreadSheet spread) {
@@ -100,6 +101,10 @@ class OdsReader {
                 else if (family.equals("table-row")) {
                     RowStyle style = readRowStyleEntry(instance);
                     styleRow.put(name, style);
+                }
+                else if (family.equals("table")) {
+                    TableStyle style = readTableStyleEntry(instance);
+                    styleTable.put(name, style);
                 }
             }
         }
@@ -187,6 +192,20 @@ class OdsReader {
         return style;
     }
 
+    private TableStyle readTableStyleEntry(XmlReaderInstance reader) {
+        TableStyle style = new TableStyle();
+        while (reader.hasNext()) {
+            XmlReaderInstance instance = reader.nextElement("style:table-properties");
+            if (instance == null)
+                return style;
+
+            String display = instance.getAttribValue("table:display");
+            if (display != null)
+                style.setHidden(display.equals("false"));
+        }
+        return style;
+    }
+
     private void iterateFilesEntries(XmlReaderInstance reader) {
         if (reader == null)
             return;
@@ -207,9 +226,12 @@ class OdsReader {
     private void processTable(XmlReaderInstance reader) {
         String name = reader.getAttribValue("table:name");
 
-        Sheet sheet = new Sheet(name);
-        sheet.deleteRow(0);
-        sheet.deleteColumn(0);
+        Sheet sheet = new Sheet(name, 0, 0);
+
+        String tableStyleName = reader.getAttribValue("table:style-name");
+        if (tableStyleName != null) {
+            setTableStyles(sheet, tableStyleName);
+        }
 
         int rowCount = 0;
         groupCells.clear();
@@ -255,6 +277,14 @@ class OdsReader {
             range.merge();
         }
         spread.appendSheet(sheet);
+    }
+
+    private void setTableStyles(Sheet sheet, String tableStyleName) {
+        TableStyle style = styleTable.get(tableStyleName);
+        if (style != null) {
+            if (style.isHidden())
+                sheet.hideSheet();
+        }
     }
 
     private void parseColumnProperties(XmlReaderInstance instance, Sheet sheet, Style style) {

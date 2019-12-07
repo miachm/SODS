@@ -78,10 +78,25 @@ public class HideItemsTest {
     }
 
     @Test
+    public void testSheetInterface()
+    {
+        Sheet sheet = new Sheet("A");
+        assertFalse(sheet.isHidden());
+        sheet.hideSheet();
+        assertTrue(sheet.isHidden());
+        sheet.showSheet();
+        assertFalse(sheet.isHidden());
+        sheet.hideSheet();
+        assertTrue(sheet.isHidden());
+    }
+
+    @Test
     public void loadFile() throws IOException {
         SpreadSheet spreadSheet = new SpreadSheet(new File("resources/hiddenItems.ods"));
         List<Sheet> sheets = spreadSheet.getSheets();
         Sheet visible = sheets.get(0);
+
+        assertFalse(visible.isHidden());
 
         assertFalse(visible.rowIsHidden(0));
         assertTrue(visible.rowIsHidden(1));
@@ -92,6 +107,9 @@ public class HideItemsTest {
         assertFalse(visible.columnIsHidden(1));
         assertTrue(visible.columnIsHidden(2));
         assertEquals(visible.getHiddenColumns().size(), 1);
+
+        Sheet invisible = sheets.get(1);
+        assertTrue(invisible.isHidden());
     }
 
     @Test
@@ -104,9 +122,12 @@ public class HideItemsTest {
         sheet.hideColumn(9);
         spreadSheet.appendSheet(sheet);
 
+        Sheet invisibleSheet = new Sheet("B");
+        invisibleSheet.hideSheet();
+        spreadSheet.appendSheet(invisibleSheet);
+
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         spreadSheet.save(output);
-        spreadSheet.save(new File("example.ods"));
 
         ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
         SpreadSheet newSpreadsheet = new SpreadSheet(input);
@@ -114,11 +135,15 @@ public class HideItemsTest {
         assertEquals(spreadSheet, newSpreadsheet);
 
         Sheet newSheet = newSpreadsheet.getSheet(0);
+        assertFalse(newSheet.isHidden());
         assertEquals(sheet.getHiddenRows(), newSheet.getHiddenRows());
         assertEquals(sheet.getHiddenColumns(), newSheet.getHiddenColumns());
         assertTrue(newSheet.rowIsHidden(5));
         assertTrue(newSheet.columnIsHidden(2));
         assertFalse(newSheet.rowIsHidden(2));
         assertFalse(newSheet.columnIsHidden(5));
+
+        Sheet newInvisibleSheet = newSpreadsheet.getSheet(1);
+        assertTrue(newInvisibleSheet.isHidden());
     }
 }
