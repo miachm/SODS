@@ -2,17 +2,18 @@ package com.github.miachm.sods;
 
 class ColumnStyle {
     private Double width;
+    private boolean isHidden;
     private static final double EQUIVALENCE_CM = 0.1;
     private static final double EQUIVALENCE_PX = 0.264583333;
     private static final double EQUIVALENCE_IN = 2.54 / 100.0;
     private static final double EQUIVALENCE_PT = EQUIVALENCE_IN / 72.0;
     private static final double EQUIVALENCE_PC = EQUIVALENCE_IN * 12.0;
 
-    public double getWidth() {
+    public Double getWidth() {
         return width;
     }
 
-    public void setWidth(double width) {
+    public void setWidth(Double width) {
         this.width = width;
     }
 
@@ -49,6 +50,14 @@ class ColumnStyle {
             throw new IllegalArgumentException("A unit is needed");
     }
 
+    public boolean isHidden() {
+        return isHidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        isHidden = hidden;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -56,18 +65,22 @@ class ColumnStyle {
 
         ColumnStyle that = (ColumnStyle) o;
 
+        if (isHidden != that.isHidden) return false;
         return width != null ? width.equals(that.width) : that.width == null;
     }
 
     @Override
     public int hashCode() {
-        return width != null ? width.hashCode() : 0;
+        int result = width != null ? width.hashCode() : 0;
+        result = 31 * result + (isHidden ? 1 : 0);
+        return result;
     }
 
     @Override
     public String toString() {
         return "ColumnStyle{" +
                 "width=" + width +
+                ", isHidden=" + isHidden +
                 '}';
     }
 }

@@ -3,11 +3,13 @@ package com.github.miachm.sods;
 class RowStyle {
     private Double height;
 
-    public double getHeight() {
+    private boolean isHidden;
+
+    public Double getHeight() {
         return height;
     }
 
-    public void setHeight(double height) {
+    public void setHeight(Double height) {
         this.height = height;
     }
 
@@ -15,25 +17,37 @@ class RowStyle {
         this.height = ColumnStyle.getValue(height);
     }
 
+    public boolean isHidden() {
+        return isHidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        isHidden = hidden;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        RowStyle style = (RowStyle) o;
+        RowStyle rowStyle = (RowStyle) o;
 
-        return height != null ? height.equals(style.height) : style.height == null;
+        if (isHidden != rowStyle.isHidden) return false;
+        return height != null ? height.equals(rowStyle.height) : rowStyle.height == null;
     }
 
     @Override
     public int hashCode() {
-        return height != null ? height.hashCode() : 0;
+        int result = height != null ? height.hashCode() : 0;
+        result = 31 * result + (isHidden ? 1 : 0);
+        return result;
     }
 
     @Override
     public String toString() {
         return "RowStyle{" +
                 "height=" + height +
+                ", isHidden=" + isHidden +
                 '}';
     }
 }

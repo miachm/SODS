@@ -9,15 +9,11 @@ import java.util.*;
  */
 public class Sheet implements Cloneable,Comparable<Sheet> {
     private List<List<Cell>> cells = new ArrayList<List<Cell>>();
+    private List<RowStyle> rowStyles = new ArrayList<>();
+    private List<ColumnStyle> columnStyles = new ArrayList<>();
     private String name;
     private int numColumns = 0;
     private boolean isHidden = false;
-
-    private Map<Integer, Double> columnWidth = new TreeMap<>();
-    private Map<Integer, Double> rowHeight = new TreeMap<>();
-
-    private HashSet<Integer> hiddenRows = new HashSet<>();
-    private HashSet<Integer> hiddenColumns = new HashSet<>();
 
     /**
      * Create an empty sheet with a given name.
@@ -123,6 +119,10 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
            for (int i = 0;i < howmany;i++)
                row.remove(column);
         }
+
+        for (int i = 0; i < howmany; i++)
+            columnStyles.remove(column);
+
         numColumns -= howmany;
     }
 
@@ -149,19 +149,23 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         if (row > getMaxRows())
             throw new IndexOutOfBoundsException("Row " + row + " is out of bounds (" + getMaxRows()+")");
 
-        for (int i = 0; i < howmany; i++)
+        for (int i = 0; i < howmany; i++) {
             cells.remove(row);
+            rowStyles.remove(row);
+        }
     }
 
     /**
      * Get the width of a column
      * @param column The column index where start
+     * @throws IndexOutOfBoundsException if the column index is invalid
      * @return The width of the column, null if not specified
      */
 
     public Double getColumnWidth(int column)
     {
-        return columnWidth.get(column);
+        checkColumnRange(column);
+        return columnStyles.get(column).getWidth();
     }
 
     /**
@@ -170,7 +174,10 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * @return The height of the row, null if not specified
      */
 
-    public Double getRowHeight(int row) { return rowHeight.get(row);}
+    public Double getRowHeight(int row) {
+        checkRowRange(row);
+        return rowStyles.get(row).getHeight();
+    }
 
     /**
      * Get a @Range which contains the whole Sheet content. Its useful
@@ -281,18 +288,26 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         return cells.get(row).get(column);
     }
 
+    /**
+     * Hides a row specified by his index
+     * @param row The index of the row
+     * @throws IndexOutOfBoundsException if the index is invalid
+     */
     public void hideRow(int row)
     {
-        if (row < 0 || row >= getMaxRows())
-            throw new IllegalArgumentException("Row is not a valid position: " + row);
-        hiddenRows.add(row);
+        checkRowRange(row);
+        rowStyles.get(row).setHidden(true);
     }
 
+    /**
+     * Hides a column specified by his index
+     * @param column The index of the row
+     * @throws IndexOutOfBoundsException if the index is invalid
+     */
     public void hideColumn(int column)
     {
-        if (column < 0 || column >= getMaxColumns())
-            throw new IllegalArgumentException("Column is not a valid position: " + column);
-        hiddenColumns.add(column);
+        checkColumnRange(column);
+        columnStyles.get(column).setHidden(true);
     }
 
     /**
@@ -338,6 +353,9 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
                 row.add(columnIndex,new Cell());
             }
         }
+
+        for (int i = 0; i < howmany; i++)
+            columnStyles.add(new ColumnStyle());
         numColumns += howmany;
     }
 
@@ -374,6 +392,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
             for (int j = 0;j < numColumns;j++)
                 row.add(new Cell());
             cells.add(rowIndex,row);
+            rowStyles.add(new RowStyle());
         }
     }
 
@@ -397,16 +416,13 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
 
     public void setColumnWidth(int column, Double width)
     {
-        if (column < 0 || column >= numColumns)
-            throw new IndexOutOfBoundsException("Error, index out of bounds");
+        checkColumnRange(column);
 
         if (width != null) {
             if (width < 0.0)
                 throw new IllegalArgumentException("Width can't be negative!");
-            columnWidth.put(column, width);
         }
-        else
-            columnWidth.remove(column);
+        columnStyles.get(column).setWidth(width);
     }
 
     /**
@@ -433,16 +449,13 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      */
     public void setRowHeight(int row, Double height)
     {
-        if (row < 0 || row >= getMaxRows())
-            throw new IndexOutOfBoundsException("Error, index out of bounds (" + row + ")");
+        checkRowRange(row);
 
         if (height != null) {
             if (height < 0.0)
                 throw new IllegalArgumentException("Height can't be negative!");
-            rowHeight.put(row, height);
         }
-        else
-            rowHeight.remove(row);
+        rowStyles.get(row).setHeight(height);
     }
 
     /**
@@ -468,9 +481,8 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
 
     public void showRow(int row)
     {
-        if (row < 0 || row >= getMaxRows())
-            throw new IndexOutOfBoundsException("Row is not a valid position: " + row);
-        hiddenRows.remove(row);
+        checkRowRange(row);
+        rowStyles.get(row).setHidden(false);
     }
 
     /**
@@ -481,28 +493,8 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      */
     public void showColumn(int column)
     {
-        if (column < 0 || column >= getMaxColumns())
-            throw new IndexOutOfBoundsException("Column is not a valid position: " + column);
-        hiddenColumns.remove(column);
-    }
-
-    /**
-     * Fetch the index of the hidden rows in this sheet
-     *
-     * @return A Set with the indexs of the hidden rows
-     */
-
-    public Set<Integer> getHiddenRows() {
-        return new HashSet<>(hiddenRows);
-    }
-
-    /**
-     * Fetch the index of the hidden columns in this sheet
-     *
-     * @return A Set with the indexs of the hidden columns
-     */
-    public Set<Integer> getHiddenColumns() {
-        return Collections.unmodifiableSet(hiddenColumns);
+        checkColumnRange(column);
+        columnStyles.get(column).setHidden(false);
     }
 
     /**
@@ -513,9 +505,13 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      */
     public boolean rowIsHidden(int row)
     {
+        checkRowRange(row);
+        return rowStyles.get(row).isHidden();
+    }
+
+    private void checkRowRange(int row) {
         if (row < 0 || row >= getMaxRows())
             throw new IndexOutOfBoundsException("Row is not a valid position: " + row);
-        return hiddenRows.contains(row);
     }
 
     /**
@@ -526,9 +522,13 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      */
     public boolean columnIsHidden(int column)
     {
+        checkColumnRange(column);
+        return columnStyles.get(column).isHidden();
+    }
+
+    private void checkColumnRange(int column) {
         if (column < 0 || column >= getMaxColumns())
-            throw new IllegalArgumentException("Column is not a valid position: " + column);
-        return hiddenColumns.contains(column);
+            throw new IndexOutOfBoundsException("Column is not a valid position: " + column);
     }
 
     /**
@@ -569,10 +569,9 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         if (isHidden != sheet.isHidden) return false;
         if (!cells.equals(sheet.cells)) return false;
         if (!name.equals(sheet.name)) return false;
-        if (!columnWidth.equals(sheet.columnWidth)) return false;
-        if (!rowHeight.equals(sheet.rowHeight)) return false;
-        if (!hiddenRows.equals(sheet.hiddenRows)) return false;
-        return hiddenColumns.equals(sheet.hiddenColumns);
+        if (!rowStyles.equals(sheet.rowStyles)) return false;
+        if (!columnStyles.equals(sheet.columnStyles)) return false;
+        return true;
     }
 
     @Override
@@ -580,10 +579,8 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         int result = cells.hashCode();
         result = 31 * result + name.hashCode();
         result = 31 * result + (isHidden ? 1 : 0);
-        result = 31 * result + columnWidth.hashCode();
-        result = 31 * result + rowHeight.hashCode();
-        result = 31 * result + hiddenRows.hashCode();
-        result = 31 * result + hiddenColumns.hashCode();
+        result = 31 * result + columnStyles.hashCode();
+        result = 31 * result + rowStyles.hashCode();
         return result;
     }
 
@@ -602,9 +599,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         return "Sheet{" +
                 "\ncells=" + getDataRange().toString() +
                 ",\nname='" + name + '\'' +
-                ",\ncolumnWidth=" + columnWidth +
-                ",\ncolumnshidden=" + hiddenColumns +
-                ",\nrowshidden=" + hiddenRows +
+                ",\ncolumnWidth=" + columnStyles +
                 ",\nishidden=" + isHidden +
                 '}';
     }

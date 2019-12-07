@@ -97,10 +97,12 @@ public class SheetTest {
         sheet.insertColumnAfter(0);
         sheet.getDataRange().setValues(1, 2);
 
+        sheet.setColumnWidth(1, 6.5);
         sheet.deleteColumn(0);
 
         assertEquals(sheet.getMaxColumns(), 1);
         assertEquals(sheet.getRange(0, 0).getValue(), 2);
+        assertEquals(sheet.getColumnWidth(0), 6.5);
 
         sheet.insertColumnAfter(0);
         sheet.insertColumnAfter(0);
@@ -131,10 +133,12 @@ public class SheetTest {
         sheet.insertRowAfter(0);
         sheet.getDataRange().setValues(1, 2);
 
+        sheet.setRowHeight(1, 4.4);
         sheet.deleteRow(0);
 
         assertEquals(sheet.getMaxRows(), 1);
         assertEquals(sheet.getRange(0, 0).getValue(), 2);
+        assertEquals(sheet.getRowHeight(0), 4.4);
 
         sheet.insertRowAfter(0);
         sheet.insertRowAfter(0);
@@ -495,7 +499,11 @@ public class SheetTest {
         for (int i = 0; i < 3; i++)
             assertEquals(23.43, a.getColumnWidth(i));
 
-        assertNull(a.getColumnWidth(4));
+        try {
+            a.getColumnWidth(4);
+            fail();
+        }
+        catch (IndexOutOfBoundsException e) {}
     }
 
 
@@ -544,6 +552,10 @@ public class SheetTest {
         for (int i = 0; i < 3; i++)
             assertEquals(23.43, a.getRowHeight(i));
 
-        assertNull(a.getRowHeight(4));
+        try {
+            a.getRowHeight(4);
+            fail();
+        }
+        catch (IndexOutOfBoundsException e) {}
     }
 }

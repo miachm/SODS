@@ -7,7 +7,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 import static org.testng.AssertJUnit.*;
 
@@ -17,15 +16,10 @@ public class HideItemsTest {
     public void testRowInterface()
     {
         Sheet sheet = new Sheet("A", 10, 10);
-        assertEquals(sheet.getHiddenRows().size(), 0);
 
         sheet.hideRow(5);
         sheet.hideRow(8);
 
-        Set<Integer> hiddenRows = sheet.getHiddenRows();
-        assertEquals(sheet.getHiddenRows().size(), 2);
-        assertTrue(hiddenRows.contains(5));
-        assertTrue(hiddenRows.contains(8));
         assertTrue(sheet.rowIsHidden(5));
         assertTrue(sheet.rowIsHidden(8));
         assertFalse(sheet.rowIsHidden(0));
@@ -34,30 +28,28 @@ public class HideItemsTest {
         assertFalse(sheet.rowIsHidden(9));
 
         sheet.showRow(8);
-        hiddenRows = sheet.getHiddenRows();
-        assertEquals(sheet.getHiddenRows().size(), 1);
-        assertTrue(hiddenRows.contains(5));
-        assertFalse(hiddenRows.contains(8));
         assertFalse(sheet.rowIsHidden(8));
         assertTrue(sheet.rowIsHidden(5));
 
         sheet.hideRow(8);
         assertTrue(sheet.rowIsHidden(8));
+
+        assertFalse(sheet.rowIsHidden(7));
+        sheet.deleteRow(7);
+        assertTrue(sheet.rowIsHidden(7));
+        assertFalse(sheet.rowIsHidden(8));
+
+        sheet.deleteRows(7, sheet.getMaxRows() - 7);
     }
 
     @Test
     public void testColumnInterface()
     {
         Sheet sheet = new Sheet("A", 10, 10);
-        assertEquals(sheet.getHiddenColumns().size(), 0);
 
         sheet.hideColumn(5);
         sheet.hideColumn(8);
 
-        Set<Integer> hiddenColumns = sheet.getHiddenColumns();
-        assertEquals(sheet.getHiddenColumns().size(), 2);
-        assertTrue(hiddenColumns.contains(5));
-        assertTrue(hiddenColumns.contains(8));
         assertTrue(sheet.columnIsHidden(5));
         assertTrue(sheet.columnIsHidden(8));
         assertFalse(sheet.columnIsHidden(0));
@@ -66,15 +58,18 @@ public class HideItemsTest {
         assertFalse(sheet.columnIsHidden(9));
 
         sheet.showColumn(8);
-        hiddenColumns = sheet.getHiddenColumns();
-        assertEquals(sheet.getHiddenColumns().size(), 1);
-        assertTrue(hiddenColumns.contains(5));
-        assertFalse(hiddenColumns.contains(8));
         assertFalse(sheet.columnIsHidden(8));
         assertTrue(sheet.columnIsHidden(5));
 
         sheet.hideColumn(8);
         assertTrue(sheet.columnIsHidden(8));
+
+        assertFalse(sheet.columnIsHidden(7));
+        sheet.deleteColumn(7);
+        assertTrue(sheet.columnIsHidden(7));
+        assertFalse(sheet.columnIsHidden(8));
+
+        sheet.deleteColumns(7, sheet.getMaxColumns() - 7);
     }
 
     @Test
@@ -101,12 +96,10 @@ public class HideItemsTest {
         assertFalse(visible.rowIsHidden(0));
         assertTrue(visible.rowIsHidden(1));
         assertFalse(visible.rowIsHidden(2));
-        assertEquals(visible.getHiddenRows().size(), 1);
 
         assertFalse(visible.columnIsHidden(0));
         assertFalse(visible.columnIsHidden(1));
         assertTrue(visible.columnIsHidden(2));
-        assertEquals(visible.getHiddenColumns().size(), 1);
 
         Sheet invisible = sheets.get(1);
         assertTrue(invisible.isHidden());
@@ -136,8 +129,6 @@ public class HideItemsTest {
 
         Sheet newSheet = newSpreadsheet.getSheet(0);
         assertFalse(newSheet.isHidden());
-        assertEquals(sheet.getHiddenRows(), newSheet.getHiddenRows());
-        assertEquals(sheet.getHiddenColumns(), newSheet.getHiddenColumns());
         assertTrue(newSheet.rowIsHidden(5));
         assertTrue(newSheet.columnIsHidden(2));
         assertFalse(newSheet.rowIsHidden(2));
