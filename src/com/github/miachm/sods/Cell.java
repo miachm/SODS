@@ -116,7 +116,7 @@ class Cell implements Cloneable {
 
     @Override
     public String toString() {
-        if (getGroup() != null)
+        if (getGroup() == null)
             return "Cell{" +
                     "value=" + value +
                     ", formula='" + formula + '\'' +

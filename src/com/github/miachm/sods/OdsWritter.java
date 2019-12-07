@@ -143,6 +143,9 @@ class OdsWritter {
                     out.writeAttribute("table:style-name", name);
             }
 
+            if (sheet.columnIsHidden(i))
+                out.writeAttribute("table:visibility", "collapse");
+
             out.writeEndElement();
         }
     }
@@ -151,7 +154,7 @@ class OdsWritter {
         for (int i = 0;i < sheet.getMaxRows();i++) {
 
             out.writeStartElement("table:table-row");
-            writeRowHeight(out, sheet, i);
+            writeRowStyles(out, sheet, i);
 
             for (int j = 0; j < sheet.getMaxColumns();j++) {
                 Range cell = sheet.getRange(i, j);
@@ -160,6 +163,13 @@ class OdsWritter {
 
             out.writeEndElement();
         }
+    }
+
+    private void writeRowStyles(XMLStreamWriter out, Sheet sheet, int i) throws XMLStreamException {
+        if (sheet.rowIsHidden(i))
+            out.writeAttribute("table:visibility", "collapse");
+
+        writeRowHeight(out, sheet, i);
     }
 
     private void writeCell(XMLStreamWriter out, Range range) throws XMLStreamException {

@@ -2,8 +2,6 @@ package com.github.miachm.sods;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.*;
 
 /**
@@ -227,33 +225,17 @@ class OdsReader {
                     style = styles.get(styleName);
 
                 if (instance.getTag().equals("table:table-column")) {
-                    int numColumns = 1;
-                    String columnsRepeated = instance.getAttribValue("table:number-columns-repeated");
-                    if (columnsRepeated != null)
-                        numColumns = Integer.parseInt(columnsRepeated);
-
-                    if (style != null) {
-                        for (int j = sheet.getMaxColumns(); j < sheet.getMaxColumns() + numColumns; j++)
-                            columns_styles.put(j, style);
-                    }
-
-                    sheet.appendColumns(numColumns);
-
-                    String columnStyleName = instance.getAttribValue("table:style-name");
-                    if (columnStyleName != null) {
-                        ColumnStyle columnStyle = styleColumn.get(columnStyleName);
-                        if (columnStyle != null) {
-                            for (int i = 0; i < numColumns; i++) {
-                                sheet.setColumnWidth(sheet.getMaxColumns() - i - 1, columnStyle.getWidth());
-                            }
-                        }
-                    }
+                    parseColumnProperties(instance, sheet, style);
                 }
                 else if (instance.getTag().equals("table:table-row")) {
                     if (style != null)
                         rows_styles.put(rowCount, style);
 
                     sheet.appendRow();
+
+                    String visibility = instance.getAttribValue("table:visibility");
+                    if ("collapse".equals(visibility))
+                        sheet.hideRow(sheet.getMaxRows()-1);
 
                     String rowStyleName = instance.getAttribValue("table:style-name");
                     if (rowStyleName != null) {
@@ -273,6 +255,41 @@ class OdsReader {
             range.merge();
         }
         spread.appendSheet(sheet);
+    }
+
+    private void parseColumnProperties(XmlReaderInstance instance, Sheet sheet, Style style) {
+        boolean areHidden = false;
+        String visibility = instance.getAttribValue("table:visibility");
+        if ("collapse".equals(visibility))
+            areHidden = true;
+
+        int numColumns = 1;
+        String columnsRepeated = instance.getAttribValue("table:number-columns-repeated");
+        if (columnsRepeated != null)
+            numColumns = Integer.parseInt(columnsRepeated);
+
+        if (style != null) {
+            for (int j = sheet.getMaxColumns(); j < sheet.getMaxColumns() + numColumns; j++)
+                columns_styles.put(j, style);
+        }
+
+        int index = sheet.getMaxColumns();
+        sheet.appendColumns(numColumns);
+
+        if (areHidden) {
+            for (int j = 0; j < numColumns; j++)
+                sheet.hideColumn(index + j);
+        }
+
+        String columnStyleName = instance.getAttribValue("table:style-name");
+        if (columnStyleName != null) {
+            ColumnStyle columnStyle = styleColumn.get(columnStyleName);
+            if (columnStyle != null) {
+                for (int i = 0; i < numColumns; i++) {
+                    sheet.setColumnWidth(sheet.getMaxColumns() - i - 1, columnStyle.getWidth());
+                }
+            }
+        }
     }
 
     private void processCells(XmlReaderInstance reader, Sheet sheet) {
