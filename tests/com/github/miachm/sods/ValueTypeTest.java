@@ -77,13 +77,13 @@ public class ValueTypeTest {
         LocalDate date = LocalDate.of(2002,3,3);
         LocalDateTime datetime = LocalDateTime.of(2006, 6, 6 , 14, 12, 32);
 
-        Sheet sheet = new Sheet("A", 1, 4);
+        Sheet sheet = new Sheet("A", 1, 3);
         sheet.getDataRange().setValues(now, date, datetime);
         sheet = saveAndLoad(sheet);
 
         assertEquals(sheet.getRange(0, 0).getValue(), now);
         assertEquals(sheet.getRange(0, 1).getValue(), date);
-        assertEquals(sheet.getRange(0, 3).getValue(), datetime);
+        assertEquals(sheet.getRange(0, 2).getValue(), datetime);
     }
 
     @Test
