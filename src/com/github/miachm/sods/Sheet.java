@@ -1,9 +1,6 @@
 package com.github.miachm.sods;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Represents a sheet in a Spreadsheet.
@@ -14,9 +11,13 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     private List<List<Cell>> cells = new ArrayList<List<Cell>>();
     private String name;
     private int numColumns = 0;
+    private boolean isHidden = false;
 
     private Map<Integer, Double> columnWidth = new TreeMap<>();
     private Map<Integer, Double> rowHeight = new TreeMap<>();
+
+    private HashSet<Integer> hiddenRows;
+    private HashSet<Integer> hiddenColumns;
 
     /**
      * Create an empty sheet with a given name.
@@ -120,9 +121,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
 
         for (List<Cell> row : cells){
            for (int i = 0;i < howmany;i++)
-           {
                row.remove(column);
-           }
         }
         numColumns -= howmany;
     }
@@ -150,7 +149,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         if (row > getMaxRows())
             throw new IndexOutOfBoundsException("Row " + row + " is out of bounds (" + getMaxRows()+")");
 
-        for (int i = 0;i < howmany;i++)
+        for (int i = 0; i < howmany; i++)
             cells.remove(row);
     }
 
@@ -280,6 +279,13 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
 
     Cell getCell(int row,int column){
         return cells.get(row).get(column);
+    }
+
+    public void hideRow(int row)
+    {
+        if (row < 0 || row >= getMaxRows())
+            throw new IllegalArgumentException("Row is not a valid position: " + row);
+        hiddenRows.add(row);
     }
 
     /**
@@ -444,6 +450,21 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     {
         for (int i = 0; i < numRows; i++)
             setRowHeight(row +i, height);
+    }
+
+    public void showRow(int row)
+    {
+        if (row < 0 || row >= getMaxRows())
+            throw new IllegalArgumentException("Row is not a valid position: " + row);
+        hiddenRows.remove(row);
+    }
+
+    public Set<Integer> getHiddenRows() {
+        return Collections.unmodifiableSet(hiddenRows);
+    }
+
+    public Set<Integer> getHiddenColumns() {
+        return Collections.unmodifiableSet(hiddenColumns);
     }
 
     /**

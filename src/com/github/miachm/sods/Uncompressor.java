@@ -7,8 +7,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 class Uncompressor implements Closeable{
-
-    private static final int TAM_BUFFER = 1000;
     private final ZipInputStream zip;
 
     Uncompressor(InputStream in){
