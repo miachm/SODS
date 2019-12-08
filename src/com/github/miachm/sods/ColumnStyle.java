@@ -3,11 +3,11 @@ package com.github.miachm.sods;
 class ColumnStyle {
     private Double width;
     private boolean isHidden;
-    private static final double EQUIVALENCE_CM = 0.1;
+    private static final double EQUIVALENCE_CM = 10;
     private static final double EQUIVALENCE_PX = 0.264583333;
-    private static final double EQUIVALENCE_IN = 2.54 / 100.0;
-    private static final double EQUIVALENCE_PT = EQUIVALENCE_IN / 72.0;
-    private static final double EQUIVALENCE_PC = EQUIVALENCE_IN * 12.0;
+    private static final double EQUIVALENCE_IN = (2.54 * 10);
+    private static final double EQUIVALENCE_PT = 72.0 / 25.4;
+    private static final double EQUIVALENCE_PC = 6.0 / 25.4;
 
     public Double getWidth() {
         return width;
@@ -37,8 +37,10 @@ class ColumnStyle {
                 return number * EQUIVALENCE_CM;
             else if (value.endsWith("in"))
                 return number * EQUIVALENCE_IN;
-            else if (value.endsWith("pt"))
+            else if (value.endsWith("pt")) {
+                System.out.println(number + " => " + EQUIVALENCE_PT);
                 return number * EQUIVALENCE_PT;
+            }
             else if (value.endsWith("pc"))
                 return number * EQUIVALENCE_PC;
             else if (value.endsWith("px"))
