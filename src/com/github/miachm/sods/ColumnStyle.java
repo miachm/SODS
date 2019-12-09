@@ -37,10 +37,8 @@ class ColumnStyle {
                 return number * EQUIVALENCE_CM;
             else if (value.endsWith("in"))
                 return number * EQUIVALENCE_IN;
-            else if (value.endsWith("pt")) {
-                System.out.println(number + " => " + EQUIVALENCE_PT);
+            else if (value.endsWith("pt"))
                 return number * EQUIVALENCE_PT;
-            }
             else if (value.endsWith("pc"))
                 return number * EQUIVALENCE_PC;
             else if (value.endsWith("px"))

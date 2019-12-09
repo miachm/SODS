@@ -214,6 +214,14 @@ public class SpreadSheet implements Cloneable {
         sheets.sort(comparator);
     }
 
+    /** Trim the sheets to the minimum dimensions possible
+     * This method is equivalent to call sheet.trim() to each sheet of the spreadsheet
+     */
+    public void trimSheets()
+    {
+        for (Sheet sheet : sheets)
+            sheet.trim();
+    }
     /**
      * Compare two spreadsheets. Two spreadsheets are equals if they have the same sheets and in the same order
      */

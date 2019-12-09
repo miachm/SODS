@@ -454,4 +454,19 @@ public class SpreadSheetTest {
         assertTrue(isSorted(sheets));
     }
 
+    @Test
+    public void testTrimSheets() throws Exception {
+        SpreadSheet spreadSheet = generateASpreadsheet();
+        for (Sheet sheet : spreadSheet.getSheets()) {
+            sheet.appendRows(50);
+            sheet.appendColumns(50);
+        }
+
+        spreadSheet.trimSheets();
+
+        for (Sheet sheet : spreadSheet.getSheets()) {
+            assertEquals(sheet.getMaxRows(), 0);
+            assertEquals(sheet.getMaxColumns(), 0);
+        }
+    }
 }

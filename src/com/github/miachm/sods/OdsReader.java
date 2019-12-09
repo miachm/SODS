@@ -11,6 +11,7 @@ class OdsReader {
     private static final String CORRECT_MIMETYPE = "application/vnd.oasis.opendocument.spreadsheet";
     private static final String MANIFEST_PATH = "META-INF/manifest.xml";
     private static final Locale defaultLocal = Locale.US;
+    private static final int BUGGED_COUNT = 30 * 1000;
     private Uncompressor uncompressor;
     private XmlReader reader = new XmlReaderEventImpl();
     private SpreadSheet spread;
@@ -253,17 +254,27 @@ class OdsReader {
                     if (style != null)
                         rows_styles.put(rowCount, style);
 
-                    sheet.appendRow();
+                    int numRows = 1;
+                    String numRowsStr = instance.getAttribValue("table:number-rows-repeated");
+                    if (numRowsStr != null) {
+                        try {
+                            numRows = Integer.parseInt(numRowsStr);
+                        }
+                        catch (NumberFormatException e) {}
+                    }
+
+                    sheet.appendRows(numRows);
 
                     String visibility = instance.getAttribValue("table:visibility");
                     if ("collapse".equals(visibility))
                         sheet.hideRow(sheet.getMaxRows()-1);
 
                     String rowStyleName = instance.getAttribValue("table:style-name");
-                    if (rowStyleName != null) {
+                    if (rowStyleName != null && numRows < 1000) {
                         RowStyle rowStyle = styleRow.get(rowStyleName);
                         if (rowStyle != null)
-                            sheet.setRowHeight(sheet.getMaxRows() - 1, rowStyle.getHeight());
+                            for (int i = 0; i < numRows; i++)
+                                sheet.setRowHeight(sheet.getMaxRows() - i - 1, rowStyle.getHeight());
                     }
                     processCells(instance, sheet);
                 }
@@ -276,6 +287,14 @@ class OdsReader {
             Range range = sheet.getRange(cord.getX(), cord.getY(), length.getX(), length.getY());
             range.merge();
         }
+
+        // Workaround for issue #12
+        // Excel for some rason generates sheets with 100.000 rows
+        // although it's only using a few ones
+        // This can be a problem if the users tries to save back
+        if (sheet.getMaxRows() > BUGGED_COUNT)
+            sheet.trim();
+
         spread.appendSheet(sheet);
     }
 
@@ -295,10 +314,11 @@ class OdsReader {
 
         int numColumns = 1;
         String columnsRepeated = instance.getAttribValue("table:number-columns-repeated");
-        if (columnsRepeated != null)
+        if (columnsRepeated != null) {
             numColumns = Integer.parseInt(columnsRepeated);
+        }
 
-        if (style != null) {
+        if (style != null && !style.isDefault()) {
             for (int j = sheet.getMaxColumns(); j < sheet.getMaxColumns() + numColumns; j++)
                 columns_styles.put(j, style);
         }
@@ -312,7 +332,7 @@ class OdsReader {
         }
 
         String columnStyleName = instance.getAttribValue("table:style-name");
-        if (columnStyleName != null) {
+        if (columnStyleName != null && numColumns < 1000) {
             ColumnStyle columnStyle = styleColumn.get(columnStyleName);
             if (columnStyle != null) {
                 for (int i = 0; i < numColumns; i++) {
@@ -326,7 +346,7 @@ class OdsReader {
         int column = 0;
         while (reader.hasNext()) {
             // number of columns repeated
-            long number_columns_repeated = 0;
+            int number_columns_repeated = 0;
             // value and style to be copied
             Object last_cell_value = null;
             Style last_style = null;
@@ -366,14 +386,20 @@ class OdsReader {
                 Range range = sheet.getRange(positionX, positionY);
 
                 String formula = instance.getAttribValue("table:formula");
-                range.setFormula(formula);
+                if (formula != null)
+                    range.setFormula(formula);
 
                 OfficeValueType valueType = OfficeValueType.ofReader(instance);
                 Object value = valueType.read(instance);
 
                 String raw = instance.getAttribValue("table:number-columns-repeated");
-                if (raw != null)
-                    number_columns_repeated = Long.parseLong(raw);
+                if (raw != null) {
+                    number_columns_repeated = Integer.parseInt(raw);
+
+                    // Issue #12, check function trimColumns()
+                    if (column + number_columns_repeated > sheet.getMaxColumns())
+                        number_columns_repeated = sheet.getMaxColumns() - column;
+                }
 
                 Style style = styles.get(instance.getAttribValue("table:style-name"));
 
@@ -393,12 +419,15 @@ class OdsReader {
                 }
 
                 last_cell_value = value;
-                range.setValue(value);
+                if (value != null)
+                    range.setValue(value);
 
                 column++;
             }
 
-            if (number_columns_repeated > 0) {
+            if (number_columns_repeated > 0 && ((last_style != null && !last_style.isDefault())
+                                                || last_cell_value != null)) {
+
                 for (int j = 0; j < number_columns_repeated - 1; j++) {
                     Range range = sheet.getRange(sheet.getMaxRows() - 1, column);
                     if (last_style != null) {

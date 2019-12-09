@@ -241,6 +241,7 @@ public class SheetTest {
         assertEquals(sheet.getMaxColumns(), 3);
         sheet.insertColumnAfter(1);
         assertEquals(sheet.getMaxColumns(), 4);
+
         Object[][] list = sheet.getDataRange().getValues();
         assertEquals(list[0][0], 1);
         assertEquals(list[0][1], null);
@@ -557,5 +558,33 @@ public class SheetTest {
             fail();
         }
         catch (IndexOutOfBoundsException e) {}
+    }
+
+    @Test
+    public void testTrim()
+    {
+        Sheet sheet = new Sheet("A", 30, 30);
+        assertEquals(sheet.getMaxRows(), 30);
+        assertEquals(sheet.getMaxColumns(), 30);
+        assertEquals(sheet.getLastRow(), 0);
+        assertEquals(sheet.getLastColumn(), 0);
+
+        sheet.trim();
+
+        assertEquals(sheet.getMaxRows(), 0);
+        assertEquals(sheet.getMaxColumns(), 0);
+        assertEquals(sheet.getLastRow(), 0);
+        assertEquals(sheet.getLastColumn(), 0);
+
+        sheet.appendRows(3);
+        sheet.appendColumns(3);
+        sheet.getRange(0, 0, 2, 2).setValues(1, 2, 3, 4);
+
+        sheet.trim();
+
+        assertEquals(sheet.getMaxRows(), 2);
+        assertEquals(sheet.getMaxColumns(), 2);
+        assertEquals(sheet.getLastRow(), 2);
+        assertEquals(sheet.getLastColumn(), 2);
     }
 }
