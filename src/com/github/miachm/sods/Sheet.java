@@ -299,7 +299,6 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     private void checkLazyRowLoading(int row) {
-        int cnt = 0;
         while (row >= getLastRow()) {
             List<Cell> rowItem = new ArrayList<>();
 
@@ -308,12 +307,6 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
 
             cells.add(rowItem);
             rowStyles.add(new RowStyle());
-            cnt++;
-
-            if (cnt > 2000) {
-                new Exception("as").printStackTrace();
-                System.exit(0);
-            }
         }
     }
 
