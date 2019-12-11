@@ -409,7 +409,7 @@ class OdsReader {
                 if (style == null)
                     style = rows_styles.get(sheet.getMaxRows() - 1);
 
-                if (style != null)
+                if (style != null && !style.isDefault())
                     range.setStyle(style);
 
                 last_style = style;
