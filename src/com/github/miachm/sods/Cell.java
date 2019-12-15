@@ -1,6 +1,6 @@
 package com.github.miachm.sods;
 
-class Cell implements Cloneable {
+class Cell extends TableItem {
     private Object value;
     private String formula;
     private Style style = new Style();
@@ -128,7 +128,7 @@ class Cell implements Cloneable {
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public boolean isBlank() {
+        return group == null && this.equals(new Cell());
     }
 }

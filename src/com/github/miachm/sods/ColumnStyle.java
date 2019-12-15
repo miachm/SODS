@@ -9,6 +9,11 @@ class ColumnStyle {
     private static final double EQUIVALENCE_PT = 72.0 / 25.4;
     private static final double EQUIVALENCE_PC = 6.0 / 25.4;
 
+    public boolean isDefault()
+    {
+        return this.equals(new ColumnStyle());
+    }
+
     public Double getWidth() {
         return width;
     }

@@ -50,4 +50,8 @@ class RowStyle {
                 ", isHidden=" + isHidden +
                 '}';
     }
+
+    public boolean isDefault() {
+        return this.equals(new RowStyle());
+    }
 }
