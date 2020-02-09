@@ -6,14 +6,20 @@ public class RowCollection extends TableCollection<Row> {
     private int numColumns = 0;
 
     @Override
-    public void addItems(int index, int howmany)
+    public Row addItems(int index, int howmany)
     {
         boolean isEmpty = items.isEmpty();
-        super.addItems(index, howmany);
-        if (isEmpty) {
-            addCells(0, numColumns);
-            numColumns /= 2; // Remove useless sum
+        Row row = super.addItems(index, howmany);
+        if (numColumns > 0) {
+            if (isEmpty) {
+                addCells(0, numColumns);
+                numColumns /= 2; // Remove useless sum
+            } else {
+                row.getCells().addItems(0, numColumns);
+            }
         }
+
+        return row;
     }
 
     public void deleteCells(int index, int howmany)
@@ -23,6 +29,7 @@ public class RowCollection extends TableCollection<Row> {
             CellCollection cells = row.getCells();
             cells.remove(index, howmany);
         }
+        numColumns -= howmany;
     }
 
     public void addCells(int index, int howmany) {
@@ -32,6 +39,17 @@ public class RowCollection extends TableCollection<Row> {
             cells.addItems(index, howmany);
         }
         numColumns += howmany;
+    }
+
+    public int getLastUsefulCell()
+    {
+        int max = 0;
+        for (Map.Entry<Integer, Row> rowEntry : items.entrySet()) {
+            Row row = rowEntry.getValue();
+            CellCollection cells = row.getCells();
+            max = Math.max(cells.getLastUsefulItemIndex(), max);
+        }
+        return max;
     }
 
     @Override

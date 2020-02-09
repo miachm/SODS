@@ -101,13 +101,21 @@ public class Range {
         return cell;
     }
 
+    private Cell getFirstCellReadOnly()
+    {
+        Cell cell = sheet.getCellReadOnly(row_init,column_init);
+        if (cell.getGroup() != null)
+            cell = cell.getGroup().getCell();
+        return cell;
+    }
+
     /**
      * Get the formula String of the first cell of the range
      *
      * @return the formula text representation, it can be null
      */
     public String getFormula(){
-        return getFirstCell().getFormula();
+        return getFirstCellReadOnly().getFormula();
     }
 
     /**
@@ -119,7 +127,7 @@ public class Range {
     public String[][] getFormulas(){
         String[][] formulas = new String[getNumRows()][getNumColumns()];
 
-        iterateRange((cell,row,column) -> formulas[row][column] = cell.getFormula());
+        iterateRangeReadOnly((cell,row,column) -> formulas[row][column] = cell.getFormula());
 
         return formulas;
     }
@@ -150,7 +158,7 @@ public class Range {
      */
     public Range[] getMergedCells() {
         Set<GroupCell> groupCells = new TreeSet<>();
-        iterateRange((cell, row, column) -> {
+        iterateRangeReadOnly((cell, row, column) -> {
             if (cell.getGroup() != null)
                 groupCells.add(cell.getGroup());
         });
@@ -214,7 +222,7 @@ public class Range {
      */
     public Object getValue()
     {
-        return getFirstCell().getValue();
+        return getFirstCellReadOnly().getValue();
     }
 
     /**
@@ -228,7 +236,7 @@ public class Range {
      */
     public Object[][] getValues(){
         Object[][] values = new Object[getNumRows()][getNumColumns()];
-        iterateRange((cell,row,column) -> values[row][column] = cell.getValue());
+        iterateRangeReadOnly((cell,row,column) -> values[row][column] = cell.getValue());
         return values;
     }
 
@@ -240,7 +248,7 @@ public class Range {
      */
     public Style getStyle()
     {
-        return getFirstCell().getStyleCopy();
+        return getFirstCellReadOnly().getStyleCopy();
     }
 
     /**
@@ -250,7 +258,7 @@ public class Range {
      */
     public Style[][] getStyles() {
         Style[][] arr = new Style[getNumRows()][getNumColumns()];
-        iterateRange((cell, row, column) ->  arr[row][column] = cell.getStyleCopy());
+        iterateRangeReadOnly((cell, row, column) ->  arr[row][column] = cell.getStyleCopy());
         return arr;
     }
 
@@ -630,11 +638,23 @@ public class Range {
         }
     }
 
+    private void iterateRangeReadOnly(RangeIterator e){
+        for (int i = 0;i < numrows;i++){
+            for (int j = 0;j < numcolumns;j++) {
+                Cell cell = sheet.getCellReadOnly(row_init+i,column_init+j);
+                GroupCell groupCell = cell.getGroup();
+                if (groupCell != null)
+                    cell = groupCell.getCell();
+                e.call(cell,i,j);
+            }
+        }
+    }
+
     private String valuesToString(){
         StringBuilder builder = new StringBuilder();
 
         MutableInteger lastRow = new MutableInteger();
-        iterateRange((cell, i, j) -> {
+        iterateRangeReadOnly((cell, i, j) -> {
             if (lastRow.number != i) {
                 builder.append("\n");
                 lastRow.number = i;
@@ -822,5 +842,35 @@ public class Range {
     public boolean isPartOfMerge()
     {
         return getMergedCells().length > 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Range range = (Range) o;
+
+        if (column_init != range.column_init) return false;
+        if (row_init != range.row_init) return false;
+        if (numrows != range.numrows) return false;
+        if (numcolumns != range.numcolumns) return false;
+
+        MutableInteger ocurrences = new MutableInteger();
+        iterateRangeReadOnly((cell, row, column) -> {
+            if (cell.equals(range.getCell(row, column).getFirstCellReadOnly()))
+                ocurrences.number++;
+        });
+
+        return ocurrences.number == getNumValues();
+    }
+
+    @Override
+    public int hashCode() {
+        int result = column_init;
+        result = 31 * result + row_init;
+        result = 31 * result + numrows;
+        result = 31 * result + numcolumns;
+        return result;
     }
 }

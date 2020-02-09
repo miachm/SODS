@@ -335,9 +335,7 @@ class OdsReader {
         if (columnStyleName != null && numColumns < 1000) {
             ColumnStyle columnStyle = styleColumn.get(columnStyleName);
             if (columnStyle != null) {
-                for (int i = 0; i < numColumns; i++) {
-                    sheet.setColumnWidth(sheet.getMaxColumns() - i - 1, columnStyle.getWidth());
-                }
+                sheet.setColumnWidths(sheet.getMaxColumns() - numColumns, numColumns, columnStyle.getWidth());
             }
         }
     }
@@ -396,7 +394,6 @@ class OdsReader {
                 if (raw != null) {
                     number_columns_repeated = Integer.parseInt(raw);
 
-                    // Issue #12, check function trimColumns()
                     if (column + number_columns_repeated > sheet.getMaxColumns())
                         number_columns_repeated = sheet.getMaxColumns() - column;
                 }

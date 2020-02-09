@@ -6,9 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.fail;
+import static org.testng.Assert.*;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
@@ -87,8 +85,7 @@ public class SheetTest {
         assertEquals(sheet, other);
         sheet.getRange(0, 0).setValue(-1);
 
-        boolean equals = sheet.equals(other);
-        assertEquals(equals, false);
+        assertFalse(sheet.equals(other));
     }
 
     @Test

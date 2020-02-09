@@ -2,7 +2,7 @@ package com.github.miachm.sods;
 
 class ColumnCollection extends TableCollection<Column> {
     private RowCollection rows;
-    public ColumnCollection(RowCollection rows)
+    ColumnCollection(RowCollection rows)
     {
         this.rows = rows;
     }
@@ -15,14 +15,32 @@ class ColumnCollection extends TableCollection<Column> {
     }
 
     @Override
-    public void addItems(int index, int howmany)
+    public Column addItems(int index, int howmany)
     {
-        super.addItems(index, howmany);
+        Column column = super.addItems(index, howmany);
         rows.addCells(index, howmany);
+        return column;
     }
 
     @Override
     protected Column createItem() {
         return new Column();
+    }
+
+    @Override
+    public void trim()
+    {
+        int original = super.getNumItems();
+        int numColumns = rows.getLastUsefulCell();
+        super.trim(numColumns);
+        int index = getNumItems();
+        int howmany = original - index;
+        if (howmany > 0)
+            rows.deleteCells(index, howmany);
+    }
+
+    @Override
+    public int getLastUsefulItemIndex() {
+        return rows.getLastUsefulCell();
     }
 }

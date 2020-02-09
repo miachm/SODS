@@ -1,12 +1,5 @@
 package com.github.miachm.sods;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
 /**
  * Represents a sheet in a Spreadsheet.
  *
@@ -123,7 +116,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
             throw new IndexOutOfBoundsException("Column " + column + " plus " + howmany + " is out of bounds (" + getMaxColumns()+")");
 
         columns.remove(column, howmany);
-        numRows -= howmany;
+        numColumns -= howmany;
     }
 
     /**
@@ -296,6 +289,12 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         Row rowEntry = rows.getItemForEdit(row);
         CellCollection cells = rowEntry.getCells();
         return cells.getItemForEdit(column);
+    }
+
+    Cell getCellReadOnly(int row, int column) {
+        Row rowEntry = rows.getItem(row);
+        CellCollection cells = rowEntry.getCells();
+        return cells.getItem(column);
     }
 
     /**
@@ -524,9 +523,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     public boolean rowIsHidden(int row)
     {
         checkRowRange(row);
-        if (!isRowLoaded(row))
-            return false;
-        return getRowForEdit(row).getStyle().isHidden();
+        return getRow(row).getStyle().isHidden();
     }
 
     private void checkRowRange(int row) {
@@ -543,20 +540,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     public boolean columnIsHidden(int column)
     {
         checkColumnRange(column);
-        if (!isColumnLoaded(column)) {
-            return false;
-        }
         return getColumnForEdit(column).getStyle().isHidden();
-    }
-
-    private boolean isRowLoaded(int row)
-    {
-        return row < getLastRow();
-    }
-
-    private boolean isColumnLoaded(int column)
-    {
-        return column < getLastColumn();
     }
 
     private void checkColumnRange(int column) {
@@ -609,8 +593,17 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     */
     public void trim()
     {
-        numRows = getLastRow();
-        numColumns = getLastColumn();
+        rows.trim();
+        columns.trim();
+
+        numRows = rows.getNumItems();
+        numColumns = columns.getNumItems();
+    }
+
+    void compact()
+    {
+        rows.compact();
+        columns.compact();;
     }
 
     /**
@@ -626,8 +619,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         Sheet sheet = (Sheet) o;
 
         if (isHidden != sheet.isHidden) return false;
-        if (!columns.equals(sheet.columns)) return false;
-        if (!rows.equals(sheet.rows)) return false;
+        if (!getDataRange().equals(sheet.getDataRange())) return false;
         return name.equals(sheet.name);
     }
 

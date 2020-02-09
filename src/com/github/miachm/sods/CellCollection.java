@@ -2,7 +2,7 @@ package com.github.miachm.sods;
 
 class CellCollection extends TableCollection<Cell> {
 
-    public boolean isEmpty()
+    public boolean isBlank()
     {
         for (Cell cell : items.values()) {
             if (!cell.isBlank())

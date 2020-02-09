@@ -7,6 +7,8 @@ abstract class TableItem implements Cloneable{
         return numRepeated;
     }
     public void setNumRepeated(int numRepeated) {
+        if (numRepeated == 0)
+            throw new IllegalArgumentException("Numrepeated can not be zero");
         this.numRepeated = numRepeated;
     }
 
