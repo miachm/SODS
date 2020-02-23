@@ -11,7 +11,7 @@ class OdsReader {
     private static final String CORRECT_MIMETYPE = "application/vnd.oasis.opendocument.spreadsheet";
     private static final String MANIFEST_PATH = "META-INF/manifest.xml";
     private static final Locale defaultLocal = Locale.US;
-    private static final int BUGGED_COUNT = 30 * 1000;
+    private static final int BUGGED_COUNT = 10 * 1000;
     private Uncompressor uncompressor;
     private XmlReader reader = new XmlReaderEventImpl();
     private SpreadSheet spread;
@@ -259,6 +259,8 @@ class OdsReader {
                     if (numRowsStr != null) {
                         try {
                             numRows = Integer.parseInt(numRowsStr);
+                            if (numRows > BUGGED_COUNT)
+                                numRows = 100;
                         }
                         catch (NumberFormatException e) {}
                     }
@@ -397,8 +399,8 @@ class OdsReader {
                     number_columns_repeated = Integer.parseInt(raw);
 
                     // Issue #12, check function trimColumns()
-                    if (column + number_columns_repeated > sheet.getMaxColumns())
-                        number_columns_repeated = sheet.getMaxColumns() - column;
+                    if (number_columns_repeated > 1000)
+                        number_columns_repeated = 1000;
                 }
 
                 Style style = styles.get(instance.getAttribValue("table:style-name"));
