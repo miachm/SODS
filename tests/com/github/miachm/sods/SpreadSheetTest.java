@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 import static org.testng.AssertJUnit.*;
@@ -467,6 +468,24 @@ public class SpreadSheetTest {
         for (Sheet sheet : spreadSheet.getSheets()) {
             assertEquals(sheet.getMaxRows(), 0);
             assertEquals(sheet.getMaxColumns(), 0);
+        }
+    }
+
+
+    @Test
+    public void testEmptyValues() throws IOException {
+        SpreadSheet spread = new SpreadSheet(new File("resources/nullvalues.ods"));
+        Sheet sheet = spread.getSheet(0);
+        Object values[][] = sheet.getDataRange().getValues();
+
+        Object result[][] = {{"id", "lon", "lat", "nom_lieu", "elephant_mer", "baleine", "cachalot", "globicephal_noir", "description"},
+                {1.0, "-72.063440", "41.286780", "New london", null, null, null, null, "Départ le 15 juillet 1859."}
+        };
+
+        for (int i = 0; i < result.length; i++) {
+            for (int j = 0; j < result[i].length; j++) {
+                assertEquals(result[i][j], values[i][j]);
+            }
         }
     }
 }

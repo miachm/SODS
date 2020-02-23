@@ -425,8 +425,7 @@ class OdsReader {
                 column++;
             }
 
-            if (number_columns_repeated > 0 && ((last_style != null && !last_style.isDefault())
-                                                || last_cell_value != null)) {
+            if (number_columns_repeated > 0) {
 
                 for (int j = 0; j < number_columns_repeated - 1; j++) {
                     Range range = sheet.getRange(sheet.getMaxRows() - 1, column);
