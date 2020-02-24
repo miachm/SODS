@@ -9,6 +9,7 @@ SODS was designed with the next objetives:
 - It must be simple (SODS relates to -> Simple-Ods). The API must be straightforward to follow, an user should be able to use just peeking an example.
 - It must be light-weight. Avoiding dependencies when it's possible.
 - Trustworthy, the project follows [fail-fast principle](https://en.wikipedia.org/wiki/Fail-fast).
+- Don't break anything. The library must be retro-compatible acording to [software versioning](https://en.wikipedia.org/wiki/Software_versioning). So an user using the version v1.1 of the library should be able to compile and use newer versions v1.y without touching anything. The idea is to keep a stable API.
 
 ## Roadmap
 
