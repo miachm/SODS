@@ -300,7 +300,8 @@ class OdsWritter {
     }
 
     private void writeCellStyle(XMLStreamWriter out, Style style) throws XMLStreamException {
-        String key = stylesUsed.get(style);
+
+    	String key = stylesUsed.get(style);
         if (key == null)
         {
             key = "cel" + stylesUsed.size();
@@ -309,9 +310,38 @@ class OdsWritter {
             out.writeAttribute("style:family", "table-cell");
             out.writeAttribute("style:name", key);
 
-            if (style.getBackgroundColor() != null) {
+            if (style.getBackgroundColor() != null || style.isBorder() || style.isBorderTop() 
+            		|| style.isBorderBottom() || style.isBorderLeft() || style.isBorderRight() || style.isWrap()) 
+            {
                 out.writeStartElement("style:table-cell-properties");
-                out.writeAttribute("fo:background-color", style.getBackgroundColor().toString());
+                
+                if(style.getBackgroundColor() != null) {
+                	out.writeAttribute("fo:background-color", style.getBackgroundColor().toString());
+                }
+                
+                if(style.isWrap()) {
+                	out.writeAttribute("fo:wrap-option", "wrap");
+                }
+                
+                if (style.isBorder()) {
+                	out.writeAttribute("fo:border", Style.BORDER_PROPERTIES);
+                }
+
+                if(style.isBorderTop()) {
+            		out.writeAttribute("fo:border-top", Style.BORDER_PROPERTIES);
+            	}
+				
+            	if(style.isBorderBottom()) {
+            		out.writeAttribute("fo:border-bottom", Style.BORDER_PROPERTIES);
+				}
+            	
+				if(style.isBorderLeft()) {
+					out.writeAttribute("fo:border-left", Style.BORDER_PROPERTIES);
+				}
+				
+				if(style.isBorderRight()) {
+					out.writeAttribute("fo:border-right", Style.BORDER_PROPERTIES);
+				}
                 out.writeEndElement();
             }
 

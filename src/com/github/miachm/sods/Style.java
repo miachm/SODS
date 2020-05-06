@@ -14,6 +14,17 @@ public final class Style implements Cloneable {
     private Color fontColor;
     private Color backgroundColor;
     private int fontSize = -1;
+    private boolean border = false;
+    private boolean borderTop = false;
+    private boolean borderBottom = false;
+    private boolean borderLeft = false;
+    private boolean borderRight = false;
+    private boolean wrap = false;
+    
+    /**
+     * Default border properties.
+     */
+    public static final String BORDER_PROPERTIES = "0.035cm solid #000000";
 
     /**
      * Constructs an empty-default Style.
@@ -21,6 +32,7 @@ public final class Style implements Cloneable {
     public Style() {
 
     }
+    
     public Style(boolean bold, boolean italic, boolean underline, Color fontColor, Color backgroundColor, int fontSize) {
         this.bold = bold;
         this.italic = italic;
@@ -29,8 +41,37 @@ public final class Style implements Cloneable {
         this.backgroundColor = backgroundColor;
         this.fontSize = fontSize;
     }
+    
+    public Style(boolean bold, boolean italic, boolean underline, Color fontColor, Color backgroundColor, 
+    		int fontSize, boolean border, boolean wrap) {
+		super();
+		this.bold = bold;
+		this.italic = italic;
+		this.underline = underline;
+		this.fontColor = fontColor;
+		this.backgroundColor = backgroundColor;
+		this.fontSize = fontSize;
+		this.border = border;
+		this.wrap = wrap;
+	} 
 
-    /**
+    public Style(boolean bold, boolean italic, boolean underline, Color fontColor, Color backgroundColor, int fontSize,
+			boolean borderTop, boolean borderBottom, boolean borderLeft, boolean borderRight, boolean wrap) {
+		super();
+		this.bold = bold;
+		this.italic = italic;
+		this.underline = underline;
+		this.fontColor = fontColor;
+		this.backgroundColor = backgroundColor;
+		this.fontSize = fontSize;
+		this.borderTop = borderTop;
+		this.borderBottom = borderBottom;
+		this.borderLeft = borderLeft;
+		this.borderRight = borderRight;
+		this.wrap = wrap;
+	}
+    
+	/**
      * Determine if this has default rules or not
      *
      * @return True if the style is not modified.
@@ -153,7 +194,115 @@ public final class Style implements Cloneable {
         this.fontSize = fontSize;
     }
 
-    public Object clone() throws CloneNotSupportedException {
+    /**
+     * Gets the cell border.
+     * 
+     * @return true if the cell has all borders, false otherwise.
+     */
+    public boolean isBorder() {
+		return border;
+	}
+    
+    /**
+     * Sets the cell border.
+     * 
+     * @param border Specifies if the cell must have all borders.
+     */
+	public void setBorder(boolean border) {
+		this.border = border;
+	}
+	
+	/**
+	 * Gets the cell top border.
+	 * 
+	 * @return true if the cell has top border, false otherwise.
+	 */
+	public boolean isBorderTop() {
+		return borderTop;
+	}
+	
+	/**
+	 * Sets the cell top border.
+	 * 
+	 * @param borderTop Specifies if the cell must have the top border.
+	 */
+	public void setBorderTop(boolean borderTop) {
+		this.borderTop = borderTop;
+	}
+	
+	/**
+	 * Gets the cell bottom border.
+	 * 
+	 * @return true if the cell has bottom border, false otherwise.
+	 */
+	public boolean isBorderBottom() {
+		return borderBottom;
+	}
+	
+	/**
+	 * Sets the cell bottom border.
+	 * 
+	 * @param borderBottom Specifies if the cell must have the bottom border.
+	 */
+	public void setBorderBottom(boolean borderBottom) {
+		this.borderBottom = borderBottom;
+	}
+	
+	/**
+	 * Gets the cell left border.
+	 * 
+	 * @return true if the cell has left border, false otherwise.
+	 */
+	public boolean isBorderLeft() {
+		return borderLeft;
+	}
+	
+	/**
+	 * Sets the cell left border.
+	 * 
+	 * @param borderLeft Specifies if the cell must have the left border.
+	 */
+	public void setBorderLeft(boolean borderLeft) {
+		this.borderLeft = borderLeft;
+	}
+	
+	/**
+	 * Gets the cell right border.
+	 * 
+	 * @return true if the cell has right border, false otherwise.
+	 */
+	public boolean isBorderRight() {
+		return borderRight;
+	}
+	
+	/**
+	 * Sets the cell right border.
+	 * 
+	 * @param borderRight Specifies if the cell must have the right border.
+	 */
+	public void setBorderRight(boolean borderRight) {
+		this.borderRight = borderRight;
+	}
+	
+	/**
+	 * Gets the wrapping nature.
+	 * 
+	 * @return true if the text must be wrapped inside the cell, false otherwise.
+	 */
+	public boolean isWrap() {
+		return wrap;
+	}
+
+	/**
+	 * Sets the wrapping nature.
+	 * 
+	 * @param wrap Specifies if the text must be wrapped inside the cell.
+	 */
+	public void setWrap(boolean wrap) {
+		this.wrap = wrap;
+	}
+
+	public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
 
@@ -168,6 +317,12 @@ public final class Style implements Cloneable {
         if (italic != style.italic) return false;
         if (underline != style.underline) return false;
         if (fontSize != style.fontSize) return false;
+        if (border != style.border) return false;
+        if (borderTop != style.borderTop) return false;
+        if (borderBottom != style.borderBottom) return false;
+        if (borderRight != style.borderRight) return false;
+        if (borderLeft != style.borderLeft) return false;
+        if (wrap != style.wrap) return false;
         if (fontColor != null ? !fontColor.equals(style.fontColor) : style.fontColor != null) return false;
         return backgroundColor != null ? backgroundColor.equals(style.backgroundColor) : style.backgroundColor == null;
     }
@@ -180,6 +335,12 @@ public final class Style implements Cloneable {
         result = 31 * result + (fontColor != null ? fontColor.hashCode() : 0);
         result = 31 * result + (backgroundColor != null ? backgroundColor.hashCode() : 0);
         result = 31 * result + fontSize;
+        result = 31 * result + (border ? 1 : 0);
+        result = 31 * result + (borderTop ? 1 : 0);
+        result = 31 * result + (borderBottom ? 1 : 0);
+        result = 31 * result + (borderRight ? 1 : 0);
+        result = 31 * result + (borderLeft ? 1 : 0);
+        result = 31 * result + (wrap ? 1 : 0);
         return result;
     }
 
@@ -195,23 +356,53 @@ public final class Style implements Cloneable {
     public Map<String, String> getCssStyles()
     {
         Map<String, String> result = new HashMap<>();
-        if (isBold())
+        if (isBold()) {
             result.put("font-weight", "bold");
+        }
 
-        if (isItalic())
+        if (isItalic()) {
             result.put("font-style", "italic");
+        }
 
-        if (isUnderline())
+        if (isUnderline()) {
             result.put("text-decoration", "underline");
+        }
 
-        if (getFontSize() != -1)
+        if (getFontSize() != -1) {
             result.put("font-size", "" + getFontSize());
+        }
 
-        if (getFontColor() != null)
+        if (getFontColor() != null) {
             result.put("color", "" + getFontColor().toString() + ";");
+        }
 
-        if (getBackgroundColor() != null)
+        if (getBackgroundColor() != null) {
             result.put("background-color", getBackgroundColor().toString());
+        }
+        
+        if (isBorder()) {
+        	result.put("border", BORDER_PROPERTIES);
+        }
+        
+        if (isBorderTop()) {
+        	result.put("border-top", BORDER_PROPERTIES);
+        }
+        
+        if (isBorderBottom()) {
+        	result.put("border-bottom", BORDER_PROPERTIES);
+        }
+        
+        if (isBorderLeft()) {
+        	result.put("border-left", BORDER_PROPERTIES);
+        }
+        
+        if (isBorderRight()) {
+        	result.put("border-right", BORDER_PROPERTIES);
+        }
+        
+        if (isWrap()) {
+        	result.put("wrap", "wrap");
+        }
 
         return result;
     }
