@@ -349,9 +349,29 @@ class OdsWritter {
                 out.writeAttribute("fo:color", style.getFontColor().toString());
 
             out.writeEndElement();
+
+            if(style.getTextAligment() != null) {
+                out.writeStartElement("style:paragraph-properties");
+                out.writeAttribute("fo:text-align", toValue(style.getTextAligment()));
+                out.writeEndElement();
+            }
+
             out.writeEndElement();
             stylesUsed.put(style, key);
         }
+    }
+
+    private String toValue(Style.TEXT_ALIGMENT textAligment) {
+        switch (textAligment)
+        {
+            case Left:
+                return "start";
+            case Center:
+                return "center";
+            case Right:
+                return "end";
+        }
+        return null;
     }
 
     private void writeColumnStyle(XMLStreamWriter out, Double width) throws XMLStreamException {

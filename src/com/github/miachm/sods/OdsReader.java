@@ -7,6 +7,7 @@ import java.util.*;
 /**
  * Internal class for read ODS files
  */
+@SuppressWarnings("unused")
 class OdsReader {
     private static final String CORRECT_MIMETYPE = "application/vnd.oasis.opendocument.spreadsheet";
     private static final String MANIFEST_PATH = "META-INF/manifest.xml";
@@ -115,7 +116,8 @@ class OdsReader {
         Style style = new Style();
         while (reader.hasNext()) {
             XmlReaderInstance instance = reader.nextElement("style:text-properties",
-                                                            "style:table-cell-properties");
+                    "style:table-cell-properties",
+                    "style:paragraph-properties");
 
             if (instance == null)
                 return style;
@@ -161,6 +163,22 @@ class OdsReader {
                     catch (IllegalArgumentException e) { System.err.println(e.getMessage());}
             }
 
+            if(instance.getTag().equals("style:paragraph-properties")) {
+                String align = instance.getAttribValue("fo:text-align");
+                if(align != null) {
+                    Style.TEXT_ALIGMENT pos = null;
+                    if(align.equals("center")) {
+                        pos = Style.TEXT_ALIGMENT.Center;
+                    }
+                    else if(align.equals("end")) {
+                        pos = Style.TEXT_ALIGMENT.Right;
+                    }
+                    else if(align.equals("start")) {
+                        pos = Style.TEXT_ALIGMENT.Left;
+                    }
+                    style.setTextAligment(pos);
+                }
+            }
         }
         return style;
     }
@@ -239,7 +257,7 @@ class OdsReader {
 
         while (reader.hasNext()) {
             XmlReaderInstance instance = reader.nextElement("table:table-column",
-                                                            "table:table-row");
+                    "table:table-row");
 
             if (instance != null) {
                 String styleName = instance.getAttribValue("table:default-cell-style-name");
@@ -450,7 +468,7 @@ class OdsReader {
         StringBuffer s = new StringBuffer();
 
         XmlReaderInstance textElement = cellReader.nextElement( "text:p",
-                                                                "text:h");
+                "text:h");
         boolean firstTextElement = true;
         while (textElement != null) {
             // Each text:p tag seems to represent a separate row.  Separate them with newlines.
@@ -462,7 +480,7 @@ class OdsReader {
 
             // Add content of any contained text:span tags
             XmlReaderInstance spanElement = textElement.nextElement("text:s",
-                                                                    XmlReaderInstance.CHARACTERS);
+                    XmlReaderInstance.CHARACTERS);
 
             while (spanElement != null) {
 
