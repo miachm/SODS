@@ -14,6 +14,11 @@ public final class Style implements Cloneable {
     private Color fontColor;
     private Color backgroundColor;
     private int fontSize = -1;
+    private TEXT_ALIGMENT alignment = null;
+
+    public enum TEXT_ALIGMENT {
+        Left, Center, Right
+    }
 
     /**
      * Constructs an empty-default Style.
@@ -21,6 +26,7 @@ public final class Style implements Cloneable {
     public Style() {
 
     }
+
     public Style(boolean bold, boolean italic, boolean underline, Color fontColor, Color backgroundColor, int fontSize) {
         this.bold = bold;
         this.italic = italic;
@@ -153,6 +159,22 @@ public final class Style implements Cloneable {
         this.fontSize = fontSize;
     }
 
+    /**
+     * Set text's aligment of the cell's text.
+     * @param p {@link TEXT_ALIGMENT} Left, Center, Right
+     */
+    public void setTextAligment (TEXT_ALIGMENT p) {
+        alignment = p;
+    }
+
+    /**
+     * Get text aligment of the cell
+     * @return p {@link TEXT_ALIGMENT} Left, Center, Right
+     */
+    public TEXT_ALIGMENT getTextAligment() {
+        return alignment;
+    }
+
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
@@ -169,7 +191,9 @@ public final class Style implements Cloneable {
         if (underline != style.underline) return false;
         if (fontSize != style.fontSize) return false;
         if (fontColor != null ? !fontColor.equals(style.fontColor) : style.fontColor != null) return false;
-        return backgroundColor != null ? backgroundColor.equals(style.backgroundColor) : style.backgroundColor == null;
+        if (backgroundColor != null ? !backgroundColor.equals(style.backgroundColor) : style.backgroundColor != null)
+            return false;
+        return alignment == style.alignment;
     }
 
     @Override
@@ -180,6 +204,7 @@ public final class Style implements Cloneable {
         result = 31 * result + (fontColor != null ? fontColor.hashCode() : 0);
         result = 31 * result + (backgroundColor != null ? backgroundColor.hashCode() : 0);
         result = 31 * result + fontSize;
+        result = 31 * result + (alignment != null ? alignment.hashCode() : 0);
         return result;
     }
 
@@ -212,6 +237,9 @@ public final class Style implements Cloneable {
 
         if (getBackgroundColor() != null)
             result.put("background-color", getBackgroundColor().toString());
+
+        if(alignment != null)
+            result.put("text-align", getTextAligment().toString());
 
         return result;
     }
