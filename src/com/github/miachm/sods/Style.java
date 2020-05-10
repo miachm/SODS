@@ -14,6 +14,8 @@ public final class Style implements Cloneable {
     private Color fontColor;
     private Color backgroundColor;
     private int fontSize = -1;
+    private Borders borders = null;
+    private boolean wrap = false;
     private TEXT_ALIGMENT alignment = null;
 
     public enum TEXT_ALIGMENT {
@@ -26,7 +28,7 @@ public final class Style implements Cloneable {
     public Style() {
 
     }
-
+  
     public Style(boolean bold, boolean italic, boolean underline, Color fontColor, Color backgroundColor, int fontSize) {
         this.bold = bold;
         this.italic = italic;
@@ -35,8 +37,21 @@ public final class Style implements Cloneable {
         this.backgroundColor = backgroundColor;
         this.fontSize = fontSize;
     }
-
-    /**
+    
+    public Style(boolean bold, boolean italic, boolean underline, Color fontColor, Color backgroundColor, 
+    		int fontSize, Borders borders, boolean wrap) {
+		super();
+		this.bold = bold;
+		this.italic = italic;
+		this.underline = underline;
+		this.fontColor = fontColor;
+		this.backgroundColor = backgroundColor;
+		this.fontSize = fontSize;
+		this.borders = borders;
+		this.wrap = wrap;
+	}
+    
+	/**
      * Determine if this has default rules or not
      *
      * @return True if the style is not modified.
@@ -158,6 +173,62 @@ public final class Style implements Cloneable {
             throw new IllegalArgumentException("Error, font size can be less of -1");
         this.fontSize = fontSize;
     }
+	
+    /**
+     * Returns the borders properties.
+     * 
+     * @return Borders properties
+     */
+	public Borders getBorders() {
+		return borders;
+	}
+
+	/**
+	 * Sets the borders properties.
+	 * 
+	 * @param borders Borders properties.
+	 */
+	public void setBorders(Borders borders) {
+		this.borders = borders;
+	}
+
+	/**
+	 * Gets the wrapping nature.
+	 * 
+	 * @return true if the text must be wrapped inside the cell, false otherwise.
+	 */
+	public boolean isWrap() {
+		return wrap;
+	}
+
+	/**
+	 * Sets the wrapping nature.
+	 * 
+	 * @param wrap Specifies if the text must be wrapped inside the cell.
+	 */
+	public void setWrap(boolean wrap) {
+		this.wrap = wrap;
+	}
+	
+	/**
+	 * Tells whether the style has table cell properties.
+	 *  
+	 * @return true if the style has table cell properties, false otherwise.
+	 */
+	public boolean hasTableCellProperties() {
+		return backgroundColor != null || hasBorders() || wrap;
+	}
+	
+	/**
+	 * Tells if the style has any border.
+	 * 
+	 * @return true if the style has any border, false otherwise.
+	 */
+	public boolean hasBorders() {
+		return borders != null && borders.anyBorder();
+	}
+
+	public Object clone() throws CloneNotSupportedException {
 
     /**
      * Set text's aligment of the cell's text.
@@ -190,6 +261,8 @@ public final class Style implements Cloneable {
         if (italic != style.italic) return false;
         if (underline != style.underline) return false;
         if (fontSize != style.fontSize) return false;
+        if (borders != null ? !borders.equals(style.borders) : style.borders != null) return false;
+        if (wrap != style.wrap) return false;
         if (fontColor != null ? !fontColor.equals(style.fontColor) : style.fontColor != null) return false;
         if (backgroundColor != null ? !backgroundColor.equals(style.backgroundColor) : style.backgroundColor != null)
             return false;
@@ -204,6 +277,8 @@ public final class Style implements Cloneable {
         result = 31 * result + (fontColor != null ? fontColor.hashCode() : 0);
         result = 31 * result + (backgroundColor != null ? backgroundColor.hashCode() : 0);
         result = 31 * result + fontSize;
+        result = 31 * result + (borders != null ? borders.hashCode() : 0);
+        result = 31 * result + (wrap ? 1 : 0);
         result = 31 * result + (alignment != null ? alignment.hashCode() : 0);
         return result;
     }
@@ -220,23 +295,37 @@ public final class Style implements Cloneable {
     public Map<String, String> getCssStyles()
     {
         Map<String, String> result = new HashMap<>();
-        if (isBold())
+        if (isBold()) {
             result.put("font-weight", "bold");
+        }
 
-        if (isItalic())
+        if (isItalic()) {
             result.put("font-style", "italic");
+        }
 
-        if (isUnderline())
+        if (isUnderline()) {
             result.put("text-decoration", "underline");
+        }
 
-        if (getFontSize() != -1)
+        if (getFontSize() != -1) {
             result.put("font-size", "" + getFontSize());
+        }
 
-        if (getFontColor() != null)
+        if (getFontColor() != null) {
             result.put("color", "" + getFontColor().toString() + ";");
+        }
 
-        if (getBackgroundColor() != null)
+        if (getBackgroundColor() != null) {
             result.put("background-color", getBackgroundColor().toString());
+        }
+        
+        if(hasBorders()) {
+        	result.putAll(borders.getCssStyles());
+        }
+        
+        if (isWrap()) {
+        	result.put("white-space", "normal");
+        }
 
         if(alignment != null)
             result.put("text-align", getTextAligment().toString());

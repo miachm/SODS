@@ -300,7 +300,8 @@ class OdsWritter {
     }
 
     private void writeCellStyle(XMLStreamWriter out, Style style) throws XMLStreamException {
-        String key = stylesUsed.get(style);
+
+    	String key = stylesUsed.get(style);
         if (key == null)
         {
             key = "cel" + stylesUsed.size();
@@ -309,11 +310,23 @@ class OdsWritter {
             out.writeAttribute("style:family", "table-cell");
             out.writeAttribute("style:name", key);
 
-            if (style.getBackgroundColor() != null) {
-                out.writeStartElement("style:table-cell-properties");
-                out.writeAttribute("fo:background-color", style.getBackgroundColor().toString());
-                out.writeEndElement();
-            }
+			if (style.hasTableCellProperties()) {
+				out.writeStartElement("style:table-cell-properties");
+
+				if (style.getBackgroundColor() != null) {
+					out.writeAttribute("fo:background-color", style.getBackgroundColor().toString());
+				}
+
+				if (style.isWrap()) {
+					out.writeAttribute("fo:wrap-option", "wrap");
+				}
+				
+				if(style.hasBorders()) {
+					writeBorderStyle(out, style);
+				}
+
+				out.writeEndElement();
+			}
 
             out.writeStartElement("style:text-properties");
             if (style.isItalic())
@@ -411,5 +424,29 @@ class OdsWritter {
 
             tableStyleStringMap.put(tableStyle, key);
         }
+    }
+    
+    private void writeBorderStyle(XMLStreamWriter out, Style style) throws XMLStreamException {
+    	
+		Borders borders = style.getBorders();
+		if (borders.isBorder()) {
+			out.writeAttribute("fo:border", borders.getBorderProperties());
+		}
+
+		if (borders.isBorderTop()) {
+			out.writeAttribute("fo:border-top", borders.getBorderTopProperties());
+		}
+
+		if (borders.isBorderBottom()) {
+			out.writeAttribute("fo:border-bottom", borders.getBorderBottomProperties());
+		}
+
+		if (borders.isBorderLeft()) {
+			out.writeAttribute("fo:border-left", borders.getBorderLeftProperties());
+		}
+
+		if (borders.isBorderRight()) {
+			out.writeAttribute("fo:border-right", borders.getBorderRightProperties());
+		}
     }
 }
