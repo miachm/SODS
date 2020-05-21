@@ -228,8 +228,6 @@ public final class Style implements Cloneable {
 		return borders != null && borders.anyBorder();
 	}
 
-	public Object clone() throws CloneNotSupportedException {
-
     /**
      * Set text's aligment of the cell's text.
      * @param p {@link TEXT_ALIGMENT} Left, Center, Right
