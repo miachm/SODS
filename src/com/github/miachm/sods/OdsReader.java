@@ -148,7 +148,7 @@ class OdsReader {
                 if (fontsize != null) {
                     if (fontsize.endsWith("pt")) {
                         int index = fontsize.lastIndexOf("pt");
-                        int fontSize = Integer.parseInt(fontsize.substring(0,index));
+                        int fontSize = (int) Math.round(Double.parseDouble(fontsize.substring(0,index)));
                         style.setFontSize(fontSize);
                     }
                     else

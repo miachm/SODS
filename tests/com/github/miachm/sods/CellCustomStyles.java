@@ -4,6 +4,7 @@ import org.testng.annotations.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 
 import static org.testng.Assert.fail;
@@ -51,5 +52,12 @@ public class CellCustomStyles {
             sheet = saveAndLoad(sheet);
             assertEquals(sheet.getRange(0, 0).getStyle().getTextAligment(), aligment);
         }
+    }
+
+    @Test
+    public void testCustomFontSize() throws IOException {
+        // Issue #21
+        SpreadSheet spreadSheet = new SpreadSheet(new File("resources/floatfontsize.ods"));
+        assertEquals(spreadSheet.getSheet(0).getDataRange().getStyle().getFontSize(), 4);
     }
 }
