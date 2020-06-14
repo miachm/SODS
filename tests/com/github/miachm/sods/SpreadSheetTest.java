@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.testng.AssertJUnit.*;
@@ -331,11 +332,29 @@ public class SpreadSheetTest {
         assertEquals(styles[2][3].getFontColor(), null);
         assertEquals(styles[2][4].getFontColor(), null);
 
-        assertEquals(sheet.getColumnWidth(0), 22.58);
-        assertEquals(sheet.getColumnWidth(1), 7.11);
-        assertEquals(sheet.getColumnWidth(2), 43.06);
-        assertEquals(sheet.getColumnWidth(3), 22.58);
-        assertEquals(sheet.getColumnWidth(4), 38.31);
+        assertEquals(sheet.getColumnWidth(0), 22.58, 0.1);
+        assertEquals(sheet.getColumnWidth(1), 7.11, 0.1);
+        assertEquals(sheet.getColumnWidth(2), 43.06, 0.1);
+        assertEquals(sheet.getColumnWidth(3), 22.58, 0.1);
+        assertEquals(sheet.getColumnWidth(4), 38.31, 0.1);
+
+        OfficeAnnotation annotations[][] = dataRange.getAnnotations();
+
+        assertEquals(annotations[0][0], null);
+        assertEquals(annotations[0][1], null);
+        assertEquals(annotations[0][2], null);
+        assertEquals(annotations[0][3], null);
+        assertEquals(annotations[0][4], null);
+        assertEquals(annotations[1][0], null);
+        assertEquals(annotations[1][1], null);
+        assertEquals(annotations[1][2], new OfficeAnnotation("miau", LocalDateTime.parse("2020-06-14T00:00:00")));
+        assertEquals(annotations[1][3], null);
+        assertEquals(annotations[1][4], null);
+        assertEquals(annotations[2][0], null);
+        assertEquals(annotations[2][1], null);
+        assertEquals(annotations[2][2], null);
+        assertEquals(annotations[2][3], new OfficeAnnotation("Test\n\naa", LocalDateTime.parse("2020-06-14T00:00:00")));
+        assertEquals(annotations[2][4], null);
 
         sheet = spread.getSheet(1);
         Range range = sheet.getDataRange();
@@ -424,9 +443,11 @@ public class SpreadSheetTest {
         range.merge();
 
         range = sheet.getRange(3,0,1,1);
+        range.setAnnotation(new OfficeAnnotation("Test\nCas", LocalDateTime.of(2019, 3, 2, 3, 2)));
         range.setValue(new OfficePercentage(0.3));
 
         range = sheet.getRange(4,0,1,1);
+        range.setAnnotation(new OfficeAnnotation("Test\nCas", null));
         range.setValue(new OfficeCurrency(Currency.getInstance(Locale.FRANCE), 5.0));
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();

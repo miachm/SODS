@@ -2,6 +2,8 @@ package com.github.miachm.sods;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 /**
@@ -421,6 +423,9 @@ class OdsReader {
                         number_columns_repeated = 1000;
                 }
 
+                if (value != null)
+                    range.setValue(value);
+
                 Style style = styles.get(instance.getAttribValue("table:style-name"));
 
                 if (style == null)
@@ -434,13 +439,8 @@ class OdsReader {
 
                 last_style = style;
 
-                if (value == null) {
-                    value = readCellText(instance);
-                }
-
-                last_cell_value = value;
-                if (value != null)
-                    range.setValue(value);
+                readCellText(instance, range);
+                last_cell_value = range.getValue();
 
                 column++;
             }
@@ -460,17 +460,21 @@ class OdsReader {
         }
     }
 
-    private String readCellText(XmlReaderInstance cellReader) {
+    private void readCellText(XmlReaderInstance cellReader, Range range) {
         // A cell can contain zero(?) or more text:p tags,
         // that each can contain zero or more text:span tags.
         // Concatenate all text in them.
 
         StringBuffer s = new StringBuffer();
 
-        XmlReaderInstance textElement = cellReader.nextElement( "text:p",
-                "text:h");
+        XmlReaderInstance textElement = null;
         boolean firstTextElement = true;
-        while (textElement != null) {
+        while ((textElement = cellReader.nextElement("text:p",
+                "text:h", "office:annotation")) != null) {
+            if (textElement.getTag().equals("office:annotation")) {
+                range.setAnnotation(getOfficeAnnotation(textElement));
+                continue;
+            }
             // Each text:p tag seems to represent a separate row.  Separate them with newlines.
             if (firstTextElement) {
                 firstTextElement = false;
@@ -511,17 +515,50 @@ class OdsReader {
             // Add direct content of text:p tag (we do it here, as
             // textElement.nextElement() will not work after textElement.getContent()).
 
-            textElement = cellReader.nextElement("text:p",
-                    "text:h");
         }
 
         // Empty cells are supposed to be represented by null, so return that if we got no content.
-        if (s.length() <= 0) {
-            return null;
-        }
-        else {
-            return s.toString();
+        if (s.length() > 0 && range.getValue() == null) {
+            range.setValue(s.toString());
         }
     }
 
+    private OfficeAnnotation getOfficeAnnotation(XmlReaderInstance reader) {
+        OfficeAnnotationBuilder annotation = new OfficeAnnotationBuilder();
+        StringBuilder msg = new StringBuilder();
+
+        while (reader.hasNext()) {
+            XmlReaderInstance instance = reader.nextElement("dc:date", "text:p");
+            if (instance == null) {
+                annotation.setMsg(msg.toString());
+                return annotation.build();
+            }
+
+            if (instance.getTag().equals("dc:date")) {
+                instance = instance.nextElement(XmlReaderInstance.CHARACTERS);
+                if (instance != null) {
+                    String content = instance.getContent();
+                    try {
+                        if (content != null)
+                            annotation.setLastModified(LocalDateTime.parse(content));
+                    } catch (DateTimeParseException e) {
+                        System.err.println("DATE INVALID IN OFFICE ANNOTATION");
+                    }
+                }
+            }
+            else if (instance.getTag().equals("text:p")) {
+                instance = instance.nextElement(XmlReaderInstance.CHARACTERS);
+                if (msg.length() > 0)
+                    msg.append("\n");
+
+                if (instance != null) {
+                    String content = instance.getContent();
+                    msg.append(content);
+                }
+            }
+        }
+
+        annotation.setMsg(msg.toString());
+        return annotation.build();
+    }
 }

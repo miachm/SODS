@@ -5,6 +5,7 @@ class Cell implements Cloneable {
     private String formula;
     private Style style = new Style();
     private GroupCell group;
+    private OfficeAnnotation annotation;
 
     GroupCell getGroup() {
         return group;
@@ -80,6 +81,15 @@ class Cell implements Cloneable {
         return result.toString();
     }
 
+    public OfficeAnnotation getAnnotation()
+    {
+        return this.annotation;
+    }
+
+    public void setAnnotation(OfficeAnnotation annotation) {
+        this.annotation = annotation;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -97,6 +107,7 @@ class Cell implements Cloneable {
 
         if (value != null ? !value.equals(cell.value) : cell.value != null) return false;
         if (formula != null ? !formula.equals(cell.formula) : cell.formula != null) return false;
+        if (annotation != null ? !annotation.equals(cell.annotation) : cell.annotation != null) return false;
         return style.equals(cell.getStyle());
     }
 
@@ -111,6 +122,7 @@ class Cell implements Cloneable {
         result = 31 * result + (formula != null ? formula.hashCode() : 0);
         result = 31 * result + style.hashCode();
         result = 31 * result + (group != null ? group.hashCode() : 0);
+        result = 31 * result + annotation.hashCode();
         return result;
     }
 

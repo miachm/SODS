@@ -2,6 +2,8 @@ package com.github.miachm.sods;
 
 import org.testng.annotations.Test;
 
+import java.time.LocalDateTime;
+
 import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
@@ -814,9 +816,9 @@ public class RangeTest {
         otherStyle.setFontColor(new Color(0, 23, 12));
 
         Range range = sheet.getDataRange();
-        range.setValues(style, new Style(), otherStyle, style);
+        range.setStyles(style, new Style(), otherStyle, style);
 
-        Object[][] arr = range.getValues();
+        Style[][] arr = range.getStyles();
 
         assertEquals(arr[0][0], style);
         assertEquals(arr[0][1], new Style());
@@ -859,5 +861,74 @@ public class RangeTest {
         assertEquals(arr[1][0], style);
         assertEquals(arr[1][1], otherStyle);
         assertEquals(arr[1][2], style);
+    }
+
+    @Test
+    public void testSetAnnotation() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        OfficeAnnotation annotation = new OfficeAnnotation("Test", LocalDateTime.of(2020,4, 3, 2, 1));
+
+        Range range = sheet.getDataRange();
+        range.setAnnotation(annotation);
+
+        OfficeAnnotation[][] arr = range.getAnnotations();
+
+        assertEquals(arr[0][0], annotation);
+        assertEquals(arr[0][1], annotation);
+        assertEquals(arr[1][0], annotation);
+        assertEquals(arr[1][1], annotation);
+    }
+
+    @Test
+    public void testSetAnnotations() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        OfficeAnnotation annotation = new OfficeAnnotation("Test", LocalDateTime.of(2020,4,3,2,1));
+        OfficeAnnotation otherAnnotation = new OfficeAnnotation("Hello world\nCas", LocalDateTime.of(2019,4,3,6,3));
+
+        Range range = sheet.getDataRange();
+        range.setAnnotations(annotation, new OfficeAnnotation(), otherAnnotation, null);
+
+        OfficeAnnotation[][] arr = range.getAnnotations();
+
+        assertEquals(arr[0][0], annotation);
+        assertEquals(arr[0][1], new OfficeAnnotation());
+        assertEquals(arr[1][0], otherAnnotation);
+        assertEquals(arr[1][1], null);
+    }
+
+    @Test
+    public void testSetAnnotationsMat() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumns(2);
+
+        OfficeAnnotation annotation = new OfficeAnnotation("Test", LocalDateTime.of(2020,4,3,2,1));
+        OfficeAnnotation otherAnnotation = new OfficeAnnotation("Hello world\nCas", LocalDateTime.of(2019,4,3,6,3));
+
+        Range range = sheet.getDataRange();
+        OfficeAnnotation[][] arr = new OfficeAnnotation[2][3];
+        arr[0][0] = annotation;
+        arr[0][1] = new OfficeAnnotation();
+        arr[0][2] = otherAnnotation;
+        arr[1][0] = annotation;
+        arr[1][1] = null;
+        arr[1][2] = annotation;
+
+        range.setAnnotations(arr);
+
+        arr = range.getAnnotations();
+
+        assertEquals(arr[0][0], annotation);
+        assertEquals(arr[0][1], new OfficeAnnotation());
+        assertEquals(arr[0][2], otherAnnotation);
+        assertEquals(arr[1][0], annotation);
+        assertEquals(arr[1][1], null);
+        assertEquals(arr[1][2], annotation);
     }
 }

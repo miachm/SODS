@@ -256,6 +256,30 @@ public class Range {
     }
 
     /**
+     * Returns the annotation/comment of the first Cell in this range.
+     *
+     * @return An object which contains the comment, or null if it doesn't exist
+     * @see OfficeAnnotation
+     */
+
+    public OfficeAnnotation getAnnotation()
+    {
+        return getFirstCell().getAnnotation();
+    }
+
+    /**
+     * Returns the rectangular grid of the annotations for this range. It will be null if the cell doesn't have comments
+     * @return A two-dimensional array of values. It can not be null
+     * @see OfficeAnnotation
+     */
+    public OfficeAnnotation[][] getAnnotations()
+    {
+        OfficeAnnotation[][] arr = new OfficeAnnotation[getNumRows()][getNumColumns()];
+        iterateRange((cell, row, column) ->  arr[row][column] = cell.getAnnotation());
+        return arr;
+    }
+
+    /**
      * Return the number of cells which contains this range
      *
      * @return The number of cells in this range
@@ -736,7 +760,7 @@ public class Range {
     /**
      * Set a set of styles to the range. The array must have the same size of the entire range itself
      *
-     * @param style The formula 2D-array, it must have the same size of the range itself
+     * @param style The style 2D-array, it must have the same size of the range itself
      * @throws IllegalArgumentException if the number of values is not equals to the size of range or a style is null
      */
     public void setStyles(Style style[][])
@@ -751,6 +775,52 @@ public class Range {
                     + style[0].length + " against " + getNumColumns() + ")");
 
         iterateRange((cell,row,column) -> cell.setStyle(style[row][column]));
+    }
+
+    /**
+     * Set an annotation for all the cells in this range.
+     *
+     * @param annotation The annotation to be setted in the range
+     * @see OfficeAnnotation
+     */
+    public void setAnnotation(OfficeAnnotation annotation)
+    {
+        iterateRange((cell, row, column) -> cell.setAnnotation(annotation));
+    }
+
+    /**
+     * Set a set of anotations to the range. The array must have the same size of the entire range itself.
+     *
+     * @param annotations The annotations array, it must the same size of the range itself.
+     * @throws IllegalArgumentException if the number of values is not equals to the size of range
+     */
+    public void setAnnotations(OfficeAnnotation... annotations)
+    {
+        if (annotations.length != getNumValues())
+            throw new IllegalArgumentException("Error in setAnnotations, the number of the arguments doesn't fit ("
+                    + annotations.length + " against " + getNumValues() + ")");
+
+        iterateRange((cell,row,column) -> cell.setAnnotation(annotations[row*getNumColumns()+column]));
+    }
+
+    /**
+     * Set a set of annotations to the range. The array must have the same size of the entire range itself
+     *
+     * @param annotations The annotations 2D-array, it must have the same size of the range itself
+     * @throws IllegalArgumentException if the number of values is not equals to the size of range
+     */
+    public void setAnnotations(OfficeAnnotation[][] annotations)
+    {
+        if (annotations.length == 0)
+            throw new IllegalArgumentException("Error in setAnnotations, the array is empty");
+        if (annotations.length != getNumRows())
+            throw new IllegalArgumentException("Error in setAnnotations, the number of rows doesn't fit ("
+                    + annotations.length + " against " + getNumRows() + ")");
+        if (annotations[0].length != getNumColumns())
+            throw new IllegalArgumentException("Error in setAnnotations, the number of columns doesn't fit ("
+                    + annotations[0].length + " against " + getNumColumns() + ")");
+
+        iterateRange((cell, row, column) -> cell.setAnnotation(annotations[row][column]));
     }
 
     /**

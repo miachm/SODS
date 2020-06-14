@@ -16,6 +16,7 @@ class OdsWritter {
     private final static String text_namespace = "urn:oasis:names:tc:opendocument:xmlns:text:1.0";
     private final static String font_namespace = "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0";
     private final static String style_namespace = "urn:oasis:names:tc:opendocument:xmlns:style:1.0";
+    private final static String metadata_namespace = "http://purl.org/dc/elements/1.1/";
 
     private SpreadSheet spread;
     private Compressor out;
@@ -98,6 +99,7 @@ class OdsWritter {
         out.writeAttribute("xmlns:text",text_namespace);
         out.writeAttribute("xmlns:fo",font_namespace);
         out.writeAttribute("xmlns:style", style_namespace);
+        out.writeAttribute("xmlns:dc", metadata_namespace);
 
         out.writeAttribute("office:version", "1.2");
 
@@ -182,7 +184,6 @@ class OdsWritter {
     }
 
     private void writeCell(XMLStreamWriter out, Range range) throws XMLStreamException {
-        Object v = range.getValue();
         String formula = range.getFormula();
         Style style = range.getStyle();
 
@@ -206,7 +207,7 @@ class OdsWritter {
             out.writeAttribute("table:formula", formula);
 
         setCellStyle(out, style);
-        writeValue(out, v);
+        writeValue(out, range);
         out.writeEndElement();
     }
 
@@ -222,7 +223,8 @@ class OdsWritter {
         }
     }
 
-    private void writeValue(XMLStreamWriter out, Object v) throws XMLStreamException {
+    private void writeValue(XMLStreamWriter out, Range range) throws XMLStreamException {
+        Object v = range.getValue();
         if (v != null) {
             OfficeValueType valueType = OfficeValueType.ofJavaType(v.getClass());
             valueType.write(v, out);
@@ -253,6 +255,21 @@ class OdsWritter {
                     out.writeCharacters("" + text.charAt(i));
             }
 
+            out.writeEndElement();
+        }
+        OfficeAnnotation annotation = range.getAnnotation();
+        if (annotation != null) {
+            out.writeStartElement("office:annotation");
+            if (annotation.getLastModified() != null) {
+                out.writeStartElement("dc:date");
+                out.writeCharacters(annotation.getLastModified().toString());
+                out.writeEndElement();
+            }
+            if (annotation.getMsg() != null) {
+                out.writeStartElement("text:p");
+                out.writeCharacters(annotation.getMsg());
+                out.writeEndElement();
+            }
             out.writeEndElement();
         }
     }
