@@ -1,5 +1,6 @@
 package com.github.miachm.sods;
 
+import java.text.NumberFormat;
 import java.util.Currency;
 
 /**
@@ -11,6 +12,7 @@ import java.util.Currency;
 public class OfficeCurrency {
     private final Currency currency;
     private final Double value;
+    private final NumberFormat format;
 
     /**
      * It builds an inmutable class of the OfficeCurrency
@@ -21,8 +23,23 @@ public class OfficeCurrency {
 
     public OfficeCurrency(Currency currency, Double value)
     {
+        this(currency, value, NumberFormat.getCurrencyInstance());
+    }
+
+
+    /**
+     * It builds an inmutable class of the OfficeCurrency
+     *
+     * @param currency The currency instance class, it specify which currency is. It can be null
+     * @param value The numeric value. It can be null.
+     * @param format How the currency value should be formatted in a string
+     */
+    public OfficeCurrency(Currency currency, Double value, NumberFormat format)
+    {
         this.currency = currency;
         this.value = value;
+        this.format = format;
+        this.format.setCurrency(currency);
     }
 
     public Currency getCurrency() {
@@ -60,6 +77,6 @@ public class OfficeCurrency {
 
     @Override
     public String toString() {
-        return "" + value + currency;
+        return "" + format.format(value);
     }
 }
