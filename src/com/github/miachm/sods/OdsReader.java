@@ -147,9 +147,15 @@ class OdsReader {
                 String fontsize = instance.getAttribValue("fo:font-size");
                 if (fontsize != null) {
                     if (fontsize.endsWith("pt")) {
-                        int index = fontsize.lastIndexOf("pt");
-                        int fontSize = (int) Math.round(Double.parseDouble(fontsize.substring(0,index)));
-                        style.setFontSize(fontSize);
+                        try {
+                            int index = fontsize.lastIndexOf("pt");
+                            int fontSize = (int) Math.round(Double.parseDouble(fontsize.substring(0, index)));
+                            style.setFontSize(fontSize);
+                        }
+                        catch (NumberFormatException e)
+                        {
+                            System.err.println("Error, invalid font size " + fontsize);
+                        }
                     }
                     else
                         throw new OperationNotSupportedException("Error, font size is not measured in PT. Skipping...");

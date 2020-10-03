@@ -509,4 +509,10 @@ public class SpreadSheetTest {
             }
         }
     }
+
+    @Test
+    public void testFloatingPoint() throws IOException {
+        SpreadSheet spread = new SpreadSheet(new File("resources/floatingpoint.ods"));
+        // No crash? It's green then
+    }
 }
