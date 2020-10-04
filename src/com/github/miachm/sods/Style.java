@@ -19,6 +19,8 @@ public final class Style implements Cloneable {
     private TEXT_ALIGMENT alignment = null;
     private boolean isDate = false;
 
+    /** Defines the text position of a Cell
+     */
     public enum TEXT_ALIGMENT {
         Left, Center, Right
     }

@@ -619,6 +619,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
 
     /**
      * Return the last row of the sheet which contains useful data
+     * @return The index of the last row
      */
     public int getLastRow()
     {
@@ -627,6 +628,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
 
     /**
      * Return the last column of the sheet which contains useful data
+     * @return The index of the last column
      */
     public int getLastColumn()
     {

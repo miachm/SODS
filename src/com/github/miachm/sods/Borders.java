@@ -148,7 +148,7 @@ public class Borders {
 	/**
 	 * Sets top border on/off.
 	 * 
-	 * @param border Boolean representing top border set on/off.
+	 * @param borderTop Boolean representing top border set on/off.
 	 */
 	public void setBorderTop(boolean borderTop) {
 		this.borderTop = borderTop;
@@ -184,7 +184,7 @@ public class Borders {
 	/**
 	 * Sets bottom border on/off.
 	 * 
-	 * @param border Boolean representing bottom border set on/off.
+	 * @param borderBottom Boolean representing bottom border set on/off.
 	 */
 	public void setBorderBottom(boolean borderBottom) {
 		this.borderBottom = borderBottom;
@@ -220,7 +220,7 @@ public class Borders {
 	/**
 	 * Sets left border on/off.
 	 * 
-	 * @param border Boolean representing left border set on/off.
+	 * @param borderLeft Boolean representing left border set on/off.
 	 */
 	public void setBorderLeft(boolean borderLeft) {
 		this.borderLeft = borderLeft;
@@ -256,7 +256,7 @@ public class Borders {
 	/**
 	 * Sets right border on/off.
 	 * 
-	 * @param border Boolean representing right border set on/off.
+	 * @param borderRight Boolean representing right border set on/off.
 	 */
 	public void setBorderRight(boolean borderRight) {
 		this.borderRight = borderRight;
