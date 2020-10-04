@@ -4,6 +4,7 @@ import org.testng.annotations.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -98,5 +99,11 @@ public class ValueTypeTest {
 
         assertEquals(sheet.getRange(0, 0).getValue(), percentage);
         assertEquals(sheet.getRange(0, 1).getValue(), otherPercentage);
+    }
+
+    @Test
+    public void testDateOffice() throws IOException {
+        SpreadSheet spread = new SpreadSheet(new File("resources/TestDate.ods"));
+        spread.save(new File("Out.ods"));
     }
 }

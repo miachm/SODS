@@ -17,6 +17,7 @@ public final class Style implements Cloneable {
     private Borders borders = null;
     private boolean wrap = false;
     private TEXT_ALIGMENT alignment = null;
+    private boolean isDate = false;
 
     public enum TEXT_ALIGMENT {
         Left, Center, Right
@@ -248,6 +249,16 @@ public final class Style implements Cloneable {
         return super.clone();
     }
 
+    boolean isDate()
+    {
+        return isDate;
+    }
+
+    void setDateType(boolean date)
+    {
+        isDate = date;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -264,6 +275,8 @@ public final class Style implements Cloneable {
         if (fontColor != null ? !fontColor.equals(style.fontColor) : style.fontColor != null) return false;
         if (backgroundColor != null ? !backgroundColor.equals(style.backgroundColor) : style.backgroundColor != null)
             return false;
+        if (isDate != style.isDate)
+            return false;
         return alignment == style.alignment;
     }
 
@@ -277,6 +290,7 @@ public final class Style implements Cloneable {
         result = 31 * result + fontSize;
         result = 31 * result + (borders != null ? borders.hashCode() : 0);
         result = 31 * result + (wrap ? 1 : 0);
+        result = 31 * result + (isDate ? 1 : 0);
         result = 31 * result + (alignment != null ? alignment.hashCode() : 0);
         return result;
     }

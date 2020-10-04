@@ -1,5 +1,7 @@
 package com.github.miachm.sods;
 
+import java.time.LocalDate;
+
 class Cell implements Cloneable {
     private Object value;
     private String formula;
@@ -57,6 +59,7 @@ class Cell implements Cloneable {
     void setValue(Object value)
     {
         this.value = value;
+        style.setDateType(value instanceof LocalDate);
     }
 
     public void setFormula(String formula) {

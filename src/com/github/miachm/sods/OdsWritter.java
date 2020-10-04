@@ -17,6 +17,7 @@ class OdsWritter {
     private final static String font_namespace = "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0";
     private final static String style_namespace = "urn:oasis:names:tc:opendocument:xmlns:style:1.0";
     private final static String metadata_namespace = "http://purl.org/dc/elements/1.1/";
+    private final static String datatype_namespace ="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0";
 
     private SpreadSheet spread;
     private Compressor out;
@@ -100,6 +101,7 @@ class OdsWritter {
         out.writeAttribute("xmlns:fo",font_namespace);
         out.writeAttribute("xmlns:style", style_namespace);
         out.writeAttribute("xmlns:dc", metadata_namespace);
+        out.writeAttribute("xmlns:number", datatype_namespace);
 
         out.writeAttribute("office:version", "1.2");
 
@@ -288,11 +290,14 @@ class OdsWritter {
     private void writeStyles(XMLStreamWriter out) throws XMLStreamException {
         out.writeStartElement("office:automatic-styles");
 
+        writeDateFormatStyle(out);
+
         for (Sheet sheet : spread.getSheets()) {
             for (int i = 0; i < sheet.getMaxRows(); i++) {
                 for (int j = 0; j < sheet.getMaxColumns(); j++) {
                     Range range = sheet.getRange(i,j);
                     Style style = range.getStyle();
+
                     if (!style.isDefault()) {
                         writeCellStyle(out, style);
                     }
@@ -316,6 +321,25 @@ class OdsWritter {
         out.writeEndElement();
     }
 
+    private void writeDateFormatStyle(XMLStreamWriter out) throws XMLStreamException {
+        out.writeStartElement("number:date-style");
+        out.writeAttribute("style:name", "datestyle");
+        out.writeStartElement("number:year");
+        out.writeAttribute("number:style", "long");
+        out.writeEndElement();
+        out.writeStartElement("number:text");
+        out.writeCharacters("-");
+        out.writeEndElement();
+        out.writeStartElement("number:month");
+        out.writeAttribute("number:style", "long");
+        out.writeEndElement();
+        out.writeStartElement("number:text");
+        out.writeCharacters("-");
+        out.writeEndElement();
+        out.writeEmptyElement("number:day");
+        out.writeEndElement();
+    }
+
     private void writeCellStyle(XMLStreamWriter out, Style style) throws XMLStreamException {
 
     	String key = stylesUsed.get(style);
@@ -327,7 +351,10 @@ class OdsWritter {
             out.writeAttribute("style:family", "table-cell");
             out.writeAttribute("style:name", key);
 
-			if (style.hasTableCellProperties()) {
+            if (style.isDate())
+                out.writeAttribute("style:data-style-name", "datestyle");
+
+            if (style.hasTableCellProperties()) {
 				out.writeStartElement("style:table-cell-properties");
 
 				if (style.getBackgroundColor() != null) {
