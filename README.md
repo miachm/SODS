@@ -10,9 +10,7 @@ A simple library for process ODS files in Java. It allows read/write ODS files.
 
 ## Install
 
-### Maven
-If you use maven, you can add it to your pom file:
-
+### Maven 
 ```xml
 <dependency>
     <groupId>com.github.miachm.sods</groupId>
@@ -20,7 +18,15 @@ If you use maven, you can add it to your pom file:
     <version>1.3.0</version>
 </dependency>
 ```
-
+### Gradle Kotlin DSL
+```kotlin
+implementation("com.github.miachm.sods:SODS:1.3.0")
+```
+### Gradle Groovy DSL
+```groovy
+implementation 'com.github.miachm.sods:SODS:1.3.0'
+```
+### [Other Dependency Management](https://search.maven.org/artifact/com.github.miachm.sods/SODS/1.3.0/jar)
 ### Manually
 
 Check out [releases section](https://github.com/miachm/SODS/releases) for download the lastest release in a JAR file. After that, you can add the jar in your java project.
