@@ -273,6 +273,16 @@ class OdsReader {
             setTableStyles(sheet, tableStyleName);
         }
 
+        String protectedSheet = reader.getAttribValue("table:protected");
+        if (protectedSheet != null) {
+            String algorithm = reader.getAttribValue("table:protection-key-digest-algorithm");
+            if (algorithm == null)
+                algorithm = "http://www.w3.org/2000/09/xmldsig#sha1";
+
+            String protectedKey = reader.getAttribValue("table:protection-key");
+            sheet.setRawPassword(protectedKey, algorithm);
+        }
+
         int rowCount = 0;
         groupCells.clear();
 

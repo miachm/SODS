@@ -133,6 +133,11 @@ class OdsWritter {
                 if (name != null)
                     out.writeAttribute("table:style-name", name);
             }
+            if (sheet.isProtected()) {
+                out.writeAttribute("table:protected", "true");
+                out.writeAttribute("table:protection-key", sheet.getHashedPassword());
+                out.writeAttribute("table:protection-key-digest-algorithm", sheet.getHashedAlgorithm());
+            }
 
             writeColumnsStyles(out, sheet);
             writeContent(out, sheet);
