@@ -1,5 +1,8 @@
 package com.github.miachm.sods;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
@@ -15,6 +18,8 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     private int numColumns = 0;
     private int numRows = 0;
     private boolean isHidden = false;
+    private String hashed_password = null;
+    private String hash_algorithm = null;
 
     /**
      * Create an empty sheet with a given name.
@@ -644,10 +649,44 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         numColumns = getLastColumn();
     }
 
+    public boolean isProtected()
+    {
+        return this.hashed_password != null;
+    }
+
+    public void setPassword(String key) throws NoSuchAlgorithmException {
+        if (key.isEmpty())
+            throw new IllegalArgumentException("Key is empty");
+
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        this.hashed_password = Base64.getEncoder().encodeToString(digest.digest(
+                key.getBytes(StandardCharsets.UTF_8)));
+
+        this.hash_algorithm = "http://www.w3.org/2000/09/xmldsig#sha256";
+    }
+
+    void setRawPassword(String hashed_password, String algorithm) {
+        if (algorithm == null)
+            algorithm = "http://www.w3.org/2000/09/xmldsig#sha1";
+
+        this.hashed_password = hashed_password;
+        this.hash_algorithm = algorithm;
+    }
+
+    String getHashedPassword()
+    {
+        return this.hashed_password;
+    }
+
+    String getHashedAlgorithm()
+    {
+        return this.hash_algorithm;
+    }
+
     /**
-     * Equals method, two sheets are considered the same if have the same name and the same content (include formatting)
-     * @param o The object to compare
-     */
+         * Equals method, two sheets are considered the same if have the same name and the same content (include formatting)
+         * @param o The object to compare
+         */
 
     @Override
     public boolean equals(Object o) {
