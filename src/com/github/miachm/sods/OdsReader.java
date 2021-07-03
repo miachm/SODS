@@ -169,6 +169,19 @@ class OdsReader {
                         style.setBackgroundColor(new Color(backgroundColor));
                     }
                     catch (IllegalArgumentException e) { System.err.println(e.getMessage());}
+
+                String verticalAlign = instance.getAttribValue("style:vertical-align");
+                if (verticalAlign != null) {
+                    Style.VERTICAL_TEXT_ALIGMENT pos = null;
+                    if (verticalAlign.equalsIgnoreCase("middle")) {
+                        pos = Style.VERTICAL_TEXT_ALIGMENT.Middle;
+                    } else if (verticalAlign.equalsIgnoreCase("top")) {
+                        pos = Style.VERTICAL_TEXT_ALIGMENT.Top;
+                    } else if (verticalAlign.equalsIgnoreCase("bottom")) {
+                        pos = Style.VERTICAL_TEXT_ALIGMENT.Bottom;
+                    }
+                    style.setVerticalTextAligment(pos);
+                }
             }
 
             if(instance.getTag().equals("style:paragraph-properties")) {

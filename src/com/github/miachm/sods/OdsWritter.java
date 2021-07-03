@@ -364,6 +364,10 @@ class OdsWritter {
 				if (style.isWrap()) {
 					out.writeAttribute("fo:wrap-option", "wrap");
 				}
+
+				if (style.getVerticalTextAligment() != null) {
+                    out.writeAttribute("style:vertical-align", style.getVerticalTextAligment().toString().toLowerCase());
+                }
 				
 				if(style.hasBorders()) {
 					writeBorderStyle(out, style);

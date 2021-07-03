@@ -2,6 +2,7 @@ package com.github.miachm.sods;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * This a class which represents the formatting of a cell (background color, font size, font style, etc...)
@@ -16,13 +17,18 @@ public final class Style implements Cloneable {
     private int fontSize = -1;
     private Borders borders = null;
     private boolean wrap = false;
-    private TEXT_ALIGMENT alignment = null;
+    private TEXT_ALIGMENT horizontal_alignment = null;
+    private VERTICAL_TEXT_ALIGMENT vertical_alignment = null;
     private boolean isDate = false;
 
     /** Defines the text position of a Cell
      */
     public enum TEXT_ALIGMENT {
         Left, Center, Right
+    }
+
+    public enum VERTICAL_TEXT_ALIGMENT {
+        Top, Middle, Bottom
     }
 
     /**
@@ -219,7 +225,7 @@ public final class Style implements Cloneable {
 	 * @return true if the style has table cell properties, false otherwise.
 	 */
 	public boolean hasTableCellProperties() {
-		return backgroundColor != null || hasBorders() || wrap;
+		return backgroundColor != null || hasBorders() || wrap || vertical_alignment != null;
 	}
 	
 	/**
@@ -236,7 +242,7 @@ public final class Style implements Cloneable {
      * @param p {@link TEXT_ALIGMENT} Left, Center, Right
      */
     public void setTextAligment (TEXT_ALIGMENT p) {
-        alignment = p;
+        horizontal_alignment = p;
     }
 
     /**
@@ -244,8 +250,15 @@ public final class Style implements Cloneable {
      * @return p {@link TEXT_ALIGMENT} Left, Center, Right
      */
     public TEXT_ALIGMENT getTextAligment() {
-        return alignment;
+        return horizontal_alignment;
     }
+
+
+    public void setVerticalTextAligment (VERTICAL_TEXT_ALIGMENT p) {
+        vertical_alignment = p;
+    }
+
+    public VERTICAL_TEXT_ALIGMENT getVerticalTextAligment() { return vertical_alignment;}
 
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
@@ -272,14 +285,17 @@ public final class Style implements Cloneable {
         if (italic != style.italic) return false;
         if (underline != style.underline) return false;
         if (fontSize != style.fontSize) return false;
-        if (borders != null ? !borders.equals(style.borders) : style.borders != null) return false;
+        if (!Objects.equals(borders, style.borders)) return false;
         if (wrap != style.wrap) return false;
-        if (fontColor != null ? !fontColor.equals(style.fontColor) : style.fontColor != null) return false;
-        if (backgroundColor != null ? !backgroundColor.equals(style.backgroundColor) : style.backgroundColor != null)
+        if (!Objects.equals(fontColor, style.fontColor)) return false;
+        if (!Objects.equals(backgroundColor, style.backgroundColor))
             return false;
         if (isDate != style.isDate)
             return false;
-        return alignment == style.alignment;
+        if (horizontal_alignment != style.horizontal_alignment)
+            return false;
+
+        return vertical_alignment == style.vertical_alignment;
     }
 
     @Override
@@ -293,7 +309,8 @@ public final class Style implements Cloneable {
         result = 31 * result + (borders != null ? borders.hashCode() : 0);
         result = 31 * result + (wrap ? 1 : 0);
         result = 31 * result + (isDate ? 1 : 0);
-        result = 31 * result + (alignment != null ? alignment.hashCode() : 0);
+        result = 31 * result + (horizontal_alignment != null ? horizontal_alignment.hashCode() : 0);
+        result = 31 * result + (vertical_alignment != null ? vertical_alignment.hashCode() : 0);
         return result;
     }
 
@@ -341,8 +358,11 @@ public final class Style implements Cloneable {
         	result.put("white-space", "normal");
         }
 
-        if(alignment != null)
+        if(horizontal_alignment != null)
             result.put("text-align", getTextAligment().toString());
+
+        if(vertical_alignment != null)
+            result.put("vertical-align", getVerticalTextAligment().toString().toLowerCase());
 
         return result;
     }

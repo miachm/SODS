@@ -60,4 +60,23 @@ public class CellCustomStyles {
         SpreadSheet spreadSheet = new SpreadSheet(new File("resources/floatfontsize.ods"));
         assertEquals(spreadSheet.getSheet(0).getDataRange().getStyle().getFontSize(), 4);
     }
+
+
+    @Test
+    public void testVerticalsAligment()
+    {
+        for (Style.VERTICAL_TEXT_ALIGMENT aligment : Style.VERTICAL_TEXT_ALIGMENT.values()) {
+            Style style = new Style();
+            assertNull(style.getVerticalTextAligment());
+            style.setVerticalTextAligment(aligment);
+            assertEquals(style.getVerticalTextAligment(), aligment);
+
+            Sheet sheet = new Sheet("A", 2, 2);
+            Range range = sheet.getRange(0, 0);
+            range.setStyle(style);
+
+            sheet = saveAndLoad(sheet);
+            assertEquals(sheet.getRange(0, 0).getStyle().getVerticalTextAligment(), aligment);
+        }
+    }
 }
