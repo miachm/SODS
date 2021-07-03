@@ -2,6 +2,10 @@ package com.github.miachm.sods;
 
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -9,12 +13,35 @@ import java.util.Random;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.*;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 public class SheetTest {
     private Random random = new Random();
+
+    private Sheet saveAndLoad(Sheet sheet)
+    {
+        SpreadSheet spreadSheet = new SpreadSheet();
+        spreadSheet.appendSheet(sheet);
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            spreadSheet.save(outputStream);
+        } catch (IOException e) {
+            fail(e.getMessage());
+        }
+
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+
+        SpreadSheet newSpreadSheet = null;
+        try {
+            newSpreadSheet = new SpreadSheet(inputStream);
+        } catch (IOException e) {
+            fail(e.getMessage());
+        }
+
+        return newSpreadSheet.getSheet(0);
+    }
 
     private Sheet generateASheet() {
         Sheet sheet = new Sheet("A");
@@ -586,5 +613,29 @@ public class SheetTest {
         assertEquals(sheet.getMaxColumns(), 2);
         assertEquals(sheet.getLastRow(), 2);
         assertEquals(sheet.getLastColumn(), 2);
+    }
+
+    @Test
+    public void testIsProtected() throws Exception {
+        Sheet sheet = new Sheet("A");
+        assertFalse(sheet.isProtected());
+        sheet.setPassword("AAA");
+        assertTrue(sheet.isProtected());
+    }
+
+    @Test
+    public void testSetPassword() throws Exception {
+        Sheet sheet = new Sheet("A");
+        assertFalse(sheet.isProtected());
+        sheet.setPassword("AAA");
+        sheet = saveAndLoad(sheet);
+        assertTrue(sheet.isProtected());
+    }
+
+    @Test
+    public void testLoadPassword() throws Exception {
+        SpreadSheet spreadSheet = new SpreadSheet(new File("resources/protected.ods"));
+        Sheet sheet = spreadSheet.getSheet(0);
+        assertTrue(sheet.isProtected());
     }
 }
