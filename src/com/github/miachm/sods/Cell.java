@@ -1,13 +1,28 @@
 package com.github.miachm.sods;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 class Cell implements Cloneable {
+    static Cell default_cell = new Cell();
     private Object value;
     private String formula;
     private Style style = Style.default_style;
     private GroupCell group;
     private OfficeAnnotation annotation;
+    static int id = 0;
+
+    Cell()
+    {
+        id++;
+        /*
+        for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
+            System.out.println(ste);
+        }
+        System.out.println("======================");
+        System.out.println("======================");
+         */
+    }
 
     GroupCell getGroup() {
         return group;
@@ -104,16 +119,19 @@ class Cell implements Cloneable {
         Cell cell = (Cell) o;
 
         GroupCell groupCell = getGroup();
-        if (groupCell != null && groupCell.getCell() != this) {
+
+        if (groupCell != null) {
             if (!groupCell.equals(cell.getGroup())) {
                 return false;
             }
-            return groupCell.getCell().equals(cell.getGroup().getCell());
+            if (groupCell.getCell() != this){
+                return groupCell.getCell().equals(cell.getGroup().getCell());
+            }
         }
 
-        if (value != null ? !value.equals(cell.value) : cell.value != null) return false;
-        if (formula != null ? !formula.equals(cell.formula) : cell.formula != null) return false;
-        if (annotation != null ? !annotation.equals(cell.annotation) : cell.annotation != null) return false;
+        if (!Objects.equals(value, cell.value)) return false;
+        if (!Objects.equals(formula, cell.formula)) return false;
+        if (!Objects.equals(annotation, cell.annotation)) return false;
         return style.equals(cell.getStyle());
     }
 

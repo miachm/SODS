@@ -300,7 +300,12 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     Cell getCell(int row,int column){
         checkLazyRowLoading(row);
         checkLazyColumnLoading(column);
-        return cells.get(row).get(column);
+        Cell cell = cells.get(row).get(column);
+        if (cell == Cell.default_cell) {
+            cell = new Cell();
+            cells.get(row).set(column, cell);
+        }
+        return cell;
     }
 
     private void checkLazyRowLoading(int row) {
@@ -308,7 +313,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
             List<Cell> rowItem = new ArrayList<>();
 
             for (int i = 0; i < getLastColumn(); i++)
-                rowItem.add(new Cell());
+                rowItem.add(Cell.default_cell);
 
             cells.add(rowItem);
             rowStyles.add(new RowStyle());
@@ -320,7 +325,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         if (diff > 0) {
             for (List<Cell> rowItem : cells) {
                 for (int i = 0; i < diff; i++) {
-                    rowItem.add(new Cell());
+                    rowItem.add(Cell.default_cell);
                 }
             }
             for (int i = 0; i < diff; i++)
@@ -393,7 +398,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         if (columnIndex <= getLastColumn() - 1) {
             for (List<Cell> row : cells) {
                 for (int i = 0; i < howmany; i++) {
-                    row.add(columnIndex, new Cell());
+                    row.add(columnIndex, Cell.default_cell);
                 }
             }
 
@@ -436,7 +441,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
             for (int i = 0; i < howmany; i++) {
                 ArrayList<Cell> row = new ArrayList<>();
                 for (int j = 0; j < numColumns; j++)
-                    row.add(new Cell());
+                    row.add(Cell.default_cell);
                 cells.add(rowIndex, row);
                 rowStyles.add(new RowStyle());
             }

@@ -2,7 +2,7 @@ package com.github.miachm.sods;
 
 import org.testng.annotations.Test;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.*;
 
 public class MergeCellsTest {
     @Test
@@ -102,11 +102,11 @@ public class MergeCellsTest {
         Range range = sheet.getRange(0,0,2,2);
         range.merge();
 
-        assertEquals(sheet.getDataRange().isPartOfMerge(), true);
-        assertEquals(sheet.getRange(2,2,2,2).isPartOfMerge(), false);
+        assertTrue(sheet.getDataRange().isPartOfMerge());
+        assertFalse(sheet.getRange(2, 2, 2, 2).isPartOfMerge());
 
-        assertEquals(sheet.getRange(1,1).isPartOfMerge(),true);
-        assertEquals(sheet.getRange(1,1,2,2).isPartOfMerge(), true);
+        assertTrue(sheet.getRange(1, 1).isPartOfMerge());
+        assertTrue(sheet.getRange(1, 1, 2, 2).isPartOfMerge());
     }
 
 }
