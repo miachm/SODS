@@ -28,7 +28,8 @@ public final class Style implements Cloneable {
     public enum TEXT_ALIGMENT {
         Left, Center, Right
     }
-
+    /** Defines the text position of a Cell in a vertical axis
+     */
     public enum VERTICAL_TEXT_ALIGMENT {
         Top, Middle, Bottom
     }
@@ -255,11 +256,18 @@ public final class Style implements Cloneable {
         return horizontal_alignment;
     }
 
-
+    /**
+     * Set text's aligment of the cell's text in a vertical axis.
+     * @param p {@link VERTICAL_TEXT_ALIGMENT} Top, Middle, Bottom
+     */
     public void setVerticalTextAligment (VERTICAL_TEXT_ALIGMENT p) {
         vertical_alignment = p;
     }
 
+    /**
+     * Get the vertical text aligment of the cell
+     * @return p {@link VERTICAL_TEXT_ALIGMENT} Top, Middle, Bottom
+     */
     public VERTICAL_TEXT_ALIGMENT getVerticalTextAligment() { return vertical_alignment;}
 
     public Object clone() throws CloneNotSupportedException {
