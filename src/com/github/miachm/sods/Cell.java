@@ -5,7 +5,7 @@ import java.time.LocalDate;
 class Cell implements Cloneable {
     private Object value;
     private String formula;
-    private Style style = new Style();
+    private Style style = Style.default_style;
     private GroupCell group;
     private OfficeAnnotation annotation;
 
@@ -19,6 +19,9 @@ class Cell implements Cloneable {
 
     Style getStyle()
     {
+        if (style.isDefault())
+            style = new Style();
+
         return style;
     }
 

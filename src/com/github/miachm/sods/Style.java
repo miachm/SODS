@@ -9,6 +9,8 @@ import java.util.Objects;
  */
 
 public final class Style implements Cloneable {
+    static Style default_style = new Style();
+
     private boolean bold;
     private boolean italic;
     private boolean underline;
