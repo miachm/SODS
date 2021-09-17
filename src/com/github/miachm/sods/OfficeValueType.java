@@ -170,7 +170,7 @@ enum OfficeValueType {
         public void write(Object value, XMLStreamWriter writer) throws XMLStreamException {
             if (value instanceof String) {
                 writer.writeAttribute("office:value-type", this.getId());
-                writer.writeAttribute("office:value", (String)value);
+                writer.writeAttribute("office:string-value", (String)value);
             }
         }
     },
