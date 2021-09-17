@@ -168,7 +168,10 @@ enum OfficeValueType {
 
         @Override
         public void write(Object value, XMLStreamWriter writer) throws XMLStreamException {
-            // write as text instead of attribute
+            writer.writeAttribute("office:value-type", this.getId());
+           // writer.writeAttribute("office:value", (String)value);
+            writer.writeAttribute("office:string-value", (String)value);
+
         }
     },
     TIME("time", Duration.class) {
