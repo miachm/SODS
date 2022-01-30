@@ -82,4 +82,35 @@ public class SpreadsheetCucumber {
         assertNotNull(lastException);
         assertEquals(lastException.getClass(), NullPointerException.class);
     }
+
+    @When("^the client add an empty sheet in the index (\\d+) with the name \"([^\"]*)\"$")
+    public void the_client_add_an_empty_sheet_in_the_index_with_the_name(int index, String name) throws Throwable {
+        this.spread.addSheet(new Sheet(name), index);
+    }
+
+    @When("^the client adds a null sheet in the index (\\d+) and catch the exception$")
+    public void the_client_adds_a_null_sheet_and_catch_the_exception(int index) throws Throwable {
+        try {
+            this.spread.addSheet(null, index);
+        }
+        catch (NullPointerException exception) {
+            this.lastException = exception;
+        }
+    }
+
+    @When("^the client add an empty sheet in the invalid index (-?\\d+) with the name \"([^\"]*)\" and catch the exception$")
+    public void the_client_add_an_empty_sheet_in_the_index_with_the_name_and_catch_the_exception(int index, String name) throws Throwable {
+        try {
+            this.spread.addSheet(new Sheet(name), index);
+        }
+        catch (IndexOutOfBoundsException exception) {
+            this.lastException = exception;
+        }
+    }
+
+    @Then("^the exception is a IndexOutOfBoundsException$")
+    public void the_exception_is_a_IndexOutOfBoundsException() throws Throwable {
+        assertNotNull(lastException);
+        assertEquals(lastException.getClass(), IndexOutOfBoundsException.class);
+    }
 }

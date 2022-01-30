@@ -2,7 +2,8 @@ language: java
 
 jdk:
   - oraclejdk11
-  - openjdk8
-#  - openjdk9 # Commented out by a fail in Travis machine
   - openjdk10
   - openjdk11
+  - openjdk12
+  - openjdk13
+  - openjdk14
