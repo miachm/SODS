@@ -131,4 +131,9 @@ public class SpreadsheetCucumber {
             lastException = e;
         }
     }
+
+    @When("^the client deletes a sheet with the name \"([^\"]*)\"$")
+    public void the_client_deletes_a_sheet_with_the_name(String name) throws Throwable {
+        this.spread.deleteSheet(name);
+    }
 }
