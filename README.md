@@ -1,7 +1,6 @@
 # SODS
 
-[![Build Status](https://travis-ci.org/miachm/SODS.svg?branch=master)](https://travis-ci.org/miachm/SODS)
-[![Javadocs](http://javadoc-badge.appspot.com/com.github.miachm.sods/SODS.svg?label=javadocs)](https://miachm.github.io/SODS/)
+![Build Status](https://github.com/miachm/SODS/actions/workflows/maven.yml/badge.svg)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.miachm.sods/SODS.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.miachm.sods%22%20AND%20a:%22SODS%22)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
