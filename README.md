@@ -110,6 +110,3 @@ public class BasicUsage{
 Check more examples [here](https://github.com/miachm/SODS/tree/master/examples)
 
 Contributions are welcome!
-
-###  Copyright {2019} {Miguel Chacon}
-This project is released under APACHE LICENSE. More info in [LICENSE](https://github.com/miachm/SODS/blob/master/LICENSE).
