@@ -5,6 +5,7 @@ Feature: Append sheet
     Given an empty Spreadsheet
     When the client appends an empty sheet with the name "A"
     Then the number of sheets in the spreadsheet is 1
+    And the name of the sheet number 0 is "A"
 
   Scenario: Append a sheet to a non-empty spreadsheet
     Given a SpreadSheet with 3 random sheets
