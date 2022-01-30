@@ -2,7 +2,6 @@ package steps;
 
 import com.github.miachm.sods.Sheet;
 import com.github.miachm.sods.SpreadSheet;
-import cucumber.api.PendingException;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -11,8 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.UUID;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.*;
 
 
 public class SpreadsheetCucumber {
@@ -80,7 +78,7 @@ public class SpreadsheetCucumber {
     @Then("^the exception is a NullPointerException$")
     public void it_throws_a_NullPointerException() throws Throwable {
         assertNotNull(lastException);
-        assertEquals(lastException.getClass(), NullPointerException.class);
+        assertTrue(lastException instanceof NullPointerException);
     }
 
     @When("^the client add an empty sheet in the index (\\d+) with the name \"([^\"]*)\"$")
@@ -111,11 +109,26 @@ public class SpreadsheetCucumber {
     @Then("^the exception is a IndexOutOfBoundsException$")
     public void the_exception_is_a_IndexOutOfBoundsException() throws Throwable {
         assertNotNull(lastException);
-        assertEquals(lastException.getClass(), IndexOutOfBoundsException.class);
+        assertTrue(lastException instanceof IndexOutOfBoundsException);
     }
 
     @When("^the client clears the spreadsheet$")
     public void the_client_clears_the_spreadsheet() throws Throwable {
         this.spread.clear();
+    }
+
+    @When("^the client deletes a sheet in the index (\\d+)$")
+    public void the_client_deletes_a_sheet_in_the_index(int index) throws Throwable {
+        this.spread.deleteSheet(index);
+    }
+
+    @When("^the client deletes a sheet in the index (-?\\d+) and catch the exception$")
+    public void the_client_deletes_a_sheet_in_the_index_and_catch_the_exception(int index) throws Throwable {
+        try {
+            this.spread.deleteSheet(index);
+        }
+        catch (IndexOutOfBoundsException e) {
+            lastException = e;
+        }
     }
 }
