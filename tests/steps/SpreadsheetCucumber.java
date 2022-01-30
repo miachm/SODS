@@ -113,4 +113,9 @@ public class SpreadsheetCucumber {
         assertNotNull(lastException);
         assertEquals(lastException.getClass(), IndexOutOfBoundsException.class);
     }
+
+    @When("^the client clears the spreadsheet$")
+    public void the_client_clears_the_spreadsheet() throws Throwable {
+        this.spread.clear();
+    }
 }
