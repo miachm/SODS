@@ -549,7 +549,7 @@ class OdsReader {
         }
 
         // Empty cells are supposed to be represented by null, so return that if we got no content.
-        if (s.length() > 0 && range.getValue() == null) {
+        if (s.length() > 0 && (range.getValue() == null || range.getValue() instanceof String)) {
             range.setValue(s.toString());
         }
     }
