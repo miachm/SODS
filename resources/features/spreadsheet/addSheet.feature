@@ -24,14 +24,14 @@ Feature: Add a sheet
   Scenario: Add a null-pointer sheet
     Given an empty Spreadsheet
     When the client adds a null sheet in the index 0 and catch the exception
-    Then the exception is a NullPointerException
+    Then the last exception is "NullPointerException"
 
   Scenario: Add a sheet with a negative index
     Given a SpreadSheet with 3 random sheets
     When the client add an empty sheet in the invalid index -1 with the name "A" and catch the exception
-    Then the exception is a IndexOutOfBoundsException
+    Then the last exception is "IndexOutOfBoundsException"
 
   Scenario: Add a sheet with a index out of bounds
     Given a SpreadSheet with 3 random sheets
     When the client add an empty sheet in the invalid index 4 with the name "A" and catch the exception
-    Then the exception is a IndexOutOfBoundsException
+    Then the last exception is "IndexOutOfBoundsException"

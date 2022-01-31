@@ -1,7 +1,9 @@
 
+import cucumber.api.java.Before;
 import cucumber.api.testng.CucumberFeatureWrapper;
 import cucumber.api.testng.TestNGCucumberRunner;
 import org.testng.annotations.*;
+import steps.ExceptionChecker;
 
 public class RunCucumberTest {
 
@@ -10,6 +12,11 @@ public class RunCucumberTest {
     @BeforeClass(alwaysRun = true)
     public void setUpCucumber() {
         testNGCucumberRunner = new TestNGCucumberRunner(this.getClass());
+    }
+
+    @Before
+    public void setState() {
+        ExceptionChecker.reset();
     }
 
     @Test(groups = "cucumber", description = "Runs Cucumber Feature", dataProvider = "features")

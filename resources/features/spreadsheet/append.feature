@@ -24,4 +24,4 @@ Feature: Append sheet
   Scenario: Append a null-pointer sheet
     Given an empty Spreadsheet
     When the client appends a null sheet and catch the exception
-    Then the exception is a NullPointerException
+    Then the last exception is "NullPointerException"

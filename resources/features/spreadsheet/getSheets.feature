@@ -22,7 +22,7 @@ Feature: Get sheets
     When the client appends an empty sheet with the name "A"
     When the client gets all the sheets into this.list_sheets
     When the client adds a random sheet into this.list_sheets and catch the exception
-    Then the last exception is UnsupportedOperationException
+    Then the last exception is "UnsupportedOperationException"
 
 
   Scenario: Get all sheets and try to delete a item from the list
@@ -30,4 +30,4 @@ Feature: Get sheets
     When the client appends an empty sheet with the name "A"
     When the client gets all the sheets into this.list_sheets
     When the client deletes the sheet 0 from this.list_sheets and catch the exception
-    Then the last exception is UnsupportedOperationException
+    Then the last exception is "UnsupportedOperationException"

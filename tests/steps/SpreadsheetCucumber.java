@@ -19,7 +19,6 @@ import static org.testng.AssertJUnit.*;
 public class SpreadsheetCucumber {
     private SpreadSheet spread;
     private byte[] buffer;
-    private Exception lastException;
     private Sheet sheet;
     private List<Sheet> list_sheets;
 
@@ -76,14 +75,8 @@ public class SpreadsheetCucumber {
             this.spread.appendSheet(null);
         }
         catch (NullPointerException e) {
-            lastException = e;
+            ExceptionChecker.registerException(e);
         }
-    }
-
-    @Then("^the exception is a NullPointerException$")
-    public void it_throws_a_NullPointerException() throws Throwable {
-        assertNotNull(lastException);
-        assertTrue(lastException instanceof NullPointerException);
     }
 
     @When("^the client add an empty sheet in the index (\\d+) with the name \"([^\"]*)\"$")
@@ -97,7 +90,7 @@ public class SpreadsheetCucumber {
             this.spread.addSheet(null, index);
         }
         catch (NullPointerException exception) {
-            this.lastException = exception;
+            ExceptionChecker.registerException(exception);
         }
     }
 
@@ -107,14 +100,8 @@ public class SpreadsheetCucumber {
             this.spread.addSheet(new Sheet(name), index);
         }
         catch (IndexOutOfBoundsException exception) {
-            this.lastException = exception;
+            ExceptionChecker.registerException(exception);
         }
-    }
-
-    @Then("^the exception is a IndexOutOfBoundsException$")
-    public void the_exception_is_a_IndexOutOfBoundsException() throws Throwable {
-        assertNotNull(lastException);
-        assertTrue(lastException instanceof IndexOutOfBoundsException);
     }
 
     @When("^the client clears the spreadsheet$")
@@ -133,7 +120,7 @@ public class SpreadsheetCucumber {
             this.spread.deleteSheet(index);
         }
         catch (IndexOutOfBoundsException e) {
-            lastException = e;
+            ExceptionChecker.registerException(e);
         }
     }
 
@@ -180,14 +167,8 @@ public class SpreadsheetCucumber {
         try {
             this.list_sheets.add(new Sheet(get_random_name()));
         } catch (UnsupportedOperationException e) {
-            this.lastException = e;
+            ExceptionChecker.registerException(e);
         }
-    }
-
-    @Then("^the last exception is UnsupportedOperationException$")
-    public void the_last_exception_is_UnsupportedOperationException() throws Throwable {
-        assertNotNull(lastException);
-        assertTrue(lastException instanceof UnsupportedOperationException);
     }
 
     @When("^the client deletes the sheet (-?\\d+) from this\\.list_sheets and catch the exception$")
@@ -195,7 +176,7 @@ public class SpreadsheetCucumber {
         try {
             this.list_sheets.remove(pos);
         } catch (UnsupportedOperationException e) {
-            this.lastException = e;
+            ExceptionChecker.registerException(e);
         }
     }
 
@@ -219,7 +200,7 @@ public class SpreadsheetCucumber {
         try {
             this.spread.getSheet(index);
         } catch (IndexOutOfBoundsException e) {
-            this.lastException = e;
+            ExceptionChecker.registerException(e);
         }
     }
 
@@ -233,7 +214,7 @@ public class SpreadsheetCucumber {
         try {
             this.spread.setSheet(new Sheet(get_random_name()), index);
         } catch (IndexOutOfBoundsException e) {
-            this.lastException = e;
+            ExceptionChecker.registerException(e);
         }
     }
 
@@ -242,7 +223,7 @@ public class SpreadsheetCucumber {
         try {
             this.spread.setSheet(null, index);
         } catch (NullPointerException e) {
-            this.lastException = e;
+            ExceptionChecker.registerException(e);
         }
     }
 }

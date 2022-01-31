@@ -21,7 +21,7 @@ Feature: Set a sheet by pos
   Scenario: Set a sheet from an empty Spreadsheet
     Given an empty Spreadsheet
     When the client set a sheet in the index 0 and catch the exception
-    Then the exception is a IndexOutOfBoundsException
+    Then the last exception is "IndexOutOfBoundsException"
 
   Scenario: Set a sheet and save it
     Given creating a sheet with the name "uniquename" into this.sheet
@@ -35,12 +35,12 @@ Feature: Set a sheet by pos
 
   Scenario: Set a null sheet
     When the client set a null sheet in the index 0 and catch the exception
-    Then the exception is a NullPointerException
+    Then the last exception is "NullPointerException"
 
   Scenario: Set a sheet with a negative index
     When the client set a sheet in the index -1 and catch the exception
-    Then the exception is a IndexOutOfBoundsException
+    Then the last exception is "IndexOutOfBoundsException"
 
   Scenario: Delete a sheet with an index out of bounds
     When the client set a sheet in the index 3 and catch the exception
-    Then the exception is a IndexOutOfBoundsException
+    Then the last exception is "IndexOutOfBoundsException"

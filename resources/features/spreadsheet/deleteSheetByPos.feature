@@ -19,7 +19,7 @@ Feature: Delete a sheet by pos
   Scenario: Delete a sheet from an empty Spreadsheet
     Given an empty Spreadsheet
     When the client deletes a sheet in the index 0 and catch the exception
-    Then the exception is a IndexOutOfBoundsException
+    Then the last exception is "IndexOutOfBoundsException"
 
   Scenario: Delete a sheet and save it
     When the client deletes a sheet in the index 1
@@ -30,8 +30,8 @@ Feature: Delete a sheet by pos
 
   Scenario: Delete a sheet with a negative index
     When the client deletes a sheet in the index -1 and catch the exception
-    Then the exception is a IndexOutOfBoundsException
+    Then the last exception is "IndexOutOfBoundsException"
 
   Scenario: Delete a sheet with an index out of bounds
     When the client deletes a sheet in the index 3 and catch the exception
-    Then the exception is a IndexOutOfBoundsException
+    Then the last exception is "IndexOutOfBoundsException"

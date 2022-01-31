@@ -40,11 +40,14 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * @param columns Number of columns in the sheet
      *
      * @throws IllegalArgumentException If the number of rows/columns are negative
+     * @throws NullPointerException If the number of rows/columns are negative
      */
     public Sheet(String name, int rows, int columns)
     {
         if (rows < 0 || columns < 0)
             throw new IllegalArgumentException("Rows/Columns can't be negative");
+        if (name == null)
+            throw new NullPointerException("The name of the sheet can't be null");
 
         this.name = name;
         appendColumns(columns);

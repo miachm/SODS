@@ -17,11 +17,11 @@ Feature: Get a sheet by pos
   Scenario: Get a sheet by an index in an empty Spreadsheet
     Given an empty Spreadsheet
     When the client get a sheet in the index 0 and catch the exception
-    Then the exception is a IndexOutOfBoundsException
+    Then the last exception is "IndexOutOfBoundsException"
 
   Scenario Outline: Get a sheet with an invalid index
     When the client get a sheet in the index <index> and catch the exception
-    Then the exception is a IndexOutOfBoundsException
+    Then the last exception is "IndexOutOfBoundsException"
     Examples:
       | index |
       | -1    |
