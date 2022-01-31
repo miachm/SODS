@@ -199,5 +199,18 @@ public class SpreadsheetCucumber {
         }
     }
 
+    @When("^the client get a sheet with the name \"([^\"]*)\" into this\\.sheet$")
+    public void the_client_get_a_sheet_with_the_name_into_this_sheet(String name) throws Throwable {
+        this.sheet = this.spread.getSheet(name);
+    }
 
+    @Then("^the name of this\\.sheet is \"([^\"]*)\"$")
+    public void the_name_of_this_sheet_is(String name) throws Throwable {
+        assertEquals(this.sheet.getName(), name);
+    }
+
+    @Then("^this\\.sheet is a null pointer$")
+    public void this_sheet_is_a_null_pointer() throws Throwable {
+        assertNull(this.sheet);
+    }
 }
