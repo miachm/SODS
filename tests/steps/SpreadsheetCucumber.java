@@ -190,7 +190,7 @@ public class SpreadsheetCucumber {
         assertTrue(lastException instanceof UnsupportedOperationException);
     }
 
-    @When("^the client deletes the sheet (\\d+) from this\\.list_sheets and catch the exception$")
+    @When("^the client deletes the sheet (-?\\d+) from this\\.list_sheets and catch the exception$")
     public void the_client_deletes_the_sheet_from_this_list_sheets_and_catch_the_exception(int pos) throws Throwable {
         try {
             this.list_sheets.remove(pos);
@@ -212,5 +212,14 @@ public class SpreadsheetCucumber {
     @Then("^this\\.sheet is a null pointer$")
     public void this_sheet_is_a_null_pointer() throws Throwable {
         assertNull(this.sheet);
+    }
+
+    @When("^the client get a sheet in the index (-?\\d+) and catch the exception$")
+    public void the_client_get_a_sheet_in_the_index_and_catch_the_exception(int index) throws Throwable {
+        try {
+            this.spread.getSheet(index);
+        } catch (IndexOutOfBoundsException e) {
+            this.lastException = e;
+        }
     }
 }
