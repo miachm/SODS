@@ -17,6 +17,7 @@ public class SpreadsheetCucumber {
     private SpreadSheet spread;
     private byte[] buffer;
     private Exception lastException;
+    private Sheet sheet;
 
     private String get_random_name()
     {
@@ -136,4 +137,15 @@ public class SpreadsheetCucumber {
     public void the_client_deletes_a_sheet_with_the_name(String name) throws Throwable {
         this.spread.deleteSheet(name);
     }
+
+    @Given("^creating a sheet with the name \"([^\"]*)\" into this\\.sheet$")
+    public void creating_a_sheet_with_the_name_into_this_sheet(String name) throws Throwable {
+        this.sheet = new Sheet(name);
+    }
+
+    @When("^the client deletes a sheet which corresponds with the object this\\.sheet$")
+    public void the_client_deletes_a_sheet_which_corresponds_with_the_object_this_sheet() throws Throwable {
+        this.spread.deleteSheet(this.sheet);
+    }
+
 }
