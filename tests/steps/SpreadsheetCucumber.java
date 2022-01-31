@@ -2,12 +2,15 @@ package steps;
 
 import com.github.miachm.sods.Sheet;
 import com.github.miachm.sods.SpreadSheet;
+import cucumber.api.DataTable;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 import static org.testng.AssertJUnit.*;
@@ -18,6 +21,7 @@ public class SpreadsheetCucumber {
     private byte[] buffer;
     private Exception lastException;
     private Sheet sheet;
+    private List<Sheet> list_sheets;
 
     private String get_random_name()
     {
@@ -147,5 +151,53 @@ public class SpreadsheetCucumber {
     public void the_client_deletes_a_sheet_which_corresponds_with_the_object_this_sheet() throws Throwable {
         this.spread.deleteSheet(this.sheet);
     }
+
+    @When("^the client gets all the sheets into this\\.list_sheets$")
+    public void the_client_gets_all_the_sheets_into_this_list_sheets() throws Throwable {
+        this.list_sheets = this.spread.getSheets();
+    }
+
+    @Then("^the size of the list this\\.list_sheets is (\\d+)$")
+    public void the_size_of_the_list_this_list_sheets_is(int num) throws Throwable {
+        assertEquals(this.list_sheets.size(), num);
+    }
+
+    @Then("^the sheets in the list this\\.list_sheets have the following names:$")
+    public void the_sheets_in_the_list_this_list_sheets_have_the_following_names(DataTable datatable) throws Throwable {
+        Iterator<String> datatableIterator = datatable.asList(String.class).iterator();
+        Iterator<Sheet> sheetIterator = this.list_sheets.iterator();
+        while (datatableIterator.hasNext() && sheetIterator.hasNext()) {
+            String name = datatableIterator.next();
+            Sheet sheet = sheetIterator.next();
+            assertEquals(name, sheet.getName());
+        }
+        assertFalse(datatableIterator.hasNext());
+        assertFalse(sheetIterator.hasNext());
+    }
+
+    @When("^the client adds a random sheet into this\\.list_sheets and catch the exception$")
+    public void the_client_adds_a_random_sheet_into_this_list_sheets_and_catch_the_exception() throws Throwable {
+        try {
+            this.list_sheets.add(new Sheet(get_random_name()));
+        } catch (UnsupportedOperationException e) {
+            this.lastException = e;
+        }
+    }
+
+    @Then("^the last exception is UnsupportedOperationException$")
+    public void the_last_exception_is_UnsupportedOperationException() throws Throwable {
+        assertNotNull(lastException);
+        assertTrue(lastException instanceof UnsupportedOperationException);
+    }
+
+    @When("^the client deletes the sheet (\\d+) from this\\.list_sheets and catch the exception$")
+    public void the_client_deletes_the_sheet_from_this_list_sheets_and_catch_the_exception(int pos) throws Throwable {
+        try {
+            this.list_sheets.remove(pos);
+        } catch (UnsupportedOperationException e) {
+            this.lastException = e;
+        }
+    }
+
 
 }
