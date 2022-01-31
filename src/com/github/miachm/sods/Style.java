@@ -40,7 +40,8 @@ public final class Style implements Cloneable {
     public Style() {
 
     }
-  
+
+    @Deprecated
     public Style(boolean bold, boolean italic, boolean underline, Color fontColor, Color backgroundColor, int fontSize) {
         this.bold = bold;
         this.italic = italic;
@@ -49,7 +50,8 @@ public final class Style implements Cloneable {
         this.backgroundColor = backgroundColor;
         this.fontSize = fontSize;
     }
-    
+
+    @Deprecated
     public Style(boolean bold, boolean italic, boolean underline, Color fontColor, Color backgroundColor, 
     		int fontSize, Borders borders, boolean wrap) {
 		super();
