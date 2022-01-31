@@ -200,7 +200,10 @@ public class SpreadSheet implements Cloneable {
 
     /**
      * Sort the sheets by name
+     *
+     * @deprecated You can have a similar behaviour with Collections.sort(spreadSheet.getSheets());
      */
+    @Deprecated
     public void sortSheets(){
         Collections.sort(sheets);
     }
