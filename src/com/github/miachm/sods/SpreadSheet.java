@@ -201,7 +201,7 @@ public class SpreadSheet implements Cloneable {
     /**
      * Sort the sheets by name
      *
-     * @deprecated You can have a similar behaviour with Collections.sort(spreadSheet.getSheets());
+     * @deprecated This operation will be discarded for simplicity. You can easily recreate it with client code
      */
     @Deprecated
     public void sortSheets(){
@@ -212,7 +212,9 @@ public class SpreadSheet implements Cloneable {
      * Sort the sheets by a custom comparator
      *
      * @param comparator The comparator used in the sorting
+     * @deprecated This operation will be discarded for simplicity. You can easily recreate it with client code
      */
+    @Deprecated
     public void sortSheets(Comparator<Sheet> comparator){
         sheets.sort(comparator);
     }

@@ -222,4 +222,27 @@ public class SpreadsheetCucumber {
             this.lastException = e;
         }
     }
+
+    @When("^the client set a sheet in the index (\\d+) with the content from this\\.sheet$")
+    public void the_client_set_a_sheet_in_the_index_with_the_content_from_this_sheet(int index) throws Throwable {
+        this.spread.setSheet(this.sheet, index);
+    }
+
+    @When("^the client set a sheet in the index (-?\\d+) and catch the exception$")
+    public void the_client_set_a_sheet_in_the_index_and_catch_the_exception(int index) throws Throwable {
+        try {
+            this.spread.setSheet(new Sheet(get_random_name()), index);
+        } catch (IndexOutOfBoundsException e) {
+            this.lastException = e;
+        }
+    }
+
+    @When("^the client set a null sheet in the index (\\d+) and catch the exception$")
+    public void the_client_set_a_null_sheet_in_the_index_and_catch_the_exception(int index) throws Throwable {
+        try {
+            this.spread.setSheet(null, index);
+        } catch (NullPointerException e) {
+            this.lastException = e;
+        }
+    }
 }
