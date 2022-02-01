@@ -433,12 +433,14 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * Insert a row before a specific position
      * @param rowIndex The index where insert
      * @param howmany How many rows to insert
-     * @throws IndexOutOfBoundsException if the index is out bounds, no changes will be done to sheet
+     * @throws IndexOutOfBoundsException if the index is out bounds, no changes will be done to the sheet
+     * @throws IllegalArgumentException if howmany is negative, no changes will be done to the sheet
      */
     public void insertRowsBefore(int rowIndex, int howmany) {
         if (rowIndex-1 > getMaxRows())
             throw new IndexOutOfBoundsException("Row " + rowIndex + " is out of bounds (" + getMaxRows()+")");
-
+        if (howmany < 0)
+            throw new IllegalArgumentException("Number of rows can't be negative");
 
         if (rowIndex <= getLastRow() - 1) {
             for (int i = 0; i < howmany; i++) {

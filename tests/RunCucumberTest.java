@@ -4,6 +4,7 @@ import cucumber.api.testng.CucumberFeatureWrapper;
 import cucumber.api.testng.TestNGCucumberRunner;
 import org.testng.annotations.*;
 import steps.ExceptionChecker;
+import steps.World;
 
 public class RunCucumberTest {
 
@@ -16,6 +17,7 @@ public class RunCucumberTest {
 
     @Before
     public void setState() {
+        World.reset();
         ExceptionChecker.reset();
     }
 

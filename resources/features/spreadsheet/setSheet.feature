@@ -7,8 +7,8 @@ Feature: Set a sheet by pos
     When the client appends an empty sheet with the name "C"
 
   Scenario Outline: Set a sheet
-    Given creating a sheet with the name "uniquename" into this.sheet
-    When the client set a sheet in the index <index> with the content from this.sheet
+    Given creating a sheet with the name "uniquename" into World.sheet
+    When the client set a sheet in the index <index> with the content from World.sheet
     Then the number of sheets in the spreadsheet is 3
     And the name of the sheet number <index> is "uniquename"
     And the name of the sheet number <control_index> is "<control_value>"
@@ -24,8 +24,8 @@ Feature: Set a sheet by pos
     Then the last exception is "IndexOutOfBoundsException"
 
   Scenario: Set a sheet and save it
-    Given creating a sheet with the name "uniquename" into this.sheet
-    When the client set a sheet in the index 1 with the content from this.sheet
+    Given creating a sheet with the name "uniquename" into World.sheet
+    When the client set a sheet in the index 1 with the content from World.sheet
     And save the spreadsheet in the memory
     And load a spreadsheet from memory
     Then the number of sheets in the spreadsheet is 3
