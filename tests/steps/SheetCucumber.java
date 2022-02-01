@@ -155,4 +155,35 @@ public class SheetCucumber {
             ExceptionChecker.registerException(e);
         }
     }
+
+    @When("^the client deletes the column (-?\\d+) and catch the exception$")
+    public void the_client_deletes_the_column_and_catch_the_exception(int column) throws Throwable {
+        try {
+            World.sheet.deleteColumn(column);
+        }
+        catch (IndexOutOfBoundsException e) {
+            ExceptionChecker.registerException(e);
+        }
+    }
+
+    @When("^the client deletes the column (\\d+)$")
+    public void the_client_deletes_the_column(int column) throws Throwable {
+        World.sheet.deleteColumn(column);
+    }
+
+    @When("^the client deletes (\\d+) columns on the index (\\d+)$")
+    public void the_client_deletes_columns_on_the_index(int howmany, int column) throws Throwable {
+        World.sheet.deleteColumns(column, howmany);
+    }
+
+    @When("^the client deletes the column (\\d+) on the index (-?\\d+) and catch the exception$")
+    public void the_client_deletes_the_column_on_the_index_and_catch_the_exception(int howmany, int column) throws Throwable {
+        try {
+            World.sheet.deleteColumns(column, howmany);
+        }
+        catch (IndexOutOfBoundsException | IllegalArgumentException e) {
+            ExceptionChecker.registerException(e);
+        }
+    }
+
 }

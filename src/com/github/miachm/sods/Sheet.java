@@ -66,6 +66,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     /**
      * Append many rows at the end of the Spreadsheet
      * @param howmany The number of rows to be appended
+     * @throws IllegalArgumentException if howmany is negative, no changes will be done to the sheet
      */
     public void appendRows(int howmany){
         insertRowsAfter(getMaxRows()-1,howmany);
@@ -83,7 +84,8 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     /**
      * Append many columns at the end of the Spreadsheet.
      * @param howmany The number of columns to be appended
-      */
+     * @throws IllegalArgumentException if howmany is negative, no changes will be done to the sheet
+     */
     public void appendColumns(int howmany){
         insertColumnsAfter(getMaxColumns()-1,howmany);
     }
@@ -118,11 +120,14 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * @param column The column index to start
      * @param howmany The number of columns to be deleted
      * @throws IndexOutOfBoundsException If columns + howmany is out bounds of the sheet. No changes will be done to the sheet
+     * @throws IllegalArgumentException if howmany is negative, no changes will be done to the sheet
      */
 
     public void deleteColumns(int column, int howmany) {
         if (column + howmany > getMaxColumns())
             throw new IndexOutOfBoundsException("Column " + column + " plus " + howmany + " is out of bounds (" + getMaxColumns()+")");
+        if (howmany < 0)
+            throw new IllegalArgumentException("The number of columns can't be negative");
 
         numColumns -= howmany;
 
@@ -393,6 +398,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * @param columnIndex The index where insert
      * @param howmany How many columns to insert
      * @throws IndexOutOfBoundsException if the columnIndex is out of bounds, no changes will be done
+     * @throws IllegalArgumentException if howmany is negative, no changes will be done to the sheet
      */
     public void insertColumnsBefore(int columnIndex, int howmany) {
         if (columnIndex-1 > getMaxColumns())
