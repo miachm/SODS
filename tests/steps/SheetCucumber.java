@@ -186,4 +186,33 @@ public class SheetCucumber {
         }
     }
 
+    @When("^the client deletes the row (\\d+) and catch the exception$")
+    public void the_client_deletes_the_row_and_catch_the_exception(int row) throws Throwable {
+        try {
+            World.sheet.deleteRow(row);
+        }
+        catch (IndexOutOfBoundsException | IllegalArgumentException e) {
+            ExceptionChecker.registerException(e);
+        }
+    }
+
+    @When("^the client deletes the row (\\d+)$")
+    public void the_client_deletes_the_row(int row) throws Throwable {
+        World.sheet.deleteRow(row);
+    }
+
+    @When("^the client deletes (\\d+) rows on the index (\\d+)$")
+    public void the_client_deletes_rows_on_the_index(int howmany, int row) throws Throwable {
+        World.sheet.deleteRows(row, howmany);
+    }
+
+    @When("^the client deletes the row (\\d+) on the index (-?\\d+) and catch the exception$")
+    public void the_client_deletes_the_row_on_the_index_and_catch_the_exception(int howmany, int row) throws Throwable {
+        try {
+            World.sheet.deleteRows(row, howmany);
+        }
+        catch (IndexOutOfBoundsException | IllegalArgumentException e) {
+            ExceptionChecker.registerException(e);
+        }
+    }
 }

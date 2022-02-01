@@ -162,9 +162,10 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * @see deleteRows
      */
     public void deleteRows(int row, int howmany) {
-        if (row > getMaxRows())
+        if (row + howmany > getMaxRows())
             throw new IndexOutOfBoundsException("Row " + row + " is out of bounds (" + getMaxRows()+")");
-
+        if (row < 0)
+            throw new IndexOutOfBoundsException("Row index can't be negative");
         for (int i = 0; i < howmany && row < getLastRow(); i++) {
             cells.remove(row);
             rowStyles.remove(row);
