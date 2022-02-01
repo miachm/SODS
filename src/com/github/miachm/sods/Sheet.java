@@ -397,6 +397,8 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     public void insertColumnsBefore(int columnIndex, int howmany) {
         if (columnIndex-1 > getMaxColumns())
             throw new IndexOutOfBoundsException("Column " + columnIndex + " is out of bounds (" + getMaxColumns()+")");
+        if (howmany < 0)
+            throw new IllegalArgumentException("Number of columns can't be negative");
 
         if (columnIndex <= getLastColumn() - 1) {
             for (List<Cell> row : cells) {

@@ -136,4 +136,23 @@ public class SheetCucumber {
         World.sheet = World.spread.getSheet(0);
     }
 
+    @When("^the client appends a column$")
+    public void the_client_appends_a_column() throws Throwable {
+        World.sheet.appendColumn();
+    }
+
+    @When("^the client appends (\\d+) columns$")
+    public void the_client_appends_columns(int columns) throws Throwable {
+        World.sheet.appendColumns(columns);
+    }
+
+    @When("^the client appends (-?\\d+) columns and catch the exception$")
+    public void the_client_appends_columns_and_catch_the_exception(int columns) throws Throwable {
+        try {
+            World.sheet.appendColumns(columns);
+        }
+        catch (IllegalArgumentException e) {
+            ExceptionChecker.registerException(e);
+        }
+    }
 }

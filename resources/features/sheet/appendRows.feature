@@ -25,7 +25,7 @@ Feature: Append a row
     Then the last exception is "IllegalArgumentException"
     And the number of rows is 3
 
-  Scenario: Append a row and save it
+  Scenario: Append a row to a sheet, save it and load it again
     When the client creates a Sheet with "A" and put into World.sheet
     When the client appends 500 rows
     Given an empty Spreadsheet
