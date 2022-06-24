@@ -309,7 +309,7 @@ class OdsReader {
                         try {
                             numRows = Integer.parseInt(numRowsStr);
                             if (numRows > BUGGED_COUNT)
-                                numRows = 100;
+                                numRows = 0;
                         }
                         catch (NumberFormatException e) {}
                     }
