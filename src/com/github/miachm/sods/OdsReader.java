@@ -25,15 +25,19 @@ class OdsReader {
     private Map<String,RowStyle> styleRow = new HashMap<>();
     private Map<String,TableStyle> styleTable = new HashMap<>();
     private Set<Pair<Vector, Vector>> groupCells = new HashSet<>();
+    private List<OdsReaderExtension> extensions = new ArrayList<>();
 
     private OdsReader(InputStream in,SpreadSheet spread) {
         /* TODO This code if for ods files in zip. But we could have XML-ONLY FILES */
         this.spread = spread;
         styles.put("Default", new Style());
         uncompressor = new Uncompressor(in);
+
+        extensions.add(new OdsReaderValues(this));
     }
 
-    static void load(InputStream in,SpreadSheet spread) throws IOException {
+    static void load(InputStream in,SpreadSheet spread, LoadOptions options) throws IOException {
+        options.isOnlyValues();
         OdsReader reader = new OdsReader(in, spread);
         reader.load();
     }
@@ -73,11 +77,52 @@ class OdsReader {
         if (instance == null)
             return;
 
-        XmlReaderInstance styles = instance.nextElement("office:automatic-styles");
-        iterateStyleEntries(styles);
+        StringBuilder path = new StringBuilder();
 
-        XmlReaderInstance content = instance.nextElement("office:body");
-        iterateFilesEntries(content);
+        Map<String, List<OdsReaderExtension>> buffer = new HashMap<>();
+        List<String> tags_attr = new ArrayList<>();
+        for (OdsReaderExtension e : this.extensions) {
+            List<String> tags = Arrays.asList(e.managedTags(path.toString()));
+            for (String tag : tags) {
+                buffer.getOrDefault(tag, new ArrayList<>()).add(e);
+            }
+            tags_attr.addAll(tags);
+        }
+        String[] tags = (String[]) tags_attr.toArray();
+        while (instance.hasNext()) {
+            XmlReaderInstance reader = instance.nextElement(tags);
+            if (reader == null) {
+                int index = path.lastIndexOf(">>");
+                if (index < 0)
+                    break;
+                path.delete(index, path.length());
+            }
+            else {
+                path.append(">>").append(reader.getTag());
+
+                Map<String, String> attr = reader.getAllAttributes();
+                for (OdsReaderExtension extension : buffer.getOrDefault(reader.getTag(), new ArrayList<>())) {
+                    Set<String> items = extension.managedAtributes(path.toString());
+                    items.retainAll(attr.keySet());
+                    if (!items.isEmpty())
+                        extension.readContent(path.toString(), reader);
+                    for (String item : items) {
+                        extension.readAtribute(item, reader.getAttribValue(item));
+                    }
+                }
+            }
+            buffer.clear();
+            tags_attr.clear();
+            for (OdsReaderExtension e : this.extensions) {
+                List<String> tags_aux = Arrays.asList(e.managedTags(path.toString()));
+                for (String tag : tags_aux) {
+                    buffer.getOrDefault(tag, new ArrayList<>()).add(e);
+                }
+                tags_attr.addAll(tags_aux);
+            }
+            tags = (String[]) tags_attr.toArray();
+
+        }
 
         reader.close();
     }
@@ -591,5 +636,18 @@ class OdsReader {
 
         annotation.setMsg(msg.toString());
         return annotation.build();
+    }
+
+    public Range getCurrentRange() {
+        Sheet sheet = getCurrentSheet();
+        return sheet.getRange(sheet.getMaxRows()-1, sheet.getMaxColumns() - 1);
+    }
+
+    public Sheet getCurrentSheet() {
+        return this.spread.getSheet(this.spread.getNumSheets()-1);
+    }
+
+    public void addSheet(Sheet sheet) {
+        this.spread.appendSheet(sheet);
     }
 }

@@ -76,6 +76,12 @@ class XmlReaderInstanceEventImpl implements XmlReaderInstance {
     }
 
     @Override
+    public Map<String, String> getAllAttributes()
+    {
+        return atributes;
+    }
+
+    @Override
     public String getContent()
     {
         return characters;
