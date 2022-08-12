@@ -433,7 +433,9 @@ class OdsReader {
                     pair.second = new Vector(rows, columns);
                     groupCells.add(pair);
                 }
-
+                if (positionY >= sheet.getMaxColumns()) {
+                    sheet.appendColumns(positionY - sheet.getMaxColumns() + 1);
+                }
                 Range range = sheet.getRange(positionX, positionY);
 
                 String formula = instance.getAttribValue("table:formula");
