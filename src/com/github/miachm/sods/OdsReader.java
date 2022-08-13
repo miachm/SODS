@@ -363,7 +363,8 @@ class OdsReader {
 
                     String visibility = instance.getAttribValue("table:visibility");
                     if ("collapse".equals(visibility))
-                        sheet.hideRow(sheet.getMaxRows()-1);
+                        for (int i = 0; i < numRows; i++)
+                            sheet.hideRow(sheet.getMaxRows() - i - 1);
 
                     String rowStyleName = instance.getAttribValue("table:style-name");
                     if (rowStyleName != null && numRows < 1000) {
@@ -478,7 +479,9 @@ class OdsReader {
                     pair.second = new Vector(rows, columns);
                     groupCells.add(pair);
                 }
-
+                if (positionY >= sheet.getMaxColumns()) {
+                    sheet.appendColumns(positionY - sheet.getMaxColumns() + 1);
+                }
                 Range range = sheet.getRange(positionX, positionY);
 
                 String formula = instance.getAttribValue("table:formula");

@@ -515,4 +515,9 @@ public class SpreadSheetTest {
         SpreadSheet spread = new SpreadSheet(new File("resources/floatingpoint.ods"));
         // No crash? It's green then
     }
+    @Test
+    public void testMissingColumnTag() throws IOException {
+        SpreadSheet spread = new SpreadSheet(new File("resources/missingColumnTag.ods"));
+        // No crash? It's green then
+    }
 }
