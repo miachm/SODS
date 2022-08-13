@@ -318,7 +318,8 @@ class OdsReader {
 
                     String visibility = instance.getAttribValue("table:visibility");
                     if ("collapse".equals(visibility))
-                        sheet.hideRow(sheet.getMaxRows()-1);
+                        for (int i = 0; i < numRows; i++)
+                            sheet.hideRow(sheet.getMaxRows() - i - 1);
 
                     String rowStyleName = instance.getAttribValue("table:style-name");
                     if (rowStyleName != null && numRows < 1000) {
