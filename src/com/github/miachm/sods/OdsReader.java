@@ -26,6 +26,11 @@ class OdsReader {
     private Map<String,TableStyle> styleTable = new HashMap<>();
     private Set<Pair<Vector, Vector>> groupCells = new HashSet<>();
     private List<OdsReaderExtension> extensions = new ArrayList<>();
+    private Style last_style = new Style();
+    private ColumnStyle last_column_style = new ColumnStyle();
+    private RowStyle last_row_style = new RowStyle();
+    private TableStyle last_table_style = new TableStyle();
+    private OfficeAnnotationBuilder currentOfficeAnnotation;
 
     private OdsReader(InputStream in,SpreadSheet spread) {
         /* TODO This code if for ods files in zip. But we could have XML-ONLY FILES */
@@ -33,11 +38,14 @@ class OdsReader {
         styles.put("Default", new Style());
         uncompressor = new Uncompressor(in);
 
+        extensions.add(new OdsReaderSheets(this));
+        extensions.add(new OdsReaderRows(this));
+        extensions.add(new OdsReaderColumns(this));
+        extensions.add(new OdsReaderStyle(this));
         extensions.add(new OdsReaderValues(this));
     }
 
     static void load(InputStream in,SpreadSheet spread, LoadOptions options) throws IOException {
-        options.isOnlyValues();
         OdsReader reader = new OdsReader(in, spread);
         reader.load();
     }
@@ -77,236 +85,27 @@ class OdsReader {
         if (instance == null)
             return;
 
-        StringBuilder path = new StringBuilder();
-
-        Map<String, List<OdsReaderExtension>> buffer = new HashMap<>();
-        List<String> tags_attr = new ArrayList<>();
+        Map<String, OdsReaderExtension> extensionHandler = new HashMap<>();
+        Set<String> tags = new HashSet<>();
         for (OdsReaderExtension e : this.extensions) {
-            List<String> tags = Arrays.asList(e.managedTags(path.toString()));
-            for (String tag : tags) {
-                buffer.getOrDefault(tag, new ArrayList<>()).add(e);
-            }
-            tags_attr.addAll(tags);
+            extensionHandler.put(e.tag(), e);
+            tags.add(e.tag());
         }
-        String[] tags = (String[]) tags_attr.toArray();
         while (instance.hasNext()) {
             XmlReaderInstance reader = instance.nextElement(tags);
-            if (reader == null) {
-                int index = path.lastIndexOf(">>");
-                if (index < 0)
-                    break;
-                path.delete(index, path.length());
-            }
-            else {
-                path.append(">>").append(reader.getTag());
-
-                Map<String, String> attr = reader.getAllAttributes();
-                for (OdsReaderExtension extension : buffer.getOrDefault(reader.getTag(), new ArrayList<>())) {
-                    Set<String> items = extension.managedAtributes(path.toString());
-                    items.retainAll(attr.keySet());
-                    if (!items.isEmpty())
-                        extension.readContent(path.toString(), reader);
-                    for (String item : items) {
-                        extension.readAtribute(item, reader.getAttribValue(item));
-                    }
+            if (reader != null) {
+                OdsReaderExtension extension = extensionHandler.get(reader.getTag());
+                if (extension != null) {
+                    extension.processTag(reader);
                 }
             }
-            buffer.clear();
-            tags_attr.clear();
-            for (OdsReaderExtension e : this.extensions) {
-                List<String> tags_aux = Arrays.asList(e.managedTags(path.toString()));
-                for (String tag : tags_aux) {
-                    buffer.getOrDefault(tag, new ArrayList<>()).add(e);
-                }
-                tags_attr.addAll(tags_aux);
-            }
-            tags = (String[]) tags_attr.toArray();
 
         }
 
         reader.close();
     }
 
-    private void iterateStyleEntries(XmlReaderInstance reader) {
-        if (reader == null)
-            return;
-
-        while (reader.hasNext()) {
-            XmlReaderInstance instance = reader.nextElement("style:style");
-            if (instance == null)
-                return;
-
-            String name = instance.getAttribValue("style:name");
-            String family = instance.getAttribValue("style:family");
-            if (name != null && family != null) {
-                if (family.equals("table-cell")) {
-                    Style style = readCellStyleEntry(instance);
-                    styles.put(name, style);
-                }
-                else if (family.equals("table-column")) {
-                    ColumnStyle style = readColumnStyleEntry(instance);
-                    styleColumn.put(name, style);
-                }
-                else if (family.equals("table-row")) {
-                    RowStyle style = readRowStyleEntry(instance);
-                    styleRow.put(name, style);
-                }
-                else if (family.equals("table")) {
-                    TableStyle style = readTableStyleEntry(instance);
-                    styleTable.put(name, style);
-                }
-            }
-        }
-    }
-
-    private Style readCellStyleEntry(XmlReaderInstance reader) {
-        Style style = new Style();
-        while (reader.hasNext()) {
-            XmlReaderInstance instance = reader.nextElement("style:text-properties",
-                    "style:table-cell-properties",
-                    "style:paragraph-properties");
-
-            if (instance == null)
-                return style;
-
-            if (instance.getTag().equals("style:text-properties")) {
-                String bold = instance.getAttribValue("fo:font-weight");
-                if (bold != null)
-                    style.setBold(bold.equals("bold"));
-
-                String italic = instance.getAttribValue("fo:font-style");
-                if (italic != null)
-                    style.setItalic(italic.equals("italic"));
-
-                String underline = instance.getAttribValue("style:text-underline-style");
-                if (underline != null)
-                    style.setUnderline(underline.equals("solid"));
-
-                String fontcolor = instance.getAttribValue("fo:color");
-                if (fontcolor != null && !fontcolor.equals("transparent"))
-                    try {
-                        style.setFontColor(new Color(fontcolor));
-                    }
-                    catch (IllegalArgumentException e) { System.err.println(e.getMessage());}
-
-                String fontsize = instance.getAttribValue("fo:font-size");
-                if (fontsize != null) {
-                    if (fontsize.endsWith("pt")) {
-                        try {
-                            int index = fontsize.lastIndexOf("pt");
-                            int fontSize = (int) Math.round(Double.parseDouble(fontsize.substring(0, index)));
-                            style.setFontSize(fontSize);
-                        }
-                        catch (NumberFormatException e)
-                        {
-                            System.err.println("Error, invalid font size " + fontsize);
-                        }
-                    }
-                    else
-                        throw new OperationNotSupportedException("Error, font size is not measured in PT. Skipping...");
-                }
-            }
-
-            if (instance.getTag().equals("style:table-cell-properties")) {
-                String backgroundColor = instance.getAttribValue("fo:background-color");
-                if (backgroundColor != null && !backgroundColor.equals("transparent"))
-                    try {
-                        style.setBackgroundColor(new Color(backgroundColor));
-                    }
-                    catch (IllegalArgumentException e) { System.err.println(e.getMessage());}
-
-                String verticalAlign = instance.getAttribValue("style:vertical-align");
-                if (verticalAlign != null) {
-                    Style.VERTICAL_TEXT_ALIGMENT pos = null;
-                    if (verticalAlign.equalsIgnoreCase("middle")) {
-                        pos = Style.VERTICAL_TEXT_ALIGMENT.Middle;
-                    } else if (verticalAlign.equalsIgnoreCase("top")) {
-                        pos = Style.VERTICAL_TEXT_ALIGMENT.Top;
-                    } else if (verticalAlign.equalsIgnoreCase("bottom")) {
-                        pos = Style.VERTICAL_TEXT_ALIGMENT.Bottom;
-                    }
-                    style.setVerticalTextAligment(pos);
-                }
-            }
-
-            if(instance.getTag().equals("style:paragraph-properties")) {
-                String align = instance.getAttribValue("fo:text-align");
-                if(align != null) {
-                    Style.TEXT_ALIGMENT pos = null;
-                    if(align.equals("center")) {
-                        pos = Style.TEXT_ALIGMENT.Center;
-                    }
-                    else if(align.equals("end")) {
-                        pos = Style.TEXT_ALIGMENT.Right;
-                    }
-                    else if(align.equals("start")) {
-                        pos = Style.TEXT_ALIGMENT.Left;
-                    }
-                    style.setTextAligment(pos);
-                }
-            }
-        }
-        return style;
-    }
-
-    private ColumnStyle readColumnStyleEntry(XmlReaderInstance reader) {
-        ColumnStyle style = new ColumnStyle();
-        while (reader.hasNext()) {
-            XmlReaderInstance instance = reader.nextElement("style:table-column-properties");
-            if (instance == null)
-                return style;
-
-            String columnWidth = instance.getAttribValue("style:column-width");
-            if (columnWidth != null)
-                style.setWidth(columnWidth);
-        }
-        return style;
-    }
-
-    private RowStyle readRowStyleEntry(XmlReaderInstance reader) {
-        RowStyle style = new RowStyle();
-        while (reader.hasNext()) {
-            XmlReaderInstance instance = reader.nextElement("style:table-row-properties");
-            if (instance == null)
-                return style;
-
-            String rowHeight = instance.getAttribValue("style:row-height");
-            if (rowHeight != null)
-                style.setHeight(rowHeight);
-        }
-        return style;
-    }
-
-    private TableStyle readTableStyleEntry(XmlReaderInstance reader) {
-        TableStyle style = new TableStyle();
-        while (reader.hasNext()) {
-            XmlReaderInstance instance = reader.nextElement("style:table-properties");
-            if (instance == null)
-                return style;
-
-            String display = instance.getAttribValue("table:display");
-            if (display != null)
-                style.setHidden(display.equals("false"));
-        }
-        return style;
-    }
-
-    private void iterateFilesEntries(XmlReaderInstance reader) {
-        if (reader == null)
-            return;
-
-        XmlReaderInstance instance = reader.nextElement("office:spreadsheet");
-        if (instance != null)
-            processSpreadsheet(instance);
-    }
-
-    private void processSpreadsheet(XmlReaderInstance reader) {
-        while (reader.hasNext()) {
-            XmlReaderInstance instance = reader.nextElement("table:table");
-            if (instance != null)
-                processTable(instance);
-        }
-    }
+    /*
 
     private void processTable(XmlReaderInstance reader) {
         String name = reader.getAttribValue("table:name");
@@ -640,7 +439,7 @@ class OdsReader {
         annotation.setMsg(msg.toString());
         return annotation.build();
     }
-
+*/
     public Range getCurrentRange() {
         Sheet sheet = getCurrentSheet();
         return sheet.getRange(sheet.getMaxRows()-1, sheet.getMaxColumns() - 1);
@@ -652,5 +451,55 @@ class OdsReader {
 
     public void addSheet(Sheet sheet) {
         this.spread.appendSheet(sheet);
+    }
+
+    public ColumnStyle getCurrentColumnStyle() {
+        return this.last_column_style;
+    }
+
+    public RowStyle getCurrentRowStyle() {
+        return this.last_row_style;
+    }
+
+    public TableStyle getCurrentTableStyle() {
+        return this.last_table_style;
+    }
+
+    public Style getStyle(String name)
+    {
+        Style style = styles.get(name);
+
+        /*
+        if (style == null)
+            style = columns_styles.get(column);
+
+        if (style == null)
+            style = rows_styles.get(sheet.getMaxRows() - 1);
+        */
+        return style;
+    }
+
+    public void defineAnnotation(OfficeAnnotationBuilder officeAnnotationBuilder) {
+        this.currentOfficeAnnotation = officeAnnotationBuilder;
+    }
+
+    public OfficeAnnotationBuilder getCurrentAnnotation() {
+        return this.currentOfficeAnnotation;
+    }
+
+    public void defineStyle(Style style, String name) {
+        this.styles.put(name, style);
+    }
+
+    public void defineStyle(ColumnStyle style, String name) {
+        this.styleColumn.put(name, style);
+    }
+
+    public void defineStyle(RowStyle style, String name) {
+        this.styleRow.put(name, style);
+    }
+
+    public void defineStyle(TableStyle style, String name) {
+        this.styleTable.put(name, style);
     }
 }

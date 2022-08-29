@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLOutputFactory;
@@ -229,6 +230,11 @@ public class OfficeValueTypeTest {
 
         @Override
         public XmlReaderInstance nextElement(String... name) {
+            return null;
+        }
+
+        @Override
+        public XmlReaderInstance nextElement(Set<String> name) {
             return null;
         }
 

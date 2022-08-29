@@ -3,8 +3,7 @@ package com.github.miachm.sods;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 class XmlReaderInstanceEventImpl implements XmlReaderInstance {
     private XMLStreamReader reader;
@@ -40,14 +39,20 @@ class XmlReaderInstanceEventImpl implements XmlReaderInstance {
     }
 
     @Override
-    public XmlReaderInstance nextElement(String... names) {
+    public XmlReaderInstance nextElement(String... names)
+    {
+        return nextElement(new HashSet<>(Arrays.asList(names)));
+    }
+
+    @Override
+    public XmlReaderInstance nextElement(Set<String> names) {
         try {
             while (reader.hasNext() && !end) {
                 reader.next();
                 if (reader.isStartElement()) {
                     QName qName = reader.getName();
                     String elementName = qNameToString(qName);
-                    if (contains(names, elementName))
+                    if (names.contains(elementName))
                         return new XmlReaderInstanceEventImpl(reader, elementName);
                 }
                 else if (reader.isEndElement()) {
@@ -59,7 +64,7 @@ class XmlReaderInstanceEventImpl implements XmlReaderInstance {
                     }
                 }
                 else if (reader.isCharacters()) {
-                    if (contains(names, CHARACTERS))
+                    if (names.contains(CHARACTERS))
                         return new XmlReaderInstanceEventImpl(reader, CHARACTERS);
                 }
             }
@@ -76,12 +81,6 @@ class XmlReaderInstanceEventImpl implements XmlReaderInstance {
     }
 
     @Override
-    public Map<String, String> getAllAttributes()
-    {
-        return atributes;
-    }
-
-    @Override
     public String getContent()
     {
         return characters;
@@ -95,13 +94,5 @@ class XmlReaderInstanceEventImpl implements XmlReaderInstance {
     private String qNameToString(QName qName)
     {
         return qName.getPrefix() + ":" + qName.getLocalPart();
-    }
-
-    public static <String> boolean contains(final String[] array, final String v) {
-        for (final String e : array)
-            if (e.equals(v))
-                return true;
-
-        return false;
     }
 }

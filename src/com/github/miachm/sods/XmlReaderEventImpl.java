@@ -24,7 +24,7 @@ class XmlReaderEventImpl implements XmlReader {
                 reader.close();
                 return null;
             }
-            return new XmlReaderInstanceEventImpl(reader, null);
+            return new XmlReaderInstanceEventImpl(reader, "");
         } catch (XMLStreamException e) {
             throw new NotAnOdsException(e);
         }
