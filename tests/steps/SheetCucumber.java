@@ -289,4 +289,21 @@ public class SheetCucumber {
             ExceptionChecker.registerException(e);
         }
     }
+
+    @When("^the client gets the full data range as World\\.range$")
+    public void the_client_gets_the_full_data_range_as_World_dataRange() throws Throwable {
+        World.range = World.sheet.getDataRange();
+    }
+
+    @Then("^World\\.range has the same content as the World\\.Sheet$")
+    public void world_dataRange_has_the_same_content_as_the_World_Sheet() throws Throwable {
+        assertEquals(World.sheet.getMaxRows(), World.range.getNumRows());
+        assertEquals(World.sheet.getMaxColumns(), World.range.getNumColumns());
+
+        Object[][] values = World.range.getValues();
+
+        for (int i = 0; i < World.sheet.getMaxRows(); i++)
+            for (int j = 0; j < World.sheet.getMaxRows(); j++)
+                assertEquals(World.sheet.getRange(i,j).getValue(), values[i][j]);
+    }
 }

@@ -1,5 +1,6 @@
 package steps;
 
+import com.github.miachm.sods.Range;
 import com.github.miachm.sods.Sheet;
 import com.github.miachm.sods.SpreadSheet;
 
@@ -10,6 +11,7 @@ public class World {
     public static byte[] buffer;
     public static Sheet sheet;
     public static List<Sheet> list_sheets;
+    public static Range range;
 
 
     public static void reset() {
@@ -17,6 +19,7 @@ public class World {
         buffer = null;
         sheet = null;
         list_sheets = null;
+        range = null;
     }
 
 }
