@@ -306,4 +306,9 @@ public class SheetCucumber {
             for (int j = 0; j < World.sheet.getMaxRows(); j++)
                 assertEquals(World.sheet.getRange(i,j).getValue(), values[i][j]);
     }
+
+    @Then("^the name of the sheet is \"([^\"]*)\"$")
+    public void the_name_of_the_sheet_is(String name) throws Throwable {
+        assertEquals(World.sheet.getName(), name);
+    }
 }
