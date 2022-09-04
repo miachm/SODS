@@ -234,25 +234,56 @@ public class SheetCucumber {
         }
     }
 
-    @When("^the client gets the column (\\d+) as columnWidth$")
-    public void the_client_gets_the_column_as_columnWidth(int index) throws Throwable {
-        World.columnWidth = World.sheet.getColumnWidth(index);
+    @Then("^the value of the column (\\d+) is (\\d.+)$")
+    public void the_name_of_World_columnWidth_is(int index, double value) throws Throwable {
+        assertEquals(value, World.sheet.getColumnWidth(index));
     }
 
-    @Then("^the value of World\\.columnWidth is (\\d.+)$")
-    public void the_name_of_World_columnWidth_is(double value) throws Throwable {
-        assertEquals(value, World.columnWidth);
-    }
-
-    @Then("^the value of World\\.columnWidth is null$")
-    public void the_name_of_World_columnWidth_is_null() throws Throwable {
-        assertNull(World.columnWidth);
+    @Then("^the value of the column (\\d+) is null$")
+    public void the_name_of_World_columnWidth_is_null(int index) throws Throwable {
+        assertNull(World.sheet.getColumnWidth(index));
     }
 
     @When("^the client gets the column (-?\\d+) and catch the exception$")
     public void the_client_gets_the_column_and_catch_the_exception(int index) throws Throwable {
         try {
             World.sheet.getColumnWidth(index);
+        }
+        catch (IndexOutOfBoundsException | IllegalArgumentException e) {
+            ExceptionChecker.registerException(e);
+        }
+    }
+
+    @When("^specify the row height with the next data:$")
+    public void specify_the_row_height_with_the_next_data(DataTable dataTable) throws Throwable {
+        Iterator<String> datatableIterator = dataTable.asList(String.class).iterator();
+        Sheet sheet  = World.sheet;
+        int index = 0;
+        while (datatableIterator.hasNext()) {
+            String value = datatableIterator.next();
+            if (value.equals("null"))
+                sheet.setRowHeight(index, null);
+            else
+                sheet.setRowHeight(index, Double.parseDouble(value));
+
+            index++;
+        }
+    }
+
+    @Then("^the value of the row (\\d+) is (\\d.+)$")
+    public void the_value_of_the_row_is(int index, double value) throws Throwable {
+        assertEquals(value, World.sheet.getRowHeight(index));
+    }
+
+    @Then("^the value of the row (\\d+) is null$")
+    public void the_value_of_the_row_is_null(int index) throws Throwable {
+        assertNull(World.sheet.getRowHeight(index));
+    }
+
+    @When("^the client gets the row (-?\\d+) and catch the exception$")
+    public void the_client_gets_the_row_and_catch_the_exception(int index) throws Throwable {
+        try {
+            World.sheet.getRowHeight(index);
         }
         catch (IndexOutOfBoundsException | IllegalArgumentException e) {
             ExceptionChecker.registerException(e);
