@@ -10,6 +10,7 @@ public class World {
     public static byte[] buffer;
     public static Sheet sheet;
     public static List<Sheet> list_sheets;
+    public static Double columnWidth;
 
 
     public static void reset() {
@@ -17,6 +18,7 @@ public class World {
         buffer = null;
         sheet = null;
         list_sheets = null;
+        columnWidth = null;
     }
 
 }

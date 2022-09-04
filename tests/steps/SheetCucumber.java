@@ -2,16 +2,18 @@ package steps;
 
 import com.github.miachm.sods.Range;
 import com.github.miachm.sods.Sheet;
+import cucumber.api.DataTable;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertFalse;
 
 public class SheetCucumber {
     private Random random = new Random();
@@ -210,6 +212,47 @@ public class SheetCucumber {
     public void the_client_deletes_the_row_on_the_index_and_catch_the_exception(int howmany, int row) throws Throwable {
         try {
             World.sheet.deleteRows(row, howmany);
+        }
+        catch (IndexOutOfBoundsException | IllegalArgumentException e) {
+            ExceptionChecker.registerException(e);
+        }
+    }
+
+    @When("^specify the column width with the next data:$")
+    public void specify_the_column_width_with_the_next_data(DataTable datatable) throws Throwable {
+        Iterator<String> datatableIterator = datatable.asList(String.class).iterator();
+        Sheet sheet  = World.sheet;
+        int index = 0;
+        while (datatableIterator.hasNext()) {
+            String value = datatableIterator.next();
+            if (value.equals("null"))
+                sheet.setColumnWidth(index, null);
+            else
+                sheet.setColumnWidth(index, Double.parseDouble(value));
+
+            index++;
+        }
+    }
+
+    @When("^the client gets the column (\\d+) as columnWidth$")
+    public void the_client_gets_the_column_as_columnWidth(int index) throws Throwable {
+        World.columnWidth = World.sheet.getColumnWidth(index);
+    }
+
+    @Then("^the value of World\\.columnWidth is (\\d.+)$")
+    public void the_name_of_World_columnWidth_is(double value) throws Throwable {
+        assertEquals(value, World.columnWidth);
+    }
+
+    @Then("^the value of World\\.columnWidth is null$")
+    public void the_name_of_World_columnWidth_is_null() throws Throwable {
+        assertNull(World.columnWidth);
+    }
+
+    @When("^the client gets the column (-?\\d+) and catch the exception$")
+    public void the_client_gets_the_column_and_catch_the_exception(int index) throws Throwable {
+        try {
+            World.sheet.getColumnWidth(index);
         }
         catch (IndexOutOfBoundsException | IllegalArgumentException e) {
             ExceptionChecker.registerException(e);
