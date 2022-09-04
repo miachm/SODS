@@ -18,7 +18,7 @@ public class ExceptionChecker {
         assertNotNull(lastException);
         Package packageName = lastException.getClass().getPackage();
         String fullClassName = packageName.getName() + "." + name;
-        Exception exception = (Exception) Class.forName(fullClassName).newInstance();
+        Exception exception = (Exception) Class.forName(fullClassName).getConstructor().newInstance();
         assertTrue("The exception expected was " + name + " but received "  + lastException.getClass().getName(),
                 exception.getClass().isInstance(lastException));
     }
