@@ -383,4 +383,59 @@ public class SheetCucumber {
             ExceptionChecker.registerException(e);
         }
     }
+
+    @When("^the client inserts a column before the index (\\d+)$")
+    public void the_client_inserts_a_column_before_the_index(int index) throws Throwable {
+        World.sheet.insertColumnBefore(index);
+    }
+
+    @When("^the client inserts a column after the index (\\d+) and catch the exception$")
+    public void the_client_inserts_a_column_after_the_index_and_catch_the_exception(int index) throws Throwable {
+        try {
+            World.sheet.insertColumnAfter(index);
+        }
+        catch (IndexOutOfBoundsException | IllegalArgumentException e) {
+            ExceptionChecker.registerException(e);
+        }
+    }
+
+    @Then("^the value in range is null$")
+    public void the_value_in_range_is_null() throws Throwable {
+        assertNull(World.range.getValue());
+    }
+
+    @When("^the client inserts a column after the index (\\d+)$")
+    public void the_client_inserts_a_column_after_the_index(int index) throws Throwable {
+        World.sheet.insertColumnAfter(index);
+    }
+
+    @When("^the client inserts (\\d+) columns before the index (\\d+)$")
+    public void the_client_inserts_columns_before_the_index(int columns, int index) throws Throwable {
+        World.sheet.insertColumnsBefore(index, columns);
+    }
+
+    @When("^the client inserts (\\d+) columns after the index (\\d+)$")
+    public void the_client_inserts_columns_after_the_index(int columns, int index) throws Throwable {
+        World.sheet.insertColumnsAfter(index, columns);
+    }
+
+    @When("^the client inserts (-\\d+) columns before the index (\\d+) and catch the exception$")
+    public void the_client_inserts_columns_before_the_index_and_catch_the_exception(int columns, int index) throws Throwable {
+        try {
+            World.sheet.insertColumnsBefore(index, columns);
+        }
+        catch (IndexOutOfBoundsException | IllegalArgumentException e) {
+            ExceptionChecker.registerException(e);
+        }
+    }
+
+    @When("^the client inserts (-\\d+) columns after the index (\\d+) and catch the exception$")
+    public void the_client_inserts_columns_after_the_index_and_catch_the_exception(int columns, int index) throws Throwable {
+        try {
+            World.sheet.insertColumnsAfter(index, columns);
+        }
+        catch (IndexOutOfBoundsException | IllegalArgumentException e) {
+            ExceptionChecker.registerException(e);
+        }
+    }
 }

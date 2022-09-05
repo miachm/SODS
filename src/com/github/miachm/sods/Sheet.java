@@ -389,6 +389,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * @param columnIndex The index where insert
      * @param howmany How many columns to insert
      * @throws IndexOutOfBoundsException if the columnIndex is out of bounds, no changes will be done
+     * @throws IllegalArgumentException if howmany is negative, no changes will be done
      */
     public void insertColumnsAfter(int columnIndex, int howmany) {
         insertColumnsBefore(columnIndex+1,howmany);
@@ -399,10 +400,10 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * @param columnIndex The index where insert
      * @param howmany How many columns to insert
      * @throws IndexOutOfBoundsException if the columnIndex is out of bounds, no changes will be done
-     * @throws IllegalArgumentException if howmany is negative, no changes will be done to the sheet
+     * @throws IllegalArgumentException if howmany is negative, no changes will be done
      */
     public void insertColumnsBefore(int columnIndex, int howmany) {
-        if (columnIndex-1 > getMaxColumns())
+        if (columnIndex > getMaxColumns())
             throw new IndexOutOfBoundsException("Column " + columnIndex + " is out of bounds (" + getMaxColumns()+")");
         if (howmany < 0)
             throw new IllegalArgumentException("Number of columns can't be negative");
