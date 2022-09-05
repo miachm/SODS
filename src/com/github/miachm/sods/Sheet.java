@@ -447,7 +447,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * @throws IllegalArgumentException if howmany is negative, no changes will be done to the sheet
      */
     public void insertRowsBefore(int rowIndex, int howmany) {
-        if (rowIndex-1 > getMaxRows())
+        if (rowIndex > getMaxRows())
             throw new IndexOutOfBoundsException("Row " + rowIndex + " is out of bounds (" + getMaxRows()+")");
         if (howmany < 0)
             throw new IllegalArgumentException("Number of rows can't be negative");
@@ -469,6 +469,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * @param rowIndex The index where insert
      * @param howmany How many rows to insert
      * @throws IndexOutOfBoundsException if the index is out bounds, no changes will be done to sheet
+     * @throws IllegalArgumentException if howmany is negative, no changes will be done to the sheet
      */
     public void insertRowsAfter(int rowIndex, int howmany) {
         insertRowsBefore(rowIndex+1,howmany);
