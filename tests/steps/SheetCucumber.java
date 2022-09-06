@@ -557,4 +557,56 @@ public class SheetCucumber {
             ExceptionChecker.registerException(e);
         }
     }
+
+
+    @When("^hide the column (\\d+)$")
+    public void hide_the_column(int index) throws Throwable {
+        World.sheet.hideColumn(index);
+    }
+
+    @Then("^the column (\\d+) is hidden$")
+    public void the_column_is_hidden(int index) throws Throwable {
+        assertTrue(World.sheet.columnIsHidden(index));
+    }
+
+    @When("^show the column (\\d+)$")
+    public void show_the_column(int index) throws Throwable {
+        World.sheet.showColumn(index);
+    }
+
+    @Then("^the column (\\d+) is not hidden$")
+    public void the_column_is_not_hidden(int index) throws Throwable {
+        assertFalse(World.sheet.columnIsHidden(index));
+    }
+
+    @When("^hide the column (-?\\d+) and catch the exception$")
+    public void hide_the_column_and_catch_the_exception(int index) throws Throwable {
+        try {
+            World.sheet.hideColumn(index);
+        }
+        catch (IndexOutOfBoundsException | IllegalArgumentException e) {
+            ExceptionChecker.registerException(e);
+        }
+    }
+
+    @When("^show the column (-?\\d+) and catch the exception$")
+    public void show_the_column_and_catch_the_exception(int index) throws Throwable {
+        try {
+            World.sheet.showColumn(index);
+        }
+        catch (IndexOutOfBoundsException | IllegalArgumentException e) {
+            ExceptionChecker.registerException(e);
+        }
+    }
+
+    @When("^check column (-?\\d+) is hidden and catch the exception$")
+    public void check_column_is_hidden_and_catch_the_exception(int index) throws Throwable {
+        try {
+            World.sheet.columnIsHidden(index);
+        }
+        catch (IndexOutOfBoundsException | IllegalArgumentException e) {
+            ExceptionChecker.registerException(e);
+        }
+    }
+
 }
