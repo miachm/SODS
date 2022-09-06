@@ -9,6 +9,7 @@ import cucumber.api.java.en.When;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -220,5 +221,15 @@ public class SpreadsheetCucumber {
         } catch (NullPointerException e) {
             ExceptionChecker.registerException(e);
         }
+    }
+
+    @When("^load a spreadsheet from the resource \"([^\"]*)\"$")
+    public void load_a_spreadsheet_from_the_resource(String name) throws Throwable {
+        World.spread = new SpreadSheet(new File("resources/" + name + ".ods"));
+    }
+
+    @When("^get the sheet (\\d+)$")
+    public void get_the_sheet(int index) throws Throwable {
+        World.sheet = World.spread.getSheet(index - 1);
     }
 }

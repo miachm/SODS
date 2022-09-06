@@ -488,4 +488,23 @@ public class SheetCucumber {
             ExceptionChecker.registerException(e);
         }
     }
+    @Then("^the World\\.sheet is not hidden$")
+    public void the_World_sheet_is_not_hidden() throws Throwable {
+        assertFalse(World.sheet.isHidden());
+    }
+
+    @When("^hide the sheet World\\.sheet$")
+    public void hide_the_sheet_World_sheet() throws Throwable {
+        World.sheet.hideSheet();
+    }
+
+    @Then("^the World\\.sheet is hidden$")
+    public void the_World_sheet_is_hidden() throws Throwable {
+        assertTrue(World.sheet.isHidden());
+    }
+
+    @When("^show the sheet World\\.sheet$")
+    public void show_the_sheet_World_sheet() throws Throwable {
+        World.sheet.showSheet();
+    }
 }
