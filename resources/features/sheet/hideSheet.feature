@@ -29,7 +29,7 @@ Feature: Hide a sheet
     And get the first sheet
     Then the World.sheet is not hidden
 
-  Scenario: Test IO in an existing file
+  Scenario: Test IO in an existing ODS file
     When load a spreadsheet from the resource "hiddenItems"
     And get the first sheet
     Then the World.sheet is not hidden
