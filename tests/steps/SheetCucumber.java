@@ -232,17 +232,17 @@ public class SheetCucumber {
         }
     }
 
-    @Then("^the value of the column (\\d+) is (\\d.+)$")
+    @Then("^the client gets the width of the column (\\d+) is (\\d.+)$")
     public void the_name_of_World_columnWidth_is(int index, double value) throws Throwable {
         assertEquals(value, World.sheet.getColumnWidth(index));
     }
 
-    @Then("^the value of the column (\\d+) is null$")
+    @Then("^the client gets the width of the column (\\d+) is null$")
     public void the_name_of_World_columnWidth_is_null(int index) throws Throwable {
         assertNull(World.sheet.getColumnWidth(index));
     }
 
-    @When("^the client gets the column (-?\\d+) and catch the exception$")
+    @When("^the client gets the width of the column (-?\\d+) and catch the exception$")
     public void the_client_gets_the_column_and_catch_the_exception(int index) throws Throwable {
         try {
             World.sheet.getColumnWidth(index);
@@ -609,4 +609,18 @@ public class SheetCucumber {
         }
     }
 
+    @When("^the client sets the width of the column (\\d+) to (.+)$")
+    public void the_client_sets_the_width_of_the_column_to(int index, double value) throws Throwable {
+        World.sheet.setColumnWidth(index, value);
+    }
+
+    @When("^the client sets the width of the column (-?\\d+) and catch the exception$")
+    public void the_client_sets_the_width_of_the_column_and_catch_the_exception(int index) throws Throwable {
+        try {
+            World.sheet.getColumnWidth(index);
+        }
+        catch (IndexOutOfBoundsException | IllegalArgumentException e) {
+            ExceptionChecker.registerException(e);
+        }
+    }
 }

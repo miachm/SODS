@@ -8,7 +8,7 @@ Feature: Get width of a column
       |  null        |
 
   Scenario Outline: Get a column width by an index
-    Then the value of the column <index> is <value>
+    Then the client gets the width of the column <index> is <value>
     Examples:
       | index | value |
       | 0     | 1.2   |
@@ -17,14 +17,21 @@ Feature: Get width of a column
 
   Scenario: Get a column width from an empty Sheet
     Given an empty Sheet
-    When the client gets the column 0 and catch the exception
+    When the client gets the width of the column 0 and catch the exception
     Then the last exception is "IndexOutOfBoundsException"
 
   Scenario Outline: Get a column width with an invalid index
-    When the client gets the column <index> and catch the exception
+    When the client gets the width of the column <index> and catch the exception
     Then the last exception is "IndexOutOfBoundsException"
     Examples:
       | index |
       | -1    |
       | 3     |
       | 4     |
+
+  Scenario: Test IO in an existing ODS file
+    When load a spreadsheet from the resource "widthAndHeight"
+    And get the first sheet
+    Then the client gets the width of the column 0 is 120.385416666667
+    Then the client gets the width of the column 1 is 99.3510416666667
+    Then the client gets the width of the column 2 is 36.6447916666667
