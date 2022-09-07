@@ -268,17 +268,17 @@ public class SheetCucumber {
         }
     }
 
-    @Then("^the value of the row (\\d+) is (\\d.+)$")
+    @Then("^the client gets the height of the row (\\d+) is (\\d.+)$")
     public void the_value_of_the_row_is(int index, double value) throws Throwable {
         assertEquals(value, World.sheet.getRowHeight(index));
     }
 
-    @Then("^the value of the row (\\d+) is null$")
+    @Then("^the client gets the height of the row (\\d+) is null$")
     public void the_value_of_the_row_is_null(int index) throws Throwable {
         assertNull(World.sheet.getRowHeight(index));
     }
 
-    @When("^the client gets the row (-?\\d+) and catch the exception$")
+    @When("^the client gets the height of the row (-?\\d+) and catch the exception$")
     public void the_client_gets_the_row_and_catch_the_exception(int index) throws Throwable {
         try {
             World.sheet.getRowHeight(index);
@@ -617,7 +617,22 @@ public class SheetCucumber {
     @When("^the client sets the width of the column (-?\\d+) and catch the exception$")
     public void the_client_sets_the_width_of_the_column_and_catch_the_exception(int index) throws Throwable {
         try {
-            World.sheet.getColumnWidth(index);
+            World.sheet.setColumnWidth(index, 1.0);
+        }
+        catch (IndexOutOfBoundsException | IllegalArgumentException e) {
+            ExceptionChecker.registerException(e);
+        }
+    }
+
+    @When("^the client sets the height of the row (\\d+) to (.+)$")
+    public void the_client_sets_the_height_of_the_row_to(int index, double value) throws Throwable {
+        World.sheet.setRowHeight(index, value);
+    }
+
+    @When("^the client sets the height of the row (-?\\d+) and catch the exception$")
+    public void the_client_sets_the_height_of_the_row_and_catch_the_exception(int index) throws Throwable {
+        try {
+            World.sheet.setRowHeight(index, 1.0);
         }
         catch (IndexOutOfBoundsException | IllegalArgumentException e) {
             ExceptionChecker.registerException(e);

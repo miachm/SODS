@@ -8,7 +8,7 @@ Feature: Get height of a row
       |  null        |
 
   Scenario Outline: Get a row height by an index
-    Then the value of the row <index> is <value>
+    Then the client gets the height of the row <index> is <value>
     Examples:
       | index | value |
       | 0     | 1.2   |
@@ -17,11 +17,11 @@ Feature: Get height of a row
 
   Scenario: Get a row height from an empty Sheet
     Given an empty Sheet
-    When the client gets the row 0 and catch the exception
+    When the client gets the height of the row 0 and catch the exception
     Then the last exception is "IndexOutOfBoundsException"
 
   Scenario Outline: Get a row height with an invalid index
-    When the client gets the row <index> and catch the exception
+    When the client gets the height of the row <index> and catch the exception
     Then the last exception is "IndexOutOfBoundsException"
     Examples:
       | index |
