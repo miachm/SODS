@@ -41,6 +41,7 @@ class OdsWritter {
         writeMymeType();
         try {
             writeSpreadsheet();
+            writeSettingsStyleFile();
         } catch (XMLStreamException e) {
             throw new GenerateOdsException(e);
         }
@@ -114,6 +115,29 @@ class OdsWritter {
 
         try {
             this.out.addEntry(output.toByteArray(),"content.xml");
+        } catch (IOException e) {
+            throw new GenerateOdsException(e);
+        }
+    }
+
+    private void writeSettingsStyleFile() throws UnsupportedEncodingException, XMLStreamException {
+        /*
+            This is needed by the issue #45
+            Excel expects a styles.xml file. Even if it's empty
+         */
+        ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
+        XMLStreamWriter out = XMLOutputFactory.newInstance().createXMLStreamWriter(
+                new OutputStreamWriter(output, "utf-8"));
+        out.writeStartDocument("UTF-8", "1.0");
+        out.writeStartElement( "office:document-styles");
+        out.writeAttribute("xmlns:office", office);
+        out.writeAttribute("office:version", "1.2");
+        out.writeEndElement();
+        out.writeEndDocument();
+        out.close();
+
+        try {
+            this.out.addEntry(output.toByteArray(), "styles.xml");
         } catch (IOException e) {
             throw new GenerateOdsException(e);
         }
