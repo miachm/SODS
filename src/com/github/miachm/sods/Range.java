@@ -22,6 +22,12 @@ public class Range {
         if (column_init < 0)
             throw new IndexOutOfBoundsException("Starting column is negative");
 
+        if (numrows < 0)
+            throw new IndexOutOfBoundsException("Numrows can't be negative");
+
+        if (numcolumns < 0)
+            throw new IndexOutOfBoundsException("Numrows can't be negative");
+
         if (row_init + numrows > sheet.getMaxRows())
             throw new IndexOutOfBoundsException("Range goes out of bounds: "+
                                     "(end_of_range: " + (row_init+numrows) + ", maxrows in sheet: " + sheet.getMaxRows());
