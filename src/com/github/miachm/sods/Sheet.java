@@ -670,11 +670,22 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         numColumns = getLastColumn();
     }
 
+    /**
+     * Determines if this sheet is protected by a password or not
+     * @return True if it's protected
+     */
     public boolean isProtected()
     {
         return this.hashed_password != null;
     }
 
+    /**
+     * Sets a password for a sheet. SODS will ignore this setting but other consumers will ask for a password to the user
+     * in order to access this sheet
+     * @param key the password
+     * @throws IllegalArgumentException if the password parameter is empty
+     * @throws NoSuchAlgorithmException if your java installation doesn't have SHA-256 hash encryption
+     */
     public void setPassword(String key) throws NoSuchAlgorithmException {
         if (key.isEmpty())
             throw new IllegalArgumentException("Key is empty");
