@@ -64,7 +64,9 @@ public class Range {
                     + dest.getNumValues() + " against " + getNumValues() + ")");
 
         dest.setValues(getValues());
+        dest.setFormulas(getFormulas());
         dest.setStyles(getStyles());
+        dest.setAnnotations(getAnnotations());
     }
 
     /**
