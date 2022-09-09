@@ -10,18 +10,9 @@ class Cell implements Cloneable {
     private Style style = Style.default_style;
     private GroupCell group;
     private OfficeAnnotation annotation;
-    static int id = 0;
 
     Cell()
     {
-        id++;
-        /*
-        for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
-            System.out.println(ste);
-        }
-        System.out.println("======================");
-        System.out.println("======================");
-         */
     }
 
     GroupCell getGroup() {
@@ -64,7 +55,8 @@ class Cell implements Cloneable {
     {
         value = null;
         formula = null;
-        style = new Style();
+        style = Style.default_style;
+        annotation = null;
     }
 
     String getFormula() {
