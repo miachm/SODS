@@ -11,7 +11,7 @@ Feature: Clear a Range
     When the client creates a Range with 0,0,1,1
     Then the range value is not null
 
-  Scenario: Clear a Range
+  Scenario: IO a range after clear
     Given a sheet "A", size 2x2 and random data
     When the client creates a Range with 1,0,1,1
     When the client clears the range

@@ -1,13 +1,15 @@
 package steps;
 
-import com.github.miachm.sods.Range;
-import com.github.miachm.sods.Sheet;
+import com.github.miachm.sods.*;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 import java.lang.reflect.Array;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneOffset;
 import java.util.*;
 
 import static org.testng.AssertJUnit.*;
@@ -60,17 +62,69 @@ public class SheetCucumber {
             ExceptionChecker.registerException(e);
         }
     }
+    private Color getRandomColor(Random random)
+    {
+        int red = random.nextInt(255);
+        int green = random.nextInt(255);
+        int blue = random.nextInt(255);
+        return new Color(red, green, blue);
+    }
+    Style getRandomStyle()
+    {
+        Style style = new Style();
+        style.setBold(random.nextBoolean());
+        style.setItalic(random.nextBoolean());
+        style.setUnderline(random.nextBoolean());
+
+        if (random.nextBoolean())
+            style.setBackgroundColor(getRandomColor(random));
+        if (random.nextBoolean())
+            style.setFontSize(random.nextInt(42) + 1);
+        if (random.nextBoolean())
+            style.setFontColor(getRandomColor(random));
+
+        return style;
+    }
+
 
     @Given("^a sheet \"([^\"]*)\", size (\\d+)x(\\d+) and random data$")
     public void a_sheet_size_x_and_random_data(String name, int rows, int columns) throws Throwable {
         World.sheet = new Sheet(name, rows, columns);
         Range range = World.sheet.getDataRange();
         List<Integer> integers = new ArrayList<>();
+        List<Style> styles = new ArrayList<>();
+        List<String> formulas = new ArrayList<>();
+        List<OfficeAnnotation> annotations = new ArrayList<>();
         for (int i = 0; i < range.getNumValues(); i++) {
             integers.add(random.nextInt());
+            styles.add(getRandomStyle());
+            formulas.add(getRandomFormula());
+            annotations.add(getRandomAnnotations());
         }
 
         range.setValues(integers.toArray());
+        range.setStyles(styles.toArray(new Style[0]));
+        range.setFormulas(formulas.toArray(new String[0]));
+        range.setAnnotations(annotations.toArray(new OfficeAnnotation[0]));
+    }
+
+    private OfficeAnnotation getRandomAnnotations() {
+        if (random.nextBoolean())
+            return null;
+
+        LocalDateTime date = LocalDateTime.of(1970+random.nextInt(50), Month.APRIL,
+                1 + random.nextInt(29), random.nextInt(24), 1, 1);
+        String msg = "MSG: " + random.nextInt();
+        return new OfficeAnnotation(msg, date);
+    }
+
+    private String getRandomFormula() {
+        String[] arr = {"=A1+B1", "=A2-B2", "=SUM(A1:A2)"};
+
+        if (random.nextBoolean() && random.nextBoolean())
+            return arr[random.nextInt(arr.length)];
+        else
+            return null;
     }
 
     @When("^the client clears the sheet$")

@@ -13,13 +13,13 @@ public class OfficeAnnotation implements Cloneable {
     private final String msg;
     private final LocalDateTime lastModified;
 
-    OfficeAnnotation()
+    public OfficeAnnotation()
     {
         msg = null;
         lastModified = null;
     }
 
-    OfficeAnnotation(String msg, LocalDateTime lastModified)
+    public OfficeAnnotation(String msg, LocalDateTime lastModified)
     {
         this.msg = msg;
         this.lastModified = lastModified;

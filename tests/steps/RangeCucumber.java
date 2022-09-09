@@ -1,8 +1,11 @@
 package steps;
 
+import com.github.miachm.sods.Range;
 import com.github.miachm.sods.Style;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+
+import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
@@ -86,5 +89,31 @@ public class RangeCucumber {
     @Then("^the range value is not null$")
     public void the_range_value_is_not_null() throws Throwable {
         assertNotNull(World.range.getValue());
+    }
+
+    @When("^the client copy to the Range (\\d+),(\\d+),(\\d+),(\\d+)$")
+    public void the_client_copy_to_the_Range(int row, int column, int numrows, int numcolumns) throws Throwable {
+        Range range = World.sheet.getRange(row, column, numrows, numcolumns);
+        World.range.copyTo(range);
+    }
+
+    @Then("^the range is equal to the range (\\d+),(\\d+),(\\d+),(\\d+)$")
+    public void the_range_is_equal_to_the_range(int row, int column, int numrows, int numcolumns) throws Throwable {
+        Range range = World.sheet.getRange(row, column, numrows, numcolumns);
+        assertTrue(Arrays.deepEquals(World.range.getValues(), range.getValues()));
+        assertTrue(Arrays.deepEquals(World.range.getStyles(), range.getStyles()));
+        assertTrue(Arrays.deepEquals(World.range.getFormulas(), range.getFormulas()));
+        assertTrue(Arrays.deepEquals(World.range.getAnnotations(), range.getAnnotations()));
+    }
+
+    @When("^the client copy to the Range (\\d+),(\\d+),(\\d+),(\\d+) and catch the exception$")
+    public void the_client_copy_to_the_Range_and_catch_the_exception(int row, int column, int numrows, int numcolumns) throws Throwable {
+        Range range = World.sheet.getRange(row, column, numrows, numcolumns);
+        try {
+            World.range.copyTo(range);
+        }
+        catch (Exception e) {
+            ExceptionChecker.registerException(e);
+        }
     }
 }
