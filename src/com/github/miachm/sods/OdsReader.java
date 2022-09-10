@@ -51,6 +51,7 @@ class OdsReader {
             entry = uncompressor.nextFile();
         }
         uncompressor.close();
+        spread.trimSheets();
 
         if (!mimetypeChecked)
             throw new NotAnOdsException("This file doesn't contain a mimetype");
@@ -318,15 +319,13 @@ class OdsReader {
 
                     String visibility = instance.getAttribValue("table:visibility");
                     if ("collapse".equals(visibility))
-                        for (int i = 0; i < numRows; i++)
-                            sheet.hideRow(sheet.getMaxRows() - i - 1);
+                        sheet.hideRows(sheet.getMaxRows()-numRows, numRows);
 
                     String rowStyleName = instance.getAttribValue("table:style-name");
-                    if (rowStyleName != null && numRows < 1000) {
+                    if (rowStyleName != null) {
                         RowStyle rowStyle = styleRow.get(rowStyleName);
                         if (rowStyle != null)
-                            for (int i = 0; i < numRows; i++)
-                                sheet.setRowHeight(sheet.getMaxRows() - i - 1, rowStyle.getHeight());
+                            sheet.setRowHeights(sheet.getMaxRows()-numRows, numRows, rowStyle.getHeight());
                     }
                     processCells(instance, sheet);
                 }
@@ -372,12 +371,11 @@ class OdsReader {
         sheet.appendColumns(numColumns);
 
         if (areHidden) {
-            for (int j = 0; j < numColumns; j++)
-                sheet.hideColumn(index + j);
+            sheet.hideColumns(index, numColumns);
         }
 
         String columnStyleName = instance.getAttribValue("table:style-name");
-        if (columnStyleName != null && numColumns < 1000) {
+        if (columnStyleName != null) {
             ColumnStyle columnStyle = styleColumn.get(columnStyleName);
             if (columnStyle != null) {
                 sheet.setColumnWidths(sheet.getMaxColumns() - numColumns, numColumns, columnStyle.getWidth());
@@ -436,9 +434,9 @@ class OdsReader {
                 if (raw != null) {
                     number_columns_repeated = Integer.parseInt(raw);
 
-                    // Issue #12, check function trimColumns()
-                    if (number_columns_repeated > 1000)
-                        number_columns_repeated = 1000;
+                    // Issue #12
+                    if (number_columns_repeated > BUGGED_COUNT)
+                        number_columns_repeated = BUGGED_COUNT;
                 }
 
                 Range range = sheet.getRange(positionX, positionY, 1, number_columns_repeated);

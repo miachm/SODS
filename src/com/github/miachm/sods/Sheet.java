@@ -181,6 +181,56 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         return item;
     }
 
+    private <T extends TableField> List<T> getFieldForEditingRange(List<T> fields, Class<T> aClass, int index, int howmany)
+    {
+        Pair<Integer,Integer> pair = getIndexDelete(fields, index);
+
+        if (pair.second > 0) {
+            if (pair.first == fields.size()) {
+                fields.add(createInstanceOfT(aClass));
+            }
+
+            T item = fields.get(pair.first);
+            T other = (T) item.clone();
+
+            int aux = item.num_repeated;
+            item.num_repeated = pair.second;
+            other.num_repeated = aux - pair.second;
+            fields.add(pair.first + 1, other);
+            pair.first++;
+        }
+
+        List<T> list = new ArrayList<>();
+        while (howmany > 0 && pair.first < fields.size()) {
+            T item = fields.get(pair.first);
+            if (item.num_repeated == howmany) {
+                list.add(item);
+                return list;
+            }
+            else if (item.num_repeated < howmany){
+                howmany -= item.num_repeated;
+                list.add(item);
+                pair.first++;
+            }
+            else {
+                item.num_repeated = howmany;
+                list.add(item);
+                T other = (T) item.clone();
+                other.num_repeated = item.num_repeated-howmany;
+                fields.add(pair.first+1, other);
+                pair.first++;
+                howmany = 0;
+            }
+        }
+        if (howmany > 0) {
+            T item = createInstanceOfT(aClass);
+            item.num_repeated = howmany;
+            fields.add(item);
+            list.add(item);
+        }
+        return list;
+    }
+
     private <T extends TableField> void insertField(List<T> fields, T value, int index)
     {
         for (int i = 0; i < fields.size(); i++) {
@@ -458,6 +508,32 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
+     * Hides a row specified by a range
+     * @param row The index of the row
+     * @param howmany The number of different rows to hide
+     * @throws IndexOutOfBoundsException if the index is invalid
+     */
+    public void hideRows(int row, int howmany)
+    {
+        toggleRows(row, howmany, true);
+    }
+
+    private void toggleRows(int row, int howmany, boolean hidden)
+    {
+        if (howmany < 0)
+            throw new IllegalArgumentException("howmany needs to be positive");
+        if (howmany == 0)
+            return;
+
+        checkRowRange(row);
+        checkRowRange(row + howmany - 1);
+
+        List<Row> list = getFieldForEditingRange(rows, Row.class, row, howmany);
+        for (Row item : list)
+            item.row_style.setHidden(hidden);
+    }
+
+    /**
      * Hides a column specified by his index
      * @param column The index of the row
      * @throws IndexOutOfBoundsException if the index is invalid
@@ -467,6 +543,32 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         checkColumnRange(column);
         Column item = getFieldForEditing(columns, Column.class, column);
         item.column_style.setHidden(true);
+    }
+
+    /**
+     * Hides a column specified by a range
+     * @param column The index of the row
+     * @param howmany The number of columns
+     * @throws IndexOutOfBoundsException if the index is invalid
+     */
+    public void hideColumns(int column, int howmany)
+    {
+        toggleColumns(column, howmany, true);
+    }
+
+    private void toggleColumns(int column, int howmany, boolean hidden)
+    {
+        if (howmany < 0)
+            throw new IllegalArgumentException("howmany needs to be positive");
+        if (howmany == 0)
+            return;
+
+        checkColumnRange(column);
+        checkColumnRange(column + howmany - 1);
+
+        List<Column> list = getFieldForEditingRange(columns, Column.class, column, howmany);
+        for (Column item : list)
+            item.column_style.setHidden(hidden);
     }
 
     /**
@@ -601,22 +703,21 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * @param numColumns The number of columns to be modified, starting on index.
      * @param width The width of the column. It can be a null if you want to "unset" the width
      * @throws IndexOutOfBoundsException if the column is negative or &gt;= numColumns
-     * @throws IllegalArgumentException Width has to be positive
+     * @throws IllegalArgumentException Width and numColumns has to be positive
      */
 
     public void setColumnWidths(int column, int numColumns, Double width)
     {
+        if (numColumns < 0)
+            throw new IllegalArgumentException("Numcolumns needs to be positive");
+        if (numColumns == 0)
+            return;
         checkColumnRange(column);
         checkColumnRange(column + numColumns - 1);
 
-        Pair<Integer, Integer> pair = getIndexDelete(columns, column);
-        if (pair.second > 0 || columns.get(pair.first).num_repeated != numColumns) {
-            for (int i = 0; i < numColumns; i++)
-                setColumnWidth(column +i, width);
-        }
-        else {
-            columns.get(pair.first).column_style.setWidth(width);
-        }
+        List<Column> list = getFieldForEditingRange(columns, Column.class, column, numColumns);
+        for (Column item : list)
+            item.column_style.setWidth(width);
     }
 
     /**
@@ -648,8 +749,15 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      */
     public void setRowHeights(int row, int numRows, Double height)
     {
-        for (int i = 0; i < numRows; i++)
-            setRowHeight(row +i, height);
+        if (numRows < 0)
+            throw new IllegalArgumentException("numRows needs to be positive");
+        if (numRows == 0)
+            return;
+        checkRowRange(row);
+        checkRowRange(row + numRows - 1);
+        List<Row> list = getFieldForEditingRange(rows, Row.class, row, numRows);
+        for (Row item : list)
+            item.row_style.setHeight(height);
     }
 
     /**
