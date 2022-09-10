@@ -1,5 +1,6 @@
 package com.github.miachm.sods;
 
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -11,9 +12,9 @@ import java.util.*;
  * You can create empty sheets and add to an existing Spreadsheet
  */
 public class Sheet implements Cloneable,Comparable<Sheet> {
-    private List<List<Cell>> cells = new ArrayList<List<Cell>>();
-    private List<RowStyle> rowStyles = new ArrayList<>();
-    private List<ColumnStyle> columnStyles = new ArrayList<>();
+
+    List<Column> columns = new ArrayList<>();
+    List<Row> rows = new ArrayList<>();
     private String name;
     private int numColumns = 0;
     private int numRows = 0;
@@ -102,6 +103,106 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         return super.clone();
     }
 
+    private <T extends TableField> void deleteFields(List<T> fields, int index, int howmany)
+    {
+        Pair<Integer,Integer> pair = getIndexDelete(fields, index);
+        if (pair.first == fields.size())
+            return;
+
+        if (pair.second > 0) {
+            T item = fields.get(pair.first);
+            T other = (T) item.clone();
+
+            int aux = item.num_repeated;
+            item.num_repeated = pair.second;
+            other.num_repeated = aux - pair.second;
+            fields.add(pair.first + 1, other);
+            pair.first++;
+            pair.second = 0;
+        }
+
+        while (howmany > 0) {
+            T item = fields.get(pair.first);
+            if (howmany < item.num_repeated) {
+                item.num_repeated -= howmany;
+                howmany = 0;
+            }
+            else {
+                howmany -= item.num_repeated;
+                fields.remove((int)pair.first);
+            }
+        }
+    }
+
+    public <T extends TableField> T createInstanceOfT(Class<T> aClass) {
+        try {
+            return aClass.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private <T extends TableField> T getFieldForEditing(List<T> fields, Class<T> aClass, int index)
+    {
+        Pair<Integer,Integer> pair = getIndexDelete(fields, index);
+
+        if (pair.second > 0) {
+            if (pair.first == fields.size()) {
+                fields.add(createInstanceOfT(aClass));
+            }
+
+            T item = fields.get(pair.first);
+            T other = (T) item.clone();
+
+            int aux = item.num_repeated;
+            item.num_repeated = pair.second;
+            other.num_repeated = aux - pair.second;
+            fields.add(pair.first + 1, other);
+            pair.first++;
+        }
+
+        if (pair.first < fields.size()) {
+            T item = fields.get(pair.first);
+            if (item.num_repeated == 1) {
+                return item;
+            }
+            else {
+                T other = (T) item.clone();
+                item.num_repeated--;
+                other.num_repeated = 1;
+                fields.add(pair.first, other);
+                return other;
+            }
+        }
+
+        T item = createInstanceOfT(aClass);
+        fields.add(item);
+        return item;
+    }
+
+    private <T extends TableField> void insertField(List<T> fields, T value, int index)
+    {
+        for (int i = 0; i < fields.size(); i++) {
+            T item = fields.get(i);
+            if (index >= item.num_repeated) {
+                index -= item.num_repeated;
+            }
+            else {
+                int cnt = item.num_repeated;
+                item.num_repeated = item.num_repeated - index;
+                fields.add(i, value);
+
+                T other = (T) item.clone();
+                other.num_repeated = cnt - item.num_repeated;
+                if (other.num_repeated > 0)
+                    fields.add(i+1, other);
+                return;
+            }
+        }
+        fields.add(value);
+    }
+
     /**
      * Delete a specific column on the sheet
      *
@@ -124,22 +225,20 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      */
 
     public void deleteColumns(int column, int howmany) {
+        if (column < 0)
+            throw new IndexOutOfBoundsException("Column " + column + " is negative");
         if (column + howmany > getMaxColumns())
             throw new IndexOutOfBoundsException("Column " + column + " plus " + howmany + " is out of bounds (" + getMaxColumns()+")");
         if (howmany < 0)
             throw new IllegalArgumentException("The number of columns can't be negative");
+        if (howmany == 0)
+            return;
+
+        deleteFields(columns, column, howmany);
+        for (Row row : rows)
+            deleteFields(row.cells, column, howmany);
 
         numColumns -= howmany;
-
-        int lastColumn = getLastColumn();
-        howmany = Math.min(howmany, lastColumn - column);
-        for (List<Cell> row : cells) {
-            for (int i = 0; i < howmany; i++)
-                row.remove(column);
-        }
-
-        for (int i = 0; i < howmany; i++)
-            columnStyles.remove(column);
     }
 
     /**
@@ -166,10 +265,12 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
             throw new IndexOutOfBoundsException("Row " + row + " is out of bounds (" + getMaxRows()+")");
         if (row < 0)
             throw new IndexOutOfBoundsException("Row index can't be negative");
-        for (int i = 0; i < howmany && row < getLastRow(); i++) {
-            cells.remove(row);
-            rowStyles.remove(row);
-        }
+        if (howmany < 0)
+            throw new IllegalArgumentException("The number of rows can't be negative");
+        if (howmany == 0)
+            return;
+
+        deleteFields(rows, row, howmany);
         numRows -= howmany;
     }
 
@@ -183,9 +284,11 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     public Double getColumnWidth(int column)
     {
         checkColumnRange(column);
-        if (!isColumnLoaded(column))
-            return null;
-        return columnStyles.get(column).getWidth();
+        int index = getIndex(columns, column);
+        if (index == columns.size())
+            return ColumnStyle.default_style.getWidth();
+        else
+            return columns.get(index).column_style.getWidth();
     }
 
     /**
@@ -196,9 +299,11 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
 
     public Double getRowHeight(int row) {
         checkRowRange(row);
-        if (!isRowLoaded(row))
-            return null;
-        return rowStyles.get(row).getHeight();
+        int index = getIndex(rows, row);
+        if (index == rows.size())
+            return RowStyle.default_style.getHeight();
+        else
+            return rows.get(index).row_style.getHeight();
     }
 
     /**
@@ -306,40 +411,38 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         return getRange(row, column, numRows, numColumns);
     }
 
-    Cell getCell(int row,int column){
-        checkLazyRowLoading(row);
-        checkLazyColumnLoading(column);
-        Cell cell = cells.get(row).get(column);
-        if (cell == Cell.default_cell) {
-            cell = new Cell();
-            cells.get(row).set(column, cell);
-        }
-        return cell;
-    }
-
-    private void checkLazyRowLoading(int row) {
-        while (row >= getLastRow()) {
-            List<Cell> rowItem = new ArrayList<>();
-
-            for (int i = 0; i < getLastColumn(); i++)
-                rowItem.add(Cell.default_cell);
-
-            cells.add(rowItem);
-            rowStyles.add(new RowStyle());
-        }
-    }
-
-    private void checkLazyColumnLoading(int column) {
-        int diff = column - getLastColumn() + 1;
-        if (diff > 0) {
-            for (List<Cell> rowItem : cells) {
-                for (int i = 0; i < diff; i++) {
-                    rowItem.add(Cell.default_cell);
-                }
+    private Pair<Integer,Integer> getIndexDelete(List<? extends TableField> fields, int index)
+    {
+        for (int i = 0; i < fields.size(); i++) {
+            TableField item = fields.get(i);
+            if (index >= item.num_repeated) {
+                index -= item.num_repeated;
             }
-            for (int i = 0; i < diff; i++)
-                columnStyles.add(new ColumnStyle());
+            else {
+                return new Pair<>(i, index);
+            }
         }
+        return new Pair<>(fields.size(), index);
+    }
+
+    private int getIndex(List<? extends TableField> fields, int index)
+    {
+        for (int i = 0; i < fields.size(); i++) {
+            TableField item = fields.get(i);
+            if (index >= item.num_repeated) {
+                index -= item.num_repeated;
+            }
+            else {
+                return i;
+            }
+        }
+        return fields.size();
+    }
+
+    Cell getCell(int row,int column){
+        Row item = getFieldForEditing(rows, Row.class, row);
+        Cell cell = getFieldForEditing(item.cells, Cell.class, column);
+        return cell;
     }
 
     /**
@@ -350,8 +453,8 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     public void hideRow(int row)
     {
         checkRowRange(row);
-        checkLazyRowLoading(row);
-        rowStyles.get(row).setHidden(true);
+        Row item = getFieldForEditing(rows, Row.class, row);
+        item.row_style.setHidden(true);
     }
 
     /**
@@ -362,8 +465,8 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     public void hideColumn(int column)
     {
         checkColumnRange(column);
-        checkLazyColumnLoading(column);
-        columnStyles.get(column).setHidden(true);
+        Column item = getFieldForEditing(columns, Column.class, column);
+        item.column_style.setHidden(true);
     }
 
     /**
@@ -392,7 +495,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * @throws IllegalArgumentException if howmany is negative, no changes will be done
      */
     public void insertColumnsAfter(int columnIndex, int howmany) {
-        insertColumnsBefore(columnIndex+1,howmany);
+        insertColumnsBefore(columnIndex+1, howmany);
     }
 
     /**
@@ -407,18 +510,19 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
             throw new IndexOutOfBoundsException("Column " + columnIndex + " is out of bounds (" + getMaxColumns()+")");
         if (howmany < 0)
             throw new IllegalArgumentException("Number of columns can't be negative");
+        if (howmany == 0)
+            return;
 
-        if (columnIndex <= getLastColumn() - 1) {
-            for (List<Cell> row : cells) {
-                for (int i = 0; i < howmany; i++) {
-                    row.add(columnIndex, Cell.default_cell);
-                }
-            }
-
-            for (int i = 0; i < howmany; i++)
-                columnStyles.add(new ColumnStyle());
-        }
+        Column column = new Column();
+        column.num_repeated = howmany;
+        insertField(columns, column, columnIndex);
         numColumns += howmany;
+
+        for (Row row : rows) {
+            Cell cell = new Cell();
+            cell.num_repeated = howmany;
+            insertField(row.cells, cell, columnIndex);
+        }
     }
 
     /**
@@ -451,16 +555,12 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
             throw new IndexOutOfBoundsException("Row " + rowIndex + " is out of bounds (" + getMaxRows()+")");
         if (howmany < 0)
             throw new IllegalArgumentException("Number of rows can't be negative");
+        if (howmany == 0)
+            return;
 
-        if (rowIndex <= getLastRow() - 1) {
-            for (int i = 0; i < howmany; i++) {
-                ArrayList<Cell> row = new ArrayList<>();
-                for (int j = 0; j < numColumns; j++)
-                    row.add(Cell.default_cell);
-                cells.add(rowIndex, row);
-                rowStyles.add(new RowStyle());
-            }
-        }
+        Row row = new Row();
+        row.num_repeated = howmany;
+        insertField(rows, row, rowIndex);
         numRows += howmany;
     }
 
@@ -491,8 +591,8 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
             if (width < 0.0)
                 throw new IllegalArgumentException("Width can't be negative!");
         }
-        checkLazyColumnLoading(column);
-        columnStyles.get(column).setWidth(width);
+        Column item = getFieldForEditing(columns, Column.class, column);
+        item.column_style.setWidth(width);
     }
 
     /**
@@ -506,8 +606,17 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
 
     public void setColumnWidths(int column, int numColumns, Double width)
     {
-        for (int i = 0; i < numColumns; i++)
-            setColumnWidth(column +i, width);
+        checkColumnRange(column);
+        checkColumnRange(column + numColumns - 1);
+
+        Pair<Integer, Integer> pair = getIndexDelete(columns, column);
+        if (pair.second > 0 || columns.get(pair.first).num_repeated != numColumns) {
+            for (int i = 0; i < numColumns; i++)
+                setColumnWidth(column +i, width);
+        }
+        else {
+            columns.get(pair.first).column_style.setWidth(width);
+        }
     }
 
     /**
@@ -525,8 +634,8 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
             if (height < 0.0)
                 throw new IllegalArgumentException("Height can't be negative!");
         }
-        checkLazyRowLoading(row);
-        rowStyles.get(row).setHeight(height);
+        Row item = getFieldForEditing(rows, Row.class, row);
+        item.row_style.setHeight(height);
     }
 
     /**
@@ -553,8 +662,8 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     public void showRow(int row)
     {
         checkRowRange(row);
-        checkLazyRowLoading(row);
-        rowStyles.get(row).setHidden(false);
+        Row item = getFieldForEditing(rows, Row.class, row);
+        item.row_style.setHidden(false);
     }
 
     /**
@@ -566,8 +675,8 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     public void showColumn(int column)
     {
         checkColumnRange(column);
-        checkLazyColumnLoading(column);
-        columnStyles.get(column).setHidden(false);
+        Column item = getFieldForEditing(columns, Column.class, column);
+        item.column_style.setHidden(false);
     }
 
     /**
@@ -579,9 +688,12 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     public boolean rowIsHidden(int row)
     {
         checkRowRange(row);
-        if (!isRowLoaded(row))
-            return false;
-        return rowStyles.get(row).isHidden();
+        int index = getIndex(rows, row);
+        if (index == rows.size())
+            return RowStyle.default_style.isHidden();
+        else {
+            return rows.get(index).row_style.isHidden();
+        }
     }
 
     private void checkRowRange(int row) {
@@ -598,10 +710,12 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     public boolean columnIsHidden(int column)
     {
         checkColumnRange(column);
-        if (!isColumnLoaded(column)) {
-            return false;
+        int index = getIndex(columns, column);
+        if (index == columns.size())
+            return ColumnStyle.default_style.isHidden();
+        else {
+            return columns.get(index).column_style.isHidden();
         }
-        return columnStyles.get(column).isHidden();
     }
 
     private boolean isRowLoaded(int row)
@@ -644,30 +758,55 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
+     * @deprecated Use getMaxRow() instead
      * Return the last row of the sheet which contains useful data
      * @return The index of the last row
      */
     public int getLastRow()
     {
-        return cells.size();
+        return getMaxRows();
     }
 
     /**
+     * @deprecated Use getMaxColumn() instead
      * Return the last column of the sheet which contains useful data
      * @return The index of the last column
      */
     public int getLastColumn()
     {
-        return cells.isEmpty() ? columnStyles.size() : cells.get(0).size();
+        return getMaxColumns();
     }
 
     /**
-     * Trim the sheet removing unused rows/columns at the end
+     * Trim the sheet removing unused rows/columns
+     * @Deprecated This function should not be called since it won't make any visible difference to the user. This is going to be moved to private visibility
+     *
     */
     public void trim()
     {
-        numRows = getLastRow();
-        numColumns = getLastColumn();
+        trim(columns);
+        for (Row row : rows)
+            trim(row.cells);
+        trim(rows);
+    }
+
+    private <T extends TableField> void trim(List<T> fields)
+    {
+        T last_item = null;
+        for (int i = 0; i < fields.size(); i++) {
+            T item = fields.get(i);
+            if (last_item != null) {
+                if (item.equals(last_item)) {
+                    last_item.num_repeated += item.num_repeated;
+                    fields.remove(i);
+                    i--;
+                }
+                else
+                    last_item = item;
+            }
+            else
+                last_item = item;
+        }
     }
 
     /**
@@ -731,55 +870,22 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         if (o == null || getClass() != o.getClass()) return false;
 
         Sheet sheet = (Sheet) o;
-
+        if (!name.equals(sheet.name)) return false;
         if (numColumns != sheet.numColumns) return false;
         if (numRows != sheet.numRows) return false;
         if (isHidden != sheet.isHidden) return false;
 
-        int minRowSize = Math.min(getLastRow(), sheet.getLastRow());
-        int minColumnSize = Math.min(getLastColumn(), sheet.getLastColumn());
-        for (int i = 0; i < minRowSize; i++) {
-            if (!rowStyles.get(i).equals(sheet.rowStyles.get(i))) {
-                return false;
-            }
-            for (int j = 0; j < minColumnSize; j++) {
-                if (!cells.get(i).get(j).equals(sheet.cells.get(i).get(j))) {
-                    return false;
-                }
-                if (!columnStyles.get(j).equals(sheet.columnStyles.get(j))) {
-                    return false;
-                }
-            }
-        }
+        trim();
+        sheet.trim();
 
-        if (!hasRemainingEmptyCells(minRowSize, minColumnSize, this)) return false;
-        if (!hasRemainingEmptyCells(minRowSize, minColumnSize, sheet)) return false;
-
-        return name.equals(sheet.name);
-    }
-
-    private boolean hasRemainingEmptyCells(int minRowSize, int minColumnSize, Sheet sheet) {
-        Cell emptyCell = new Cell();
-        for (int i = minRowSize; i < sheet.getLastRow(); i++)
-            for (int j = 0; j < sheet.getLastColumn(); j++)
-                if (!sheet.cells.get(i).get(j).equals(emptyCell)) {
-                    return false;
-                }
-
-
-        for (int i = 0; i < sheet.getLastRow(); i++)
-            for (int j = minColumnSize; j < sheet.getLastColumn(); j++)
-                if (!sheet.cells.get(i).get(j).equals(emptyCell)) {
-                    return false;
-                }
-        return true;
+        if (!rows.equals(sheet.rows)) return false;
+        return columns.equals(sheet.columns);
     }
 
     @Override
     public int hashCode() {
-        int result = cells.hashCode();
-        result = 31 * result + rowStyles.hashCode();
-        result = 31 * result + columnStyles.hashCode();
+        int result = rows.hashCode();
+        result = 31 * result + columns.hashCode();
         result = 31 * result + name.hashCode();
         result = 31 * result + numColumns;
         result = 31 * result + numRows;

@@ -736,7 +736,7 @@ public class Range {
                 "\nrow_init=" + row_init +
                 "\nnumrows=" + numrows +
                 "\nnumcolumns=" + numcolumns +
-                "\nvalues =\n\n" + (getNumValues() < MAX_PRINTABLE ? valuesToString() : "too long for print") +
+                //"\nvalues =\n\n" + (getNumValues() < MAX_PRINTABLE ? valuesToString() : "too long for print") +
                 "\n}";
     }
 

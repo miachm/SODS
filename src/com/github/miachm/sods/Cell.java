@@ -3,7 +3,7 @@ package com.github.miachm.sods;
 import java.time.LocalDate;
 import java.util.Objects;
 
-class Cell implements Cloneable {
+class Cell extends TableField {
     static Cell default_cell = new Cell();
     private Object value;
     private String formula;
@@ -144,19 +144,15 @@ class Cell implements Cloneable {
 
     @Override
     public String toString() {
-        if (getGroup() == null)
+        if (getGroup() == null || getGroup().getCell() == this)
             return "Cell{" +
                     "value=" + value +
                     ", formula='" + formula + '\'' +
                     ", style=" + style +
+                    ", num_repeated=" + num_repeated +
                     '}';
         else {
             return getGroup().getCell().toString();
         }
-    }
-
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 }

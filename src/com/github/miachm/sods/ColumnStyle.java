@@ -1,6 +1,7 @@
 package com.github.miachm.sods;
 
-class ColumnStyle {
+class ColumnStyle implements Cloneable {
+    static final ColumnStyle default_style = new ColumnStyle();
     private Double width;
     private boolean isHidden;
     private static final double EQUIVALENCE_CM = 10;
@@ -56,6 +57,16 @@ class ColumnStyle {
 
     public void setHidden(boolean hidden) {
         isHidden = hidden;
+    }
+
+    @Override
+    public Object clone()
+    {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

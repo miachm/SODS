@@ -309,7 +309,7 @@ class OdsReader {
                         try {
                             numRows = Integer.parseInt(numRowsStr);
                             if (numRows > BUGGED_COUNT)
-                                numRows = 100;
+                                numRows = BUGGED_COUNT;
                         }
                         catch (NumberFormatException e) {}
                     }
@@ -339,13 +339,6 @@ class OdsReader {
             Range range = sheet.getRange(cord.getX(), cord.getY(), length.getX(), length.getY());
             range.merge();
         }
-
-        // Workaround for issue #12
-        // Excel for some rason generates sheets with 100.000 rows
-        // although it's only using a few ones
-        // This can be a problem if the users tries to save back
-        if (sheet.getMaxRows() > BUGGED_COUNT)
-            sheet.trim();
 
         spread.appendSheet(sheet);
     }
@@ -387,9 +380,7 @@ class OdsReader {
         if (columnStyleName != null && numColumns < 1000) {
             ColumnStyle columnStyle = styleColumn.get(columnStyleName);
             if (columnStyle != null) {
-                for (int i = 0; i < numColumns; i++) {
-                    sheet.setColumnWidth(sheet.getMaxColumns() - i - 1, columnStyle.getWidth());
-                }
+                sheet.setColumnWidths(sheet.getMaxColumns() - numColumns, numColumns, columnStyle.getWidth());
             }
         }
     }
@@ -398,7 +389,7 @@ class OdsReader {
         int column = 0;
         while (reader.hasNext()) {
             // number of columns repeated
-            int number_columns_repeated = 0;
+            int number_columns_repeated = 1;
             // value and style to be copied
             Object last_cell_value = null;
             Style last_style = null;
@@ -437,11 +428,6 @@ class OdsReader {
                 if (positionY >= sheet.getMaxColumns()) {
                     sheet.appendColumns(positionY - sheet.getMaxColumns() + 1);
                 }
-                Range range = sheet.getRange(positionX, positionY);
-
-                String formula = instance.getAttribValue("table:formula");
-                if (formula != null)
-                    range.setFormula(formula);
 
                 OfficeValueType valueType = OfficeValueType.ofReader(instance);
                 Object value = valueType.read(instance);
@@ -455,8 +441,12 @@ class OdsReader {
                         number_columns_repeated = 1000;
                 }
 
-                if (value != null)
-                    range.setValue(value);
+                Range range = sheet.getRange(positionX, positionY, 1, number_columns_repeated);
+
+                String formula = instance.getAttribValue("table:formula");
+                if (formula != null)
+                    range.setFormula(formula);
+                range.setValue(value);
 
                 Style style = styles.get(instance.getAttribValue("table:style-name"));
 
@@ -469,28 +459,10 @@ class OdsReader {
                 if (style != null && !style.isDefault())
                     range.setStyle(style);
 
-                last_style = style;
-
                 readCellText(instance, range);
-                last_cell_value = range.getValue();
 
-                column++;
+                column += number_columns_repeated;
             }
-
-            if (number_columns_repeated > 0 && (last_cell_value != null || last_style != null)) {
-
-                for (int j = 0; j < number_columns_repeated - 1; j++) {
-                    Range range = sheet.getRange(sheet.getMaxRows() - 1, column);
-                    if (last_style != null) {
-                        range.setStyle(last_style);
-                    }
-
-                    range.setValue(last_cell_value);
-                    column++;
-                }
-            }
-            else if (number_columns_repeated > 0)
-                column += number_columns_repeated - 1;
         }
     }
 
@@ -542,6 +514,7 @@ class OdsReader {
                 String spanContent = spanElement.getContent();
                 if (spanContent != null) s.append(spanContent);
 
+
                 spanElement = textElement.nextElement("text:s",
                         XmlReaderInstance.CHARACTERS);
             }
@@ -551,8 +524,9 @@ class OdsReader {
 
         }
 
+        Object value = range.getValue();
         // Empty cells are supposed to be represented by null, so return that if we got no content.
-        if (s.length() > 0 && (range.getValue() == null || range.getValue() instanceof String)) {
+        if (s.length() > 0 && (value == null || value instanceof String)) {
             range.setValue(s.toString());
         }
     }

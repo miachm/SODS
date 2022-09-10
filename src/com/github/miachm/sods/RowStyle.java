@@ -1,6 +1,7 @@
 package com.github.miachm.sods;
 
-class RowStyle {
+class RowStyle implements Cloneable {
+    static final RowStyle default_style = new RowStyle();
     private Double height;
 
     private boolean isHidden;
@@ -23,6 +24,16 @@ class RowStyle {
 
     public void setHidden(boolean hidden) {
         isHidden = hidden;
+    }
+
+    @Override
+    public Object clone()
+    {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
