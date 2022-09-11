@@ -10,7 +10,7 @@ import java.util.TreeSet;
  * You use ranges for write/read content in a Sheet.
  */
 public class Range {
-    private static final int MAX_PRINTABLE = 1024;
+    private static final int MAX_PRINTABLE = 500;
     private final int column_init,row_init;
     private final int numrows,numcolumns;
     private final Sheet sheet;
@@ -736,7 +736,7 @@ public class Range {
                 "\nrow_init=" + row_init +
                 "\nnumrows=" + numrows +
                 "\nnumcolumns=" + numcolumns +
-                //"\nvalues =\n\n" + (getNumValues() < MAX_PRINTABLE ? valuesToString() : "too long for print") +
+                "\nvalues =\n\n" + (getNumValues() < MAX_PRINTABLE ? valuesToString() : "too long for print") +
                 "\n}";
     }
 
