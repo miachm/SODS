@@ -3,7 +3,6 @@ package com.github.miachm.sods;
 class RowStyle implements Cloneable {
     static final RowStyle default_style = new RowStyle();
     private Double height;
-
     private boolean isHidden;
 
     public Double getHeight() {

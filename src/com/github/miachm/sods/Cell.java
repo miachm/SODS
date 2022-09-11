@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 class Cell extends TableField {
-    static Cell default_cell = new Cell();
     private Object value;
     private String formula;
     private Style style = Style.default_style;
