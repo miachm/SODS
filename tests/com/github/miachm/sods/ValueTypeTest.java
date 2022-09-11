@@ -104,6 +104,6 @@ public class ValueTypeTest {
     @Test
     public void testDateOffice() throws IOException {
         SpreadSheet spread = new SpreadSheet(new File("resources/TestDate.ods"));
-        spread.save(new File("Out.ods"));
+        spread.save(new ByteArrayOutputStream());
     }
 }

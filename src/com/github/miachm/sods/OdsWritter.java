@@ -30,6 +30,7 @@ class OdsWritter {
     private OdsWritter(OutputStream o, SpreadSheet spread) {
         this.spread = spread;
         this.out = new Compressor(o);
+        spread.trimSheets();
     }
 
     public static void save(OutputStream out,SpreadSheet spread) throws IOException {
@@ -174,18 +175,19 @@ class OdsWritter {
     }
 
     private void writeColumnsStyles(XMLStreamWriter out, Sheet sheet) throws XMLStreamException {
-        for (int i = 0;i < sheet.getMaxColumns();i++){
+        for (Column column : sheet.columns){
             out.writeStartElement("table:table-column");
-            Double width = sheet.getColumnWidth(i);
+            if (column.num_repeated > 1)
+                out.writeAttribute("table:number-columns-repeated", "" + column.num_repeated);
+
+            Double width = column.column_style.getWidth();
             if (width != null) {
-                ColumnStyle columnStyle = new ColumnStyle();
-                columnStyle.setWidth(width);
-                String name = columnStyleStringMap.get(columnStyle);
+                String name = columnStyleStringMap.get(column.column_style);
                 if (name != null)
                     out.writeAttribute("table:style-name", name);
             }
 
-            if (sheet.columnIsHidden(i))
+            if (column.column_style.isHidden())
                 out.writeAttribute("table:visibility", "collapse");
 
             out.writeEndElement();
@@ -193,13 +195,13 @@ class OdsWritter {
     }
 
     private void writeContent(XMLStreamWriter out, Sheet sheet) throws XMLStreamException {
-        for (int i = 0;i < sheet.getMaxRows();i++) {
-
+        for (Row row : sheet.rows) {
             out.writeStartElement("table:table-row");
-            writeRowStyles(out, sheet, i);
+            if (row.num_repeated > 1)
+                out.writeAttribute("table:number-rows-repeated", ""+row.num_repeated);
+            writeRowStyles(out, row);
 
-            for (int j = 0; j < sheet.getMaxColumns();j++) {
-                Range cell = sheet.getRange(i, j);
+            for (Cell cell :  row.cells) {
                 writeCell(out, cell);
             }
 
@@ -207,38 +209,40 @@ class OdsWritter {
         }
     }
 
-    private void writeRowStyles(XMLStreamWriter out, Sheet sheet, int i) throws XMLStreamException {
-        if (sheet.rowIsHidden(i))
+    private void writeRowStyles(XMLStreamWriter out, Row row) throws XMLStreamException {
+        if (row.row_style.isHidden())
             out.writeAttribute("table:visibility", "collapse");
 
-        writeRowHeight(out, sheet, i);
+        writeRowHeight(out, row);
     }
 
-    private void writeCell(XMLStreamWriter out, Range range) throws XMLStreamException {
-        String formula = range.getFormula();
-        Style style = range.getStyle();
+    private void writeCell(XMLStreamWriter out, Cell cell) throws XMLStreamException {
+        String formula = cell.getFormula();
+        Style style = cell.getStyle();
 
-        Range mergedCells[] = range.getMergedCells();
-        if (mergedCells.length > 0) {
-            if (mergedCells[0].getColumn() != range.getColumn() || mergedCells[0].getRow() != range.getRow()) {
+        GroupCell group = cell.getGroup();
+        if (group != null) {
+            if (group.getCell() != cell) {
                 out.writeStartElement("table:covered-table-cell");
                 out.writeEndElement();
                 return;
             }
         }
         out.writeStartElement("table:table-cell");
-        if (mergedCells.length > 0) {
-            if (mergedCells[0].getNumColumns() > 1)
-                out.writeAttribute("table:number-columns-spanned", "" + mergedCells[0].getNumColumns());
-            if (mergedCells[0].getNumRows() > 1)
-                out.writeAttribute("table:number-rows-spanned", "" + mergedCells[0].getNumRows());
+        if (cell.num_repeated > 1)
+            out.writeAttribute("table:number-columns-repeated", ""+ cell.num_repeated);
+        if (group != null) {
+            if (group.getLength().getY() > 1)
+                out.writeAttribute("table:number-columns-spanned", "" + group.getLength().getY());
+            if (group.getLength().getX() > 1)
+                out.writeAttribute("table:number-rows-spanned", "" + group.getLength().getX());
         }
 
         if (formula != null)
             out.writeAttribute("table:formula", formula);
 
         setCellStyle(out, style);
-        writeValue(out, range);
+        writeValue(out, cell);
         out.writeEndElement();
     }
 
@@ -254,8 +258,8 @@ class OdsWritter {
         }
     }
 
-    private void writeValue(XMLStreamWriter out, Range range) throws XMLStreamException {
-        Object v = range.getValue();
+    private void writeValue(XMLStreamWriter out, Cell cell) throws XMLStreamException {
+        Object v = cell.getValue();
         if (v != null) {
             OfficeValueType valueType = OfficeValueType.ofJavaType(v.getClass());
             valueType.write(v, out);
@@ -288,7 +292,7 @@ class OdsWritter {
 
             out.writeEndElement();
         }
-        OfficeAnnotation annotation = range.getAnnotation();
+        OfficeAnnotation annotation = cell.getAnnotation();
         if (annotation != null) {
             out.writeStartElement("office:annotation");
             if (annotation.getLastModified() != null) {
@@ -305,12 +309,10 @@ class OdsWritter {
         }
     }
 
-    private void writeRowHeight(XMLStreamWriter out, Sheet sheet, int i) throws XMLStreamException {
-        Double height = sheet.getRowHeight(i);
+    private void writeRowHeight(XMLStreamWriter out, Row row) throws XMLStreamException {
+        Double height = row.row_style.getHeight();
         if (height != null) {
-            RowStyle rowStyle = new RowStyle();
-            rowStyle.setHeight(height);
-            String name = rowStyleStringMap.get(rowStyle);
+            String name = rowStyleStringMap.get(row.row_style);
             if (name != null)
                 out.writeAttribute("table:style-name", name);
         }
@@ -322,23 +324,25 @@ class OdsWritter {
         writeDateFormatStyle(out);
 
         for (Sheet sheet : spread.getSheets()) {
-            for (int i = 0; i < sheet.getMaxRows(); i++) {
-                for (int j = 0; j < sheet.getMaxColumns(); j++) {
-                    Range range = sheet.getRange(i,j);
-                    Style style = range.getStyle();
+            for (Row row : sheet.rows) {
+                for (Cell cell : row.cells) {
+                    Style style = cell.getStyle();
 
                     if (!style.isDefault()) {
                         writeCellStyle(out, style);
                     }
-                    Double width = sheet.getColumnWidth(j);
-                    if (width != null) {
-                        writeColumnStyle(out, width);
-                    }
                 }
 
-                Double height = sheet.getRowHeight(i);
+                Double height = row.row_style.getHeight();
                 if (height != null) {
                     writeRowStyle(out, height);
+                }
+            }
+
+            for (Column column : sheet.columns) {
+                Double width = column.column_style.getWidth();
+                if (width != null) {
+                    writeColumnStyle(out, width);
                 }
             }
 
@@ -346,7 +350,6 @@ class OdsWritter {
                 writeTableStyle(out, sheet);
             }
         }
-
         out.writeEndElement();
     }
 

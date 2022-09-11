@@ -477,23 +477,6 @@ public class SpreadSheetTest {
     }
 
     @Test
-    public void testTrimSheets() throws Exception {
-        SpreadSheet spreadSheet = generateASpreadsheet();
-        for (Sheet sheet : spreadSheet.getSheets()) {
-            sheet.appendRows(50);
-            sheet.appendColumns(50);
-        }
-
-        spreadSheet.trimSheets();
-
-        for (Sheet sheet : spreadSheet.getSheets()) {
-            assertEquals(sheet.getMaxRows(), 0);
-            assertEquals(sheet.getMaxColumns(), 0);
-        }
-    }
-
-
-    @Test
     public void testEmptyValues() throws IOException {
         SpreadSheet spread = new SpreadSheet(new File("resources/nullvalues.ods"));
         Sheet sheet = spread.getSheet(0);
