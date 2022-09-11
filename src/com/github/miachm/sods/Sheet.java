@@ -450,16 +450,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
 
     private int getIndex(List<? extends TableField> fields, int index)
     {
-        for (int i = 0; i < fields.size(); i++) {
-            TableField item = fields.get(i);
-            if (index >= item.num_repeated) {
-                index -= item.num_repeated;
-            }
-            else {
-                return i;
-            }
-        }
-        return fields.size();
+        return getIndexDelete(fields, index).first;
     }
 
     Cell getCell(int row,int column){
