@@ -14,6 +14,7 @@ class OdsReader {
     private static final String CORRECT_MIMETYPE = "application/vnd.oasis.opendocument.spreadsheet";
     private static final String MANIFEST_PATH = "META-INF/manifest.xml";
     private static final Locale defaultLocal = Locale.US;
+    private static final int BUGGED_COUNT = 10 * 1000;
     private Uncompressor uncompressor;
     private XmlReader reader = new XmlReaderEventImpl();
     private SpreadSheet spread;
@@ -308,6 +309,8 @@ class OdsReader {
                     if (numRowsStr != null) {
                         try {
                             numRows = Integer.parseInt(numRowsStr);
+                            if (numRows > BUGGED_COUNT)
+                                continue;
                         }
                         catch (NumberFormatException e) {}
                     }
@@ -357,6 +360,8 @@ class OdsReader {
         String columnsRepeated = instance.getAttribValue("table:number-columns-repeated");
         if (columnsRepeated != null) {
             numColumns = Integer.parseInt(columnsRepeated);
+            if (numColumns > BUGGED_COUNT)
+                return;
         }
 
         if (style != null && !style.isDefault()) {
@@ -430,6 +435,8 @@ class OdsReader {
                 String raw = instance.getAttribValue("table:number-columns-repeated");
                 if (raw != null) {
                     number_columns_repeated = Integer.parseInt(raw);
+                    if (number_columns_repeated > BUGGED_COUNT)
+                        continue;
                 }
 
                 Range range = sheet.getRange(positionX, positionY, 1, number_columns_repeated);

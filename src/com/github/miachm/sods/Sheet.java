@@ -145,40 +145,8 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
 
     private <T extends TableField> T getFieldForEditing(List<T> fields, Class<T> aClass, int index)
     {
-        Pair<Integer,Integer> pair = getIndexDelete(fields, index);
-
-        if (pair.second > 0) {
-            if (pair.first == fields.size()) {
-                fields.add(createInstanceOfT(aClass));
-            }
-
-            T item = fields.get(pair.first);
-            T other = (T) item.clone();
-
-            int aux = item.num_repeated;
-            item.num_repeated = pair.second;
-            other.num_repeated = aux - pair.second;
-            fields.add(pair.first + 1, other);
-            pair.first++;
-        }
-
-        if (pair.first < fields.size()) {
-            T item = fields.get(pair.first);
-            if (item.num_repeated == 1) {
-                return item;
-            }
-            else {
-                T other = (T) item.clone();
-                item.num_repeated--;
-                other.num_repeated = 1;
-                fields.add(pair.first, other);
-                return other;
-            }
-        }
-
-        T item = createInstanceOfT(aClass);
-        fields.add(item);
-        return item;
+        List<T> list = getFieldForEditingRange(fields, aClass, index, 1);
+        return list.get(0);
     }
 
     private <T extends TableField> List<T> getFieldForEditingRange(List<T> fields, Class<T> aClass, int index, int howmany)
@@ -188,16 +156,20 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         if (pair.second > 0) {
             if (pair.first == fields.size()) {
                 fields.add(createInstanceOfT(aClass));
+                T item = fields.get(pair.first);
+                item.num_repeated = pair.second;
+                pair.first++;
             }
+            else {
+                T item = fields.get(pair.first);
+                T other = (T) item.clone();
 
-            T item = fields.get(pair.first);
-            T other = (T) item.clone();
-
-            int aux = item.num_repeated;
-            item.num_repeated = pair.second;
-            other.num_repeated = aux - pair.second;
-            fields.add(pair.first + 1, other);
-            pair.first++;
+                int aux = item.num_repeated;
+                item.num_repeated = pair.second;
+                other.num_repeated = aux - pair.second;
+                fields.add(pair.first + 1, other);
+                pair.first++;
+            }
         }
 
         List<T> list = new ArrayList<>();
@@ -213,11 +185,12 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
                 pair.first++;
             }
             else {
-                item.num_repeated = howmany;
-                list.add(item);
+                int aux = item.num_repeated;
+                item.num_repeated -= howmany;
                 T other = (T) item.clone();
-                other.num_repeated = item.num_repeated-howmany;
-                fields.add(pair.first+1, other);
+                other.num_repeated = aux - item.num_repeated;
+                list.add(other);
+                fields.add(pair.first, other);
                 pair.first++;
                 howmany = 0;
             }
