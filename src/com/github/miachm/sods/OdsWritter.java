@@ -378,67 +378,85 @@ class OdsWritter {
         if (key == null)
         {
             key = "cel" + stylesUsed.size();
-
-            out.writeStartElement("style:style");
-            out.writeAttribute("style:family", "table-cell");
-            out.writeAttribute("style:name", key);
-
-            if (style.isDate())
-                out.writeAttribute("style:data-style-name", "datestyle");
-
-            if (style.hasTableCellProperties()) {
-				out.writeStartElement("style:table-cell-properties");
-
-				if (style.getBackgroundColor() != null) {
-					out.writeAttribute("fo:background-color", style.getBackgroundColor().toString());
-				}
-
-				if (style.isWrap()) {
-					out.writeAttribute("fo:wrap-option", "wrap");
-				}
-
-				if (style.getVerticalTextAligment() != null) {
-                    out.writeAttribute("style:vertical-align", style.getVerticalTextAligment().toString().toLowerCase());
-                }
-				
-				if(style.hasBorders()) {
-					writeBorderStyle(out, style);
-				}
-
-				out.writeEndElement();
-			}
-
-            out.writeStartElement("style:text-properties");
-            if (style.isItalic())
-                out.writeAttribute("fo:font-style", "italic");
-
-            if (style.isBold())
-                out.writeAttribute("fo:font-weight", "bold");
-
-            if (style.isUnderline()) {
-                out.writeAttribute("style:text-underline-style", "solid");
-                out.writeAttribute("style:text-underline-type", "single");
-                out.writeAttribute("style:text-underline-width", "auto");
-                out.writeAttribute("style:text-underline-color", "font-color");
-            }
-
-            if (style.getFontSize() != -1)
-                out.writeAttribute("fo:font-size", "" + style.getFontSize() + "pt");
-
-            if (style.getFontColor() != null)
-                out.writeAttribute("fo:color", style.getFontColor().toString());
-
-            out.writeEndElement();
-
-            if(style.getTextAligment() != null) {
-                out.writeStartElement("style:paragraph-properties");
-                out.writeAttribute("fo:text-align", toValue(style.getTextAligment()));
-                out.writeEndElement();
-            }
-
-            out.writeEndElement();
             stylesUsed.put(style, key);
+            writeCellStyle(out, style, key);
         }
+    }
+
+    private void writeCellStyle(XMLStreamWriter out, Style style, String key) throws XMLStreamException {
+        for (ConditionalFormat conditionalFormat : style.getConditions()) {
+            writeCellStyle(out, conditionalFormat.getStyleApplied());
+        }
+        out.writeStartElement("style:style");
+        out.writeAttribute("style:family", "table-cell");
+        out.writeAttribute("style:name", key);
+
+        if (style.isDate())
+            out.writeAttribute("style:data-style-name", "datestyle");
+
+        if (style.hasTableCellProperties()) {
+            out.writeStartElement("style:table-cell-properties");
+
+            if (style.getBackgroundColor() != null) {
+                out.writeAttribute("fo:background-color", style.getBackgroundColor().toString());
+            }
+
+            if (style.isWrap()) {
+                out.writeAttribute("fo:wrap-option", "wrap");
+            }
+
+            if (style.getVerticalTextAligment() != null) {
+                out.writeAttribute("style:vertical-align", style.getVerticalTextAligment().toString().toLowerCase());
+            }
+
+            if(style.hasBorders()) {
+                writeBorderStyle(out, style);
+            }
+
+            out.writeEndElement();
+        }
+
+        for (ConditionalFormat format : style.getConditions()) {
+            out.writeStartElement("style:map");
+            out.writeAttribute("style:condition", format.getRawCondition());
+            out.writeAttribute("style:apply-style-name", getConditionalFormatName(format.getStyleApplied()));
+            out.writeEndElement();
+        }
+
+        out.writeStartElement("style:text-properties");
+        if (style.isItalic())
+            out.writeAttribute("fo:font-style", "italic");
+
+        if (style.isBold())
+            out.writeAttribute("fo:font-weight", "bold");
+
+        if (style.isUnderline()) {
+            out.writeAttribute("style:text-underline-style", "solid");
+            out.writeAttribute("style:text-underline-type", "single");
+            out.writeAttribute("style:text-underline-width", "auto");
+            out.writeAttribute("style:text-underline-color", "font-color");
+        }
+
+        if (style.getFontSize() != -1)
+            out.writeAttribute("fo:font-size", "" + style.getFontSize() + "pt");
+
+        if (style.getFontColor() != null)
+            out.writeAttribute("fo:color", style.getFontColor().toString());
+
+        out.writeEndElement();
+
+        if(style.getTextAligment() != null) {
+            out.writeStartElement("style:paragraph-properties");
+            out.writeAttribute("fo:text-align", toValue(style.getTextAligment()));
+            out.writeEndElement();
+        }
+
+        out.writeEndElement();
+    }
+
+    private String getConditionalFormatName(Style style) {
+        String key = stylesUsed.get(style);
+        return key;
     }
 
     private String toValue(Style.TEXT_ALIGMENT textAligment) {

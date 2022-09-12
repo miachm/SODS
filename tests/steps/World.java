@@ -1,8 +1,6 @@
 package steps;
 
-import com.github.miachm.sods.Range;
-import com.github.miachm.sods.Sheet;
-import com.github.miachm.sods.SpreadSheet;
+import com.github.miachm.sods.*;
 
 import java.io.InputStream;
 import java.util.List;
@@ -15,6 +13,9 @@ public class World {
     public static Range range;
     public static InputStream in;
     public static String name;
+    public static ConditionalFormat conditionalFormat;
+    public static Style style;
+    public static ConditionalFormat otherConditionalFormat;
 
 
     public static void reset() {
@@ -25,6 +26,9 @@ public class World {
         range = null;
         in = null;
         name = null;
+        conditionalFormat = null;
+        otherConditionalFormat = null;
+        style = null;
     }
 
 }

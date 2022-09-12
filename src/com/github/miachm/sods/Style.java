@@ -1,15 +1,13 @@
 package com.github.miachm.sods;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * This a class which represents the formatting of a cell (background color, font size, font style, etc...)
  */
 
 public final class Style implements Cloneable {
-    static Style default_style = new Style();
+    static final Style default_style = new Style();
 
     private boolean bold;
     private boolean italic;
@@ -22,6 +20,7 @@ public final class Style implements Cloneable {
     private TEXT_ALIGMENT horizontal_alignment = null;
     private VERTICAL_TEXT_ALIGMENT vertical_alignment = null;
     private boolean isDate = false;
+    private List<ConditionalFormat> conditionalFormats = new ArrayList<>();
 
     /** Defines the text position of a Cell
      */
@@ -118,6 +117,21 @@ public final class Style implements Cloneable {
      */
     public int getFontSize() {
         return fontSize;
+    }
+
+    public void addCondition(ConditionalFormat format)
+    {
+        this.conditionalFormats.add(format);
+    }
+
+    public List<ConditionalFormat> getConditions()
+    {
+        return this.conditionalFormats;
+    }
+
+    public void removeCondition(int i)
+    {
+        this.conditionalFormats.remove(i);
     }
 
     /**
@@ -306,6 +320,8 @@ public final class Style implements Cloneable {
             return false;
         if (horizontal_alignment != style.horizontal_alignment)
             return false;
+        if (!conditionalFormats.equals(style.conditionalFormats))
+            return false;
 
         return vertical_alignment == style.vertical_alignment;
     }
@@ -321,6 +337,7 @@ public final class Style implements Cloneable {
         result = 31 * result + (borders != null ? borders.hashCode() : 0);
         result = 31 * result + (wrap ? 1 : 0);
         result = 31 * result + (isDate ? 1 : 0);
+        result = 31 * result + conditionalFormats.hashCode();
         result = 31 * result + (horizontal_alignment != null ? horizontal_alignment.hashCode() : 0);
         result = 31 * result + (vertical_alignment != null ? vertical_alignment.hashCode() : 0);
         return result;

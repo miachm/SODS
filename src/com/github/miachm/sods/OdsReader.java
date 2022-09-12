@@ -74,7 +74,7 @@ class OdsReader {
         if (instance == null)
             return;
 
-        XmlReaderInstance styles = instance.nextElement("office:automatic-styles");
+        XmlReaderInstance styles = instance.nextElement("office:automatic-styles", "office:styles");
         iterateStyleEntries(styles);
 
         XmlReaderInstance content = instance.nextElement("office:body");
@@ -96,7 +96,7 @@ class OdsReader {
             String family = instance.getAttribValue("style:family");
             if (name != null && family != null) {
                 if (family.equals("table-cell")) {
-                    Style style = readCellStyleEntry(instance);
+                    Style style = readCellStyleEntry(instance, name);
                     styles.put(name, style);
                 }
                 else if (family.equals("table-column")) {
@@ -115,12 +115,15 @@ class OdsReader {
         }
     }
 
-    private Style readCellStyleEntry(XmlReaderInstance reader) {
-        Style style = new Style();
+    private Style readCellStyleEntry(XmlReaderInstance reader, String name) {
+        Style style = styles.get(name);
+        if (style == null)
+            style = new Style();
         while (reader.hasNext()) {
             XmlReaderInstance instance = reader.nextElement("style:text-properties",
                     "style:table-cell-properties",
-                    "style:paragraph-properties");
+                    "style:paragraph-properties",
+                    "style:map");
 
             if (instance == null)
                 return style;
@@ -199,6 +202,20 @@ class OdsReader {
                         pos = Style.TEXT_ALIGMENT.Left;
                     }
                     style.setTextAligment(pos);
+                }
+            }
+
+            if (instance.getTag().equals("style:map")) {
+                String key = instance.getAttribValue("style:apply-style-name");
+                String condition = instance.getAttribValue("style:condition");
+                if (key != null && condition != null) {
+                    Style other = styles.get(key);
+                    if (other == null) {
+                        other = new Style();
+                        styles.put(key, other);
+                    }
+                    ConditionalFormat conditionalFormat = new ConditionalFormat(other, condition);
+                    style.addCondition(conditionalFormat);
                 }
             }
         }

@@ -152,6 +152,10 @@ public class SheetTest {
 
         assertEquals(sheet.getMaxColumns(), 1);
         assertEquals(sheet.getRange(0, 0).getValue(), 1);
+
+        sheet.appendColumns(10);
+        sheet.deleteColumns(6, 2);
+        assertEquals(sheet.getMaxColumns(), 9);
     }
 
     @Test

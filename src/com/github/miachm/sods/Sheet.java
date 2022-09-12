@@ -790,16 +790,6 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         }
     }
 
-    private boolean isRowLoaded(int row)
-    {
-        return row < getLastRow();
-    }
-
-    private boolean isColumnLoaded(int column)
-    {
-        return column < getLastColumn();
-    }
-
     private void checkColumnRange(int column) {
         if (column < 0 || column >= getMaxColumns())
             throw new IndexOutOfBoundsException("Column is not a valid position: " + column);
