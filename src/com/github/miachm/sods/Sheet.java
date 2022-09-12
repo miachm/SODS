@@ -841,7 +841,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
 
     /**
      * Trim the sheet removing unused rows/columns
-     * @Deprecated This function should not be called since it won't make any visible difference to the user. This is going to be moved to private visibility
+     * @deprecated This function should not be called since it won't make any visible difference to the user. This is going to be moved to private visibility
      *
     */
     public void trim()

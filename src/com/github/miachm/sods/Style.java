@@ -119,16 +119,30 @@ public final class Style implements Cloneable {
         return fontSize;
     }
 
+    /**
+     * Add a conditional format subrule in the style.
+     * Conditional format rules are specific properties which are applied if the cell fullfills a specific condition
+     * @param format The conditional format rule to be added
+     */
     public void addCondition(ConditionalFormat format)
     {
         this.conditionalFormats.add(format);
     }
 
+    /**
+     * Get a list of all conditional format rules
+     * Conditional format rules are specific properties which are applied if the cell fullfills a specific condition
+     * @return The list of conditional format rule to be added
+     */
     public List<ConditionalFormat> getConditions()
     {
         return this.conditionalFormats;
     }
 
+    /**
+     * Remove a specific condition rule in an index
+     * @throws IndexOutOfBoundsException if the index is invalid
+     */
     public void removeCondition(int i)
     {
         this.conditionalFormats.remove(i);
