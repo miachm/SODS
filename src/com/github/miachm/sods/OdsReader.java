@@ -442,9 +442,6 @@ class OdsReader {
                     pair.second = new Vector(rows, columns);
                     groupCells.add(pair);
                 }
-                if (positionY >= sheet.getMaxColumns()) {
-                    sheet.appendColumns(positionY - sheet.getMaxColumns() + 1);
-                }
 
                 OfficeValueType valueType = OfficeValueType.ofReader(instance);
                 Object value = valueType.read(instance);
@@ -454,6 +451,10 @@ class OdsReader {
                     number_columns_repeated = Integer.parseInt(raw);
                     if (number_columns_repeated > BUGGED_COUNT)
                         continue;
+                }
+
+                if (positionY+number_columns_repeated >= sheet.getMaxColumns()) {
+                    sheet.appendColumns(positionY + number_columns_repeated - sheet.getMaxColumns());
                 }
 
                 Range range = sheet.getRange(positionX, positionY, 1, number_columns_repeated);
