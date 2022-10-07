@@ -47,7 +47,12 @@ enum OfficeValueType {
         @Override
         public Object read(XmlReaderInstance reader) {
             String tag = reader.getAttribValue("office:currency");
-            Currency currency = Currency.getInstance(tag);
+            Currency currency;
+			if (tag == null) {
+				currency = Currency.getInstance(Locale.getDefault());
+			} else {
+				currency = Currency.getInstance(tag);
+			}
 
             NumberFormat nf = NumberFormat.getInstance(Locale.US);
             Double value = null;
