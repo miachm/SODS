@@ -39,7 +39,8 @@ public class OfficeCurrency {
         this.currency = currency;
         this.value = value;
         this.format = format;
-        this.format.setCurrency(currency);
+        if (currency != null)
+            this.format.setCurrency(currency);
     }
 
     public Currency getCurrency() {
