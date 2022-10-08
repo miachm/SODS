@@ -116,4 +116,19 @@ public class RangeCucumber {
             ExceptionChecker.registerException(e);
         }
     }
+
+    @When("^the client get the cell (-?\\d+), (-?\\d+) within the Range$")
+    public void the_client_get_the_cell_within_the_Range(int row, int column) throws Throwable {
+        World.range = World.range.getCell(row, column);
+    }
+
+    @When("^the client get the cell (-?\\d+), (-?\\d+) within the Range and catch the exception$")
+    public void the_client_get_the_cell_within_the_Range_and_catch_the_exception(int row, int column) throws Throwable {
+        try {
+            World.range = World.range.getCell(row, column);
+        }
+        catch (Exception e) {
+            ExceptionChecker.registerException(e);
+        }
+    }
 }
