@@ -6,7 +6,7 @@
     <groupId>com.github.miachm.sods</groupId>
     <artifactId>SODS</artifactId>
     <packaging>jar</packaging>
-    <version>1.5.1</version>
+    <version>1.5.2</version>
 
     <name>Simple ODS library</name>
     <description>A library for load/save ODS files in java.</description>
@@ -176,6 +176,9 @@
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
+                                <configuration>
+                                    <keyname>D29A25AAB61181988D4257A1F9CCA126D59C62CE</keyname>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
