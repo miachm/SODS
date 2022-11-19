@@ -131,4 +131,23 @@ public class RangeCucumber {
             ExceptionChecker.registerException(e);
         }
     }
+
+    @When("^the client sets the formula in the range to \"([^\"]*)\"$")
+    public void the_clients_sets_the_formula_in_the_range_to(String formula) throws Throwable {
+        World.range.setFormula(formula);
+    }
+
+    @Then("^the formula of the range is \"([^\"]*)\"$")
+    public void the_formula_of_the_range_is(String formula) throws Throwable {
+        assertEquals(World.range.getFormula(), formula);
+    }
+
+    @Then("^the formulas in the range are \"([^\"]*)\"$")
+    public void the_formulas_in_the_range_are(String raw_formulas) throws Throwable {
+        String[] rows = raw_formulas.split("\n");
+        String[][] formulas = new String[rows.length][rows[0].split(",").length];
+        for (int i = 0; i < rows.length; i++)
+            formulas[i] = rows[i].split(",");
+        assertTrue(Arrays.deepEquals(formulas, World.range.getFormulas()));
+    }
 }
