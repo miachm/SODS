@@ -123,6 +123,7 @@ class Cell extends TableField {
         if (!Objects.equals(value, cell.value)) return false;
         if (!Objects.equals(formula, cell.formula)) return false;
         if (!Objects.equals(annotation, cell.annotation)) return false;
+        if (!Objects.equals(num_repeated, cell.num_repeated)) return false;
         return style.equals(cell.getStyle());
     }
 

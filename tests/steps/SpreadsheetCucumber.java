@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 import static org.testng.AssertJUnit.*;
@@ -231,5 +232,21 @@ public class SpreadsheetCucumber {
     @When("^get the sheet (\\d+)$")
     public void get_the_sheet(int index) throws Throwable {
         World.sheet = World.spread.getSheet(index - 1);
+    }
+
+    @Then("^the cell values are:$")
+    public void the_cell_values_are(DataTable dataTable) throws Throwable {
+        List<List<String>> table = dataTable.asLists(String.class);
+
+        Object[][] items = World.sheet.getDataRange().getValues();
+
+        for (int i = 0; i < table.size(); i++) {
+            for (int j = 0; j < table.size(); j++) {
+                String value = table.get(i).get(j);
+                if (value.equals(""))
+                    value = null;
+                assertEquals("Pos: " + i + ", " + j, value, items[i][j]);
+            }
+        }
     }
 }
