@@ -518,7 +518,7 @@ public class SpreadSheetTest {
 
         for (int i = 0; i < expected.length; i++) {
             for (int j = 0; j < expected[i].length; j++) {
-                assertEquals(expected[i][j], values[i][j], "VALUE: '" + values[i][j] + "' != '" + expected[i][j] + "'. Reading line " + (i + 1) + ", column " + (j + 1));
+                assertEquals(expected[i][j], values[i][j].toString(), "VALUE: '" + values[i][j] + "' != '" + expected[i][j] + "'. Reading line " + (i + 1) + ", column " + (j + 1));
             }
         }
     }
