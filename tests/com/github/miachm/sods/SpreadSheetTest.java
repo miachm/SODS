@@ -503,4 +503,23 @@ public class SpreadSheetTest {
         SpreadSheet spread = new SpreadSheet(new File("resources/missingColumnTag.ods"));
         // No crash? It's green then
     }
+    
+    @Test
+    public void testReadContent() throws IOException {
+        final String[] line1 = new String[] { "content", "content", null, "content" };
+        final String[] line2 = new String[] { "content", "content", "content", };
+        final String[] line3 = new String[] { "content", null, null, null };
+        final String[][] expected = new String[][] { line1, line2, line3 };
+        
+        final SpreadSheet spreadsheet = new SpreadSheet(new File("resources/cellEmptyValues.ods"));
+        final Sheet sheet = spreadsheet.getSheet(0);
+        final Range dataRange = sheet.getDataRange();
+        final Object[][] values = dataRange.getValues();
+
+        for (int i = 0; i < expected.length; i++) {
+            for (int j = 0; j < expected[i].length; j++) {
+                assertEquals(expected[i][j], values[i][j], "Reading line " + (i + 1) + ", column " + (j + 1));
+            }
+        }
+    }
 }
