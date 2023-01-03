@@ -73,6 +73,10 @@ class OdsWritter {
             out.writeAttribute("manifest:media-type", "text/xml");
             out.writeEndElement();
 
+            out.writeStartElement("manifest:file-entry");
+            out.writeAttribute("manifest:full-path", "styles.xml");
+            out.writeAttribute("manifest:media-type", "text/xml");
+            out.writeEndElement();
 
             out.writeEndElement();
             out.writeEndDocument();

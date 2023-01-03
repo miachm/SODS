@@ -41,4 +41,23 @@ public class ZipCucumber {
         assertEquals(World.name, tag);
     }
 
+    @When("^the file \"([^\"]*)\" is present in the manifest file$")
+    public void the_file_is_present_in_the_manifest_file(String key) throws Throwable {
+        XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+        XMLStreamReader reader = inputFactory.createXMLStreamReader(World.in);
+
+        boolean found = false;
+        while (reader.hasNext())
+        {
+            reader.next();
+            if (reader.isStartElement()) {
+                String name = reader.getName().getPrefix() + ":" + reader.getName().getLocalPart();
+                if (name.equals("manifest:file-entry") && reader.getAttributeValue(0).equals(key))
+                    found = true;
+            }
+        }
+
+        assertTrue(found);
+    }
+
 }
