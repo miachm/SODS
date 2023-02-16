@@ -59,71 +59,34 @@
         <sourceDirectory>${project.basedir}/src/</sourceDirectory>
         <testSourceDirectory>${project.basedir}/tests/</testSourceDirectory>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.2</version>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Automatic-Module-Name>com.github.miachm.sods</Automatic-Module-Name>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
+        <plugin>
+            <groupId>biz.aQute.bnd</groupId>
+            <artifactId>bnd-maven-plugin</artifactId>
+            <version>6.4.0</version>
+            <configuration>
+            <bnd><![CDATA[
+            Export-Package:\
+                com.github.miachm.sods*
+            
+            Bundle-SymbolicName: com.github.miachm.sods
+            Automatic-Module-Name: com.github.miachm.sods
+            -jpms-module-info: com.github.miachm.sods
+            ]]></bnd>
+            </configuration>
+            <extensions>true</extensions>
+            <executions>
+                <execution>
+                    <id>jar</id>
+                    <goals>
+                        <goal>jar</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
         </plugins>
     </build>
 
     <profiles>
-        <profile>
-          <id>jdk9</id>
-          <activation>
-            <jdk>[9,)</jdk>
-          </activation>
-          <build>
-            <pluginManagement>
-              <plugins>
-                <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-compiler-plugin</artifactId>
-                  <executions>
-                    <execution>
-                      <id>jdk9</id>
-                      <goals>
-                        <goal>compile</goal>
-                      </goals>
-                      <configuration>
-                        <source>9</source>
-                        <target>9</target>
-                        <release>9</release>
-                        <compileSourceRoots>
-                          <compileSourceRoot>${project.basedir}/src9</compileSourceRoot>
-                        </compileSourceRoots>
-                        <multiReleaseOutput>true</multiReleaseOutput>
-                      </configuration>
-                    </execution>
-                  </executions>
-                </plugin>
-                <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-jar-plugin</artifactId>
-                  <executions>
-                    <execution>
-                      <id>default-jar</id>
-                      <configuration>
-                        <archive>
-                          <manifestEntries>
-                            <Multi-Release>true</Multi-Release>
-                          </manifestEntries>
-                        </archive>
-                      </configuration>
-                    </execution>
-                  </executions>
-                </plugin>
-              </plugins>
-            </pluginManagement>
-          </build>
-        </profile>
         <profile>
             <id>Release</id>
             <build>
