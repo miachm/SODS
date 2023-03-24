@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * Internal class for generate ODS files.
  */
-class OdsWritter {
+class OdsWriter {
     private final static String office = "urn:oasis:names:tc:opendocument:xmlns:office:1.0";
     private final static String table_namespace = "urn:oasis:names:tc:opendocument:xmlns:table:1.0";
     private final static String text_namespace = "urn:oasis:names:tc:opendocument:xmlns:text:1.0";
@@ -27,14 +27,14 @@ class OdsWritter {
     private Map<TableStyle, String> tableStyleStringMap = new HashMap<>();
     private final String MIMETYPE= "application/vnd.oasis.opendocument.spreadsheet";
 
-    private OdsWritter(OutputStream o, SpreadSheet spread) {
+    private OdsWriter(OutputStream o, SpreadSheet spread) {
         this.spread = spread;
         this.out = new Compressor(o);
         spread.trimSheets();
     }
 
     public static void save(OutputStream out,SpreadSheet spread) throws IOException {
-        new OdsWritter(out,spread).save();
+        new OdsWriter(out,spread).save();
     }
 
     private void save() throws IOException {
@@ -266,36 +266,43 @@ class OdsWritter {
         Object v = cell.getValue();
         if (v != null) {
             OfficeValueType valueType = OfficeValueType.ofJavaType(v.getClass());
-            valueType.write(v, out);
 
-            out.writeStartElement("text:p");
             String text = v.toString();
+            if (text.contains(System.lineSeparator())) {
+                valueType.write("", out);
 
-            for (int i = 0; i < text.length(); i++) {
-                if (text.charAt(i) == ' ') {
-                    out.writeStartElement("text:s");
-                    int cnt = 0;
-                    while (i+cnt < text.length() && text.charAt(i + cnt) == ' ') {
-                        cnt++;
+                out.writeStartElement("text:p");
+
+                for (int i = 0; i < text.length(); i++) {
+                    if (text.charAt(i) == ' ') {
+                        out.writeStartElement("text:s");
+                        int cnt = 0;
+                        while (i+cnt < text.length() && text.charAt(i + cnt) == ' ') {
+                            cnt++;
+                        }
+                        if (cnt > 1)
+                            out.writeAttribute("text:c", "" + cnt);
+                        i += cnt - 1 ;
+                        out.writeEndElement();
                     }
-                    if (cnt > 1)
-                        out.writeAttribute("text:c", "" + cnt);
-                    i += cnt - 1 ;
-                    out.writeEndElement();
+                    else if (text.charAt(i) == '\t') {
+                        out.writeEmptyElement("text:tab");
+                    }
+                    else if (text.charAt(i) == '\n') {
+                        out.writeEndElement();
+                        out.writeStartElement("text:p");
+                    }
+                    else
+                        out.writeCharacters("" + text.charAt(i));
                 }
-                else if (text.charAt(i) == '\t') {
-                    out.writeEmptyElement("text:tab");
-                }
-                else if (text.charAt(i) == '\n') {
-                    out.writeEndElement();
-                    out.writeStartElement("text:p");
-                }
-                else
-                    out.writeCharacters("" + text.charAt(i));
-            }
 
-            out.writeEndElement();
+                out.writeEndElement();
+
+            } else {
+                valueType.write(v, out);
+            }
         }
+
         OfficeAnnotation annotation = cell.getAnnotation();
         if (annotation != null) {
             out.writeStartElement("office:annotation");
