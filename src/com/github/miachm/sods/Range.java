@@ -1,9 +1,6 @@
 package com.github.miachm.sods;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * A range represents a subset of a Sheet.
@@ -737,6 +734,7 @@ public class Range {
                 "\nnumrows=" + numrows +
                 "\nnumcolumns=" + numcolumns +
                 "\nvalues =\n\n" + (getNumValues() < MAX_PRINTABLE ? valuesToString() : "too long for print") +
+                "\nlinkedValues =\n\n" + (getNumValues() < MAX_PRINTABLE ? linkedValuesToString() : "too long for print") +
                 "\n}";
     }
 
@@ -901,5 +899,108 @@ public class Range {
     public boolean isPartOfMerge()
     {
         return getMergedCells().length > 0;
+    }
+
+    /**
+     * Add a linked value for all the cells in this range.
+     *
+     * @param linkedValue The linked value to be added
+     *
+     * @see LinkedValue
+     */
+    public void addLinkedValue(LinkedValue linkedValue){
+        iterateRange((cell,row,column) -> cell.addLinkedValue(linkedValue));
+    }
+
+    /**
+     * Add a set of linked values to the range. The array must have the same size of the entire range itself.
+     *
+     * @param linkedValues The linked values array, it must the same size of the range itself.
+     * @throws IllegalArgumentException if the number of linked values is not equals to the size of range
+     */
+    public void addLinkedValues(LinkedValue... linkedValues) {
+        if (linkedValues.length != getNumValues()) {
+            throw new IllegalArgumentException("Error in addLinkedValues, the number of the arguments doesn't fit ("
+                    + linkedValues.length + " against " + getNumValues() + ")");
+        }
+
+        iterateRange((cell,row,column) -> cell.addLinkedValue(linkedValues[row*getNumColumns()+column]));
+    }
+
+    /**
+     * Set linked values for all the cells in this range.
+     *
+     * @param linkedValues The linkedValues to be set in the range
+     *
+     * @see LinkedValue
+     */
+    public void setLinkedValues(List<LinkedValue> linkedValues) {
+        iterateRange((cell,row,column) -> cell.setLinkedValues(linkedValues));
+    }
+
+    /**
+     * Set a set of linked values to the range. The array must have the same size of the entire range itself.
+     *
+     * @param linkedValues The linkedValues array, it must the same size of the range itself.
+     * @throws IllegalArgumentException if the number of linked values is not equals to the size of range
+     */
+    public void setLinkedValues(List<LinkedValue>... linkedValues) {
+        if (linkedValues.length != getNumValues()) {
+            throw new IllegalArgumentException("Error in setLinkedValues, the number of the arguments doesn't fit ("
+                    + linkedValues.length + " against " + getNumValues() + ")");
+        }
+
+        iterateRange((cell,row,column) -> cell.setLinkedValues(linkedValues[row*getNumColumns()+column]));
+    }
+
+    /**
+     * Sets a set of linked values to the range. The array must have the same size of the entire range itself.
+     *
+     * @param linkedValues The linkedValues 2D-array, it must have the same size of the range itself
+     * @throws IllegalArgumentException if the number of linked values is not equals to the size of range
+     */
+    public void setLinkedValues(List<LinkedValue>[][] linkedValues) {
+        if (linkedValues.length == 0) {
+            throw new IllegalArgumentException("Error in setLinkedValues, the array is empty");
+        }
+        if (linkedValues.length != getNumRows()) {
+            throw new IllegalArgumentException("Error in setLinkedValues, the number of rows doesn't fit ("
+                    + linkedValues.length + " against " + getNumRows() + ")");
+        }
+        if (linkedValues[0].length != getNumColumns()) {
+            throw new IllegalArgumentException("Error in setLinkedValues, the number of columns doesn't fit ("
+                    + linkedValues[0].length + " against " + getNumColumns() + ")");
+        }
+
+        iterateRange((cell,row,column) -> cell.setLinkedValues(linkedValues[row][column]));
+    }
+
+    /**
+     * Returns the rectangular grid of linked values for this range.
+     *
+     * @see LinkedValue
+     * @return A two-dimensional array of linked values.
+     */
+    public List<LinkedValue>[][] getLinkedValues() {
+        List<LinkedValue>[][] linkedValues = new ArrayList[getNumRows()][getNumColumns()];
+        iterateRange((cell,row,column) -> linkedValues[row][column] = cell.getLinkedValues());
+        return linkedValues;
+    }
+
+    private String linkedValuesToString() {
+        StringBuilder builder = new StringBuilder();
+
+        MutableInteger lastRow = new MutableInteger();
+        iterateRange((cell, i, j) -> {
+            if (lastRow.number != i) {
+                builder.append("\n");
+                lastRow.number = i;
+            }
+            if (j > 0) {
+                builder.append(" , ");
+            }
+            builder.append(Arrays.toString(cell.getLinkedValues().toArray()));
+        });
+        return builder.toString();
     }
 }

@@ -5,6 +5,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,6 +19,7 @@ class OdsWriter {
     private final static String style_namespace = "urn:oasis:names:tc:opendocument:xmlns:style:1.0";
     private final static String metadata_namespace = "http://purl.org/dc/elements/1.1/";
     private final static String datatype_namespace ="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0";
+    private final static String xlink_namespace ="http://www.w3.org/1999/xlink";
 
     private SpreadSheet spread;
     private Compressor out;
@@ -108,6 +110,7 @@ class OdsWriter {
         out.writeAttribute("xmlns:style", style_namespace);
         out.writeAttribute("xmlns:dc", metadata_namespace);
         out.writeAttribute("xmlns:number", datatype_namespace);
+        out.writeAttribute("xmlns:xlink", xlink_namespace);
 
         out.writeAttribute("office:version", "1.2");
 
@@ -263,43 +266,58 @@ class OdsWriter {
     }
 
     private void writeValue(XMLStreamWriter out, Cell cell) throws XMLStreamException {
-        Object v = cell.getValue();
-        if (v != null) {
-            OfficeValueType valueType = OfficeValueType.ofJavaType(v.getClass());
+        if (!cell.hasLinkedValues()) {
+            Object v = cell.getValue();
+            if (v != null) {
+                OfficeValueType valueType = OfficeValueType.ofJavaType(v.getClass());
 
-            String text = v.toString();
-            if (text.contains(System.lineSeparator())) {
+                String text = v.toString();
+                if (text.contains(System.lineSeparator())) {
+                    valueType.write("", out);
+
+                    out.writeStartElement("text:p");
+
+                    for (int i = 0; i < text.length(); i++) {
+                        if (text.charAt(i) == ' ') {
+                            out.writeStartElement("text:s");
+                            int cnt = 0;
+                            while (i + cnt < text.length() && text.charAt(i + cnt) == ' ') {
+                                cnt++;
+                            }
+                            if (cnt > 1)
+                                out.writeAttribute("text:c", "" + cnt);
+                            i += cnt - 1;
+                            out.writeEndElement();
+                        } else if (text.charAt(i) == '\t') {
+                            out.writeEmptyElement("text:tab");
+                        } else if (text.charAt(i) == '\n') {
+                            out.writeEndElement();
+                            out.writeStartElement("text:p");
+                        } else
+                            out.writeCharacters("" + text.charAt(i));
+                    }
+
+                    out.writeEndElement();
+
+                } else {
+                    valueType.write(v, out);
+                }
+            }
+        } else {
+            List<LinkedValue> links = cell.getLinkedValues();
+            if (links != null && !links.isEmpty()) {
+                OfficeValueType valueType = OfficeValueType.ofJavaType(String.class);
                 valueType.write("", out);
 
-                out.writeStartElement("text:p");
-
-                for (int i = 0; i < text.length(); i++) {
-                    if (text.charAt(i) == ' ') {
-                        out.writeStartElement("text:s");
-                        int cnt = 0;
-                        while (i+cnt < text.length() && text.charAt(i + cnt) == ' ') {
-                            cnt++;
-                        }
-                        if (cnt > 1)
-                            out.writeAttribute("text:c", "" + cnt);
-                        i += cnt - 1 ;
-                        out.writeEndElement();
-                    }
-                    else if (text.charAt(i) == '\t') {
-                        out.writeEmptyElement("text:tab");
-                    }
-                    else if (text.charAt(i) == '\n') {
-                        out.writeEndElement();
-                        out.writeStartElement("text:p");
-                    }
-                    else
-                        out.writeCharacters("" + text.charAt(i));
+                for (LinkedValue link : links) {
+                    out.writeStartElement("text:p");
+                    out.writeStartElement("text:a");
+                    out.writeAttribute("xlink:href", link.getHref());
+                    out.writeAttribute("xlink:type", "simple");
+                    out.writeCharacters(link.getValue());
+                    out.writeEndElement();
+                    out.writeEndElement();
                 }
-
-                out.writeEndElement();
-
-            } else {
-                valueType.write(v, out);
             }
         }
 
