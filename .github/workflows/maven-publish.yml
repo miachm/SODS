@@ -24,7 +24,8 @@ jobs:
         distribution: 'adopt'
         server-id: ossrh
         server-username: ${{ secrets.OSSRH_USERNAME }}
-        server-password: ${{ OSSRH_PASSWORD }}
+        server-password: ${{ secrets.OSSRH_PASSWORD }}
+        
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
