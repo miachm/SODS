@@ -14,27 +14,18 @@ A simple library for process ODS files in Java. It allows read/write ODS files.
 <dependency>
     <groupId>com.github.miachm.sods</groupId>
     <artifactId>SODS</artifactId>
-    <version>1.5.2</version>
+    <version>1.5.3</version>
 </dependency>
 ```
 ### Gradle Kotlin DSL
 ```kotlin
-implementation("com.github.miachm.sods:SODS:1.5.2")
+implementation("com.github.miachm.sods:SODS:1.5.3")
 ```
 ### Gradle Groovy DSL
 ```groovy
-implementation 'com.github.miachm.sods:SODS:1.5.2'
+implementation 'com.github.miachm.sods:SODS:1.5.3'
 ```
 ### [Other Dependency Management](https://search.maven.org/artifact/com.github.miachm.sods/SODS/1.5.2/jar)
-### Manually
-
-Check out [releases section](https://github.com/miachm/SODS/releases) for download the lastest release in a JAR file. After that, you can add the jar in your java project.
-
-Here some help in differents IDE:
-
-- [Intellij](https://stackoverflow.com/a/33589628/2489715)
-- [Eclipse](https://stackoverflow.com/a/3280384/2489715)
-- [Netbeans](https://www.quora.com/How-can-I-add-jar-files-to-libraries-in-Netbeans-IDE8-0).
 
 ## Docs
 You can access the javadocs [here](https://miachm.github.io/SODS/)
