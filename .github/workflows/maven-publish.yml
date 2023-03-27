@@ -30,4 +30,4 @@ jobs:
       run: mvn -B package --file pom.xml
 
     - name: Publish toMaven repository
-      run: mvn deploy -p Release
+      run: mvn deploy -P Release
