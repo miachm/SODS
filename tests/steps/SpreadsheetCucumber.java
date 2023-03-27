@@ -52,6 +52,11 @@ public class SpreadsheetCucumber {
         Sheet sheet = World.spread.getSheet(index);
         assertEquals(sheet.getName(), name);
     }
+    
+    @When("^save the spreadsheet in a file ([^\"]*)$")
+    public void save_it_in_a_file(String file) throws Throwable {
+        World.spread.save(new File(file));
+    }
 
     @When("^save the spreadsheet in the memory$")
     public void save_it_in_the_memory() throws Throwable {
