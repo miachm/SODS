@@ -72,6 +72,7 @@ enum OfficeValueType {
 
                 if (currency.getValue() != null) {
                     NumberFormat formatter = NumberFormat.getInstance(Locale.US);
+                    formatter.setGroupingUsed(false);
                     writer.writeAttribute("office:value", formatter.format(currency.getValue()));
                 }
 
