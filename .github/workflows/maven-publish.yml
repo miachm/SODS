@@ -24,14 +24,15 @@ jobs:
       with:
         java-version: '8'
         server-id: ossrh
-        server-username: ${{ secrets.OSSRH_USERNAME }}
-        server-password: ${{ secrets.OSSRH_PASSWORD }}
+        server-username: MAVEN_USERNAME
+        server-password: MAVEN_PASSWORD
         gpg-private-key: ${{ secrets.OSSHR_GPG_SECRET_KEY }}
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
+        gpg-passphrase: MAVEN_GPG_PASSPHRASE
+        overwrite-settings: true
 
     - name: Publish toMaven repository
       run: mvn deploy --batch-mode --no-transfer-progress -P Release
       env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
