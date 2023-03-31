@@ -4,8 +4,11 @@
 name: Maven Package
 
 on:
-  release:
-    types: [created]
+  workflow_dispatch:
+    inputs:
+      releaseversion:
+        description: 'Release version'
+        required: true
 
 jobs:
   build:
@@ -17,6 +20,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    
     - name: Set up Maven Central Repository
       uses: actions/setup-java@v1
       with:
@@ -27,10 +31,31 @@ jobs:
         gpg-private-key: ${{ secrets.OSSHR_GPG_SECRET_KEY }}
         gpg-passphrase: MAVEN_GPG_PASSPHRASE
         overwrite-settings: true
-
+        
     - name: Publish toMaven repository
       run: mvn deploy --batch-mode --no-transfer-progress -P Release
       env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
+
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+          tag_name: ${{ github.event.inputs.releaseversion }}
+          release_name: ${{ github.event.inputs.releaseversion }}
+          body: |
+            Grab the new version from Maven central https://repo1.maven.org/maven2/de/codecentric/cxf-spring-boot-starter/${{ github.event.inputs.releaseversion }}/ by using it in your deps (also use the newest cxf-spring-boot-starter-maven-plugin https://github.com/codecentric/cxf-spring-boot-starter-maven-plugin):
+
+            ```
+              <dependency>
+                  <groupId>com.github.miachm.sods</groupId>
+                  <artifactId>SODS</artifactId>
+                  <version>${{ github.event.inputs.releaseversion }}</version>
+              </dependency>
+            ```
+          draft: false
+          prerelease: false
