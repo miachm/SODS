@@ -3,7 +3,11 @@ package com.github.miachm.sods;
 import org.testng.annotations.Test;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import static java.util.Arrays.asList;
 import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
@@ -930,5 +934,123 @@ public class RangeTest {
         assertEquals(arr[1][0], annotation);
         assertEquals(arr[1][1], null);
         assertEquals(arr[1][2], annotation);
+    }
+
+    @Test
+    public void testAddLinkedValue() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Range range = sheet.getDataRange();
+
+        Sheet linkedSheet = new Sheet("B");
+        LinkedValue linkedValue = LinkedValue.builder().value("linked to").href(linkedSheet).build();
+        range.addLinkedValue(linkedValue);
+
+        List<LinkedValue>[][] arr = range.getLinkedValues();
+
+        assertEquals(arr[0][0].get(0), linkedValue);
+        assertEquals(arr[0][1].get(0), linkedValue);
+        assertEquals(arr[1][0].get(0), linkedValue);
+        assertEquals(arr[1][1].get(0), linkedValue);
+    }
+
+    @Test
+    public void testAddLinkedValues() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Range range = sheet.getDataRange();
+
+        Sheet linkedSheetB = new Sheet("B");
+        LinkedValue linkedValue1 = LinkedValue.builder().value("1 linked to").href(linkedSheetB).build();
+
+        Sheet linkedSheetC = new Sheet("C");
+        LinkedValue linkedValue2 = LinkedValue.builder().value("2 linked to").href(linkedSheetC).build();
+
+        Sheet linkedSheetD = new Sheet("D");
+        LinkedValue linkedValue3 = LinkedValue.builder().value("3 linked to").href(linkedSheetD).build();
+
+        Sheet linkedSheetE = new Sheet("E");
+        LinkedValue linkedValue4 = LinkedValue.builder().value("4 linked to").href(linkedSheetE).build();
+
+        range.addLinkedValues(linkedValue1, linkedValue2, linkedValue3, linkedValue4);
+
+        List<LinkedValue>[][] arr = range.getLinkedValues();
+
+        assertEquals(arr[0][0].get(0), linkedValue1);
+        assertEquals(arr[0][1].get(0), linkedValue2);
+        assertEquals(arr[1][0].get(0), linkedValue3);
+        assertEquals(arr[1][1].get(0), linkedValue4);
+    }
+
+    @Test
+    public void testSetLinkedValues() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Range range = sheet.getDataRange();
+
+        Sheet linkedSheet = new Sheet("B");
+
+        List<LinkedValue> linkedValues = new ArrayList<>(asList(LinkedValue.builder().value("linked to").href(linkedSheet).build()));
+        range.setLinkedValues(linkedValues);
+
+        List<LinkedValue>[][] arr = range.getLinkedValues();
+
+        assertEquals(arr[0][0], linkedValues);
+        assertEquals(arr[0][1], linkedValues);
+        assertEquals(arr[1][0], linkedValues);
+        assertEquals(arr[1][1], linkedValues);
+    }
+
+    @Test
+    public void testSetLinkedValuesMat() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumns(2);
+
+        Range range = sheet.getDataRange();
+
+        List<LinkedValue>[][] linkedValuesArr = new ArrayList[2][3];
+
+        Sheet linkedSheetB = new Sheet("B");
+        LinkedValue linkedValue1 = LinkedValue.builder().value("1 linked to").href(linkedSheetB).build();
+
+        Sheet linkedSheetC = new Sheet("C");
+        LinkedValue linkedValue2 = LinkedValue.builder().value("2 linked to").href(linkedSheetC).build();
+
+        Sheet linkedSheetD = new Sheet("D");
+        LinkedValue linkedValue3 = LinkedValue.builder().value("3 linked to").href(linkedSheetD).build();
+
+        Sheet linkedSheetE = new Sheet("E");
+        LinkedValue linkedValue4 = LinkedValue.builder().value("4 linked to").href(linkedSheetE).build();
+
+        Sheet linkedSheetF = new Sheet("F");
+        LinkedValue linkedValue5 = LinkedValue.builder().value("5 linked to").href(linkedSheetF).build();
+
+        Sheet linkedSheetG = new Sheet("G");
+        LinkedValue linkedValue6 = LinkedValue.builder().value("6 linked to").href(linkedSheetG).build();
+
+        linkedValuesArr[0][0] = new ArrayList<>(asList(linkedValue1));
+        linkedValuesArr[0][1] = new ArrayList<>(asList(linkedValue2));
+        linkedValuesArr[0][2] = new ArrayList<>(asList(linkedValue3));
+        linkedValuesArr[1][0] = new ArrayList<>(asList(linkedValue4));
+        linkedValuesArr[1][1] = new ArrayList<>(asList(linkedValue5));
+        linkedValuesArr[1][2] = new ArrayList<>(asList(linkedValue6));
+
+        range.setLinkedValues(linkedValuesArr);
+
+        List<LinkedValue>[][] arr = range.getLinkedValues();
+
+        assertEquals(arr[0][0].get(0), linkedValue1);
+        assertEquals(arr[0][1].get(0), linkedValue2);
+        assertEquals(arr[0][2].get(0), linkedValue3);
+        assertEquals(arr[1][0].get(0), linkedValue4);
+        assertEquals(arr[1][1].get(0), linkedValue5);
+        assertEquals(arr[1][2].get(0), linkedValue6);
     }
 }

@@ -71,6 +71,7 @@
             Bundle-SymbolicName: com.github.miachm.sods
             Automatic-Module-Name: com.github.miachm.sods
             -jpms-module-info: com.github.miachm.sods
+            -sources: true
             ]]></bnd>
             </configuration>
             <extensions>true</extensions>

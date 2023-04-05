@@ -1,7 +1,7 @@
 package com.github.miachm.sods;
 
 import java.time.LocalDate;
-import java.util.Objects;
+import java.util.*;
 
 class Cell extends TableField {
     private Object value;
@@ -10,8 +10,10 @@ class Cell extends TableField {
     private GroupCell group;
     private OfficeAnnotation annotation;
 
-    Cell()
-    {
+    private List<LinkedValue> linkedValues;
+
+    Cell() {
+        linkedValues = new ArrayList<>();
     }
 
     GroupCell getGroup() {
@@ -56,6 +58,7 @@ class Cell extends TableField {
         formula = null;
         style = Style.default_style;
         annotation = null;
+        linkedValues = new ArrayList<>();
     }
 
     String getFormula() {
@@ -102,6 +105,22 @@ class Cell extends TableField {
         this.annotation = annotation;
     }
 
+    List<LinkedValue> getLinkedValues() {
+        return linkedValues;
+    }
+
+    boolean hasLinkedValues() {
+        return !linkedValues.isEmpty();
+    }
+
+    void setLinkedValues(List<LinkedValue> linkedValues) {
+        this.linkedValues = linkedValues;
+    }
+
+    void addLinkedValue(LinkedValue linkedValue) {
+        this.linkedValues.add(linkedValue);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -124,6 +143,7 @@ class Cell extends TableField {
         if (!Objects.equals(formula, cell.formula)) return false;
         if (!Objects.equals(annotation, cell.annotation)) return false;
         if (!Objects.equals(num_repeated, cell.num_repeated)) return false;
+        if (!Objects.equals(linkedValues, cell.linkedValues)) return false;
         return style.equals(cell.getStyle());
     }
 
@@ -139,6 +159,7 @@ class Cell extends TableField {
         result = 31 * result + style.hashCode();
         result = 31 * result + (group != null ? group.hashCode() : 0);
         result = 31 * result + annotation.hashCode();
+        result = 31 * result + linkedValues.hashCode();
         return result;
     }
 
@@ -147,6 +168,7 @@ class Cell extends TableField {
         if (getGroup() == null || getGroup().getCell() == this)
             return "Cell{" +
                     "value=" + value +
+                    ", linkedValues='" + Arrays.toString(linkedValues.toArray()) + '\'' +
                     ", formula='" + formula + '\'' +
                     ", style=" + style +
                     ", num_repeated=" + num_repeated +

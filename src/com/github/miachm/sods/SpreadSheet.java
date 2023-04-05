@@ -195,7 +195,7 @@ public class SpreadSheet implements Cloneable {
      * @throws IOException In case of an io error.
      */
     public void save(OutputStream out) throws IOException {
-        OdsWritter.save(out,this);
+        OdsWriter.save(out,this);
     }
 
     /**
