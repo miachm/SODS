@@ -290,6 +290,11 @@ class OdsWritter {
                     out.writeEndElement();
                     out.writeStartElement("text:p");
                 }
+                else if (Character.isHighSurrogate(text.charAt(i)) && i + 1 < text.length() && Character.isLowSurrogate(text.charAt(i + 1))) {
+                    // write surrogate pair
+                    out.writeCharacters("" + text.charAt(i) + text.charAt(i + 1));
+                    i++;
+                }
                 else
                     out.writeCharacters("" + text.charAt(i));
             }
@@ -529,7 +534,7 @@ class OdsWritter {
     }
     
     private void writeBorderStyle(XMLStreamWriter out, Style style) throws XMLStreamException {
-    	
+
 		Borders borders = style.getBorders();
 		if (borders.isBorder()) {
 			out.writeAttribute("fo:border", borders.getBorderProperties());
