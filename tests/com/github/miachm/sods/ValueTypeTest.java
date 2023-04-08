@@ -58,6 +58,20 @@ public class ValueTypeTest {
     }
 
     @Test
+    public void testUnicodeCharacters()
+    {
+        // Text not in the Basic Multilingual Plane (BMP) is encoded using a surrogate pair
+        // https://docs.oracle.com/javase/specs/jls/se7/html/jls-3.html#jls-3.1
+        String text = "\uD83D\uDE00"; // 😀
+
+        Sheet sheet = new Sheet("A", 1, 1);
+        sheet.getDataRange().setValues(text);
+        sheet = saveAndLoad(sheet);
+
+        assertEquals(sheet.getRange(0, 0).getValue(), text);
+    }
+
+    @Test
     public void testCurrency()
     {
         OfficeCurrency canada = new OfficeCurrency(Currency.getInstance(Locale.CANADA), 30.0);
