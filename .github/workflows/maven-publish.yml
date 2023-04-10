@@ -32,13 +32,24 @@ jobs:
         gpg-passphrase: MAVEN_GPG_PASSPHRASE
         overwrite-settings: true
         
+    - name: Set projects Maven version to GitHub Action GUI set version
+      run: mvn versions:set "-DnewVersion=${{ github.event.inputs.releaseversion }}"
+    
     - name: Publish toMaven repository
       run: mvn deploy --batch-mode --no-transfer-progress -P Release
       env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
-
+          
+    - name: Update readme.md
+      run: sed -i 's/$(git tag | tail -n 1 | cut -c 2-)/${{ github.event.inputs.releaseversion }}/g' README.md
+          
+    - uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: Update POM version
+        file_pattern: 'pom.xml README.md'
+        
     - name: Create GitHub Release
       id: create_release
       uses: actions/create-release@v1
