@@ -254,4 +254,9 @@ public class SpreadsheetCucumber {
             }
         }
     }
+    
+    @When("^get the sheet \"([^\"]*)\" from the spreadsheet$")
+    public void get_the_sheet_from_the_spreadsheet(String name) throws Throwable {
+        World.sheet = World.spread.getSheet(name);
+    }
 }

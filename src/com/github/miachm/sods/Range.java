@@ -214,7 +214,7 @@ public class Range {
 
     /**
      * Returns the value of the top-left cell in the range.
-     * The values could be String, Float, Integer, OfficeCurrency, OfficePercentage or a Date
+     * The values could be String, Float, Integer, OfficeCurrency, OfficePercentage or a LocalDate
      * Empty cells returns a null object
      *
      * @see OfficeCurrency
@@ -228,7 +228,7 @@ public class Range {
 
     /**
      * Returns the rectangular grid of values for this range.
-     * The values could be String, Float, Integer, OfficeCurrency, OfficePercentage or a Date
+     * The values could be String, Float, Integer, OfficeCurrency, OfficePercentage or a LocalDate
      * Empty cells returns a null object
      *
      * @see OfficeCurrency

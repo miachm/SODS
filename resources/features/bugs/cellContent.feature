@@ -7,3 +7,19 @@ Feature: Bugs related to invalid cell value content in SODS
       | content | content |         | content |
       | content | content | content |         |
       | content |         |         |         |
+
+  Scenario: Cross formula cells ignore symbols
+    Given an empty Spreadsheet
+    Given a sheet "A", size 2x2 and random data
+    When the client appends the sheet contained in World.sheet
+    Given a sheet "B", size 2x2 and random data
+    When the client creates a Range with 1,1,1,1
+    When the client sets the formula in the range to "SUM(Operations!C:C)"
+    When the client appends the sheet contained in World.sheet
+    And save the spreadsheet in the memory
+    And save the spreadsheet in a file test.ods
+    And load a spreadsheet from memory
+    And get the sheet "B" from the spreadsheet
+    When the client creates a Range with 1,1,1,1
+    Then the formula of the range is "SUM(Operations!C:C)"
+
