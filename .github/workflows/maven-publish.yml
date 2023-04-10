@@ -56,8 +56,8 @@ jobs:
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-          tag_name: ${{ github.event.inputs.releaseversion }}
-          release_name: ${{ github.event.inputs.releaseversion }}
+          tag_name: "v${{ github.event.inputs.releaseversion }}"
+          release_name: "v${{ github.event.inputs.releaseversion }}"
           body: |
             Grab the new version from Maven central https://repo1.maven.org/maven2/de/codecentric/cxf-spring-boot-starter/${{ github.event.inputs.releaseversion }}/ by using it in your deps (also use the newest cxf-spring-boot-starter-maven-plugin https://github.com/codecentric/cxf-spring-boot-starter-maven-plugin):
 
