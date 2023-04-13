@@ -2,9 +2,16 @@ package com.github.miachm.sods;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Spreadsheet is the base class for handle a Spreadsheet.
@@ -15,6 +22,8 @@ import java.util.List;
 public class SpreadSheet implements Cloneable {
 
     private final List<Sheet> sheets = new ArrayList<Sheet>();
+    private final Map<String, FileEntry> extraFiles = new HashMap<>();
+    private static final Set<String> reservedFiles = Stream.of("content.xml", "styles.xml", "META-INF/manifest.xml", "mimetype").collect(Collectors.toCollection(HashSet::new));
 
     /**
      * Create an empty spreadsheet
@@ -197,6 +206,49 @@ public class SpreadSheet implements Cloneable {
     public void save(OutputStream out) throws IOException {
         OdsWritter.save(out,this);
     }
+    
+    Collection<FileEntry> getExtraFiles()
+    {
+        return extraFiles.values();
+    }
+    
+    /**
+     * This function allows you to add/edit additional files inside your Spreadsheet
+     * This is an advanced feature which could be useful if you intent to store
+     * macros inside the Spreadsheet file.This function will override existing files.
+     * 
+     * You can define folders using the '/' separator
+     * 
+     * There are some reserved paths that you can not use:
+     * - content.xml
+     * - styles.xml
+     * - mimetype
+     * - META-INF/manifest.xml
+     * 
+     * @param path: Location (inside the Spreadsheet) where the file should be placed
+     * @param mimetype: Type of the file
+     * @param data: The file content itself
+     * @throws IllegalArgumentException: The path belongs to a reserved file
+     * @return True if the file already existed, false if not
+     */
+    public boolean setAdditionalFile(String path, String mimetype, byte[] data)
+    {
+        if (reservedFiles.contains(path)) {
+            throw new IllegalArgumentException("The file " + path + " is a reserved name");
+        }
+        return extraFiles.put(path, new FileEntry(path, mimetype, data)) != null;
+    }
+    
+    /**
+     * This function allows you to remove files that you have added to the Spreadsheet
+     * 
+     * @throws NullPointerException: if the string is null
+     * @param path: Location (inside the Spreadsheet) where the file is placed
+     */
+    public void removeAdditionalFile(String path)
+    {
+        extraFiles.remove(path);
+    }
 
     /**
      * Sort the sheets by name
@@ -221,6 +273,8 @@ public class SpreadSheet implements Cloneable {
 
     /** Trim the sheets to the minimum dimensions possible
      * This method is equivalent to call sheet.trim() to each sheet of the spreadsheet
+     * 
+     * @deprecated this operation relay in sheet.trim(), which is also deprecated
      */
     public void trimSheets()
     {

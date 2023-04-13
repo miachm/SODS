@@ -43,6 +43,7 @@ class OdsWritter {
         try {
             writeSpreadsheet();
             writeSettingsStyleFile();
+            writeExtraFiles();
         } catch (XMLStreamException e) {
             throw new GenerateOdsException(e);
         }
@@ -77,6 +78,13 @@ class OdsWritter {
             out.writeAttribute("manifest:full-path", "styles.xml");
             out.writeAttribute("manifest:media-type", "text/xml");
             out.writeEndElement();
+            
+            for (FileEntry entry : spread.getExtraFiles()) {
+                out.writeStartElement("manifest:file-entry");
+                out.writeAttribute("manifest:full-path", entry.path);
+                out.writeAttribute("manifest:media-type", entry.mimetype);
+                out.writeEndElement();
+            }
 
             out.writeEndElement();
             out.writeEndDocument();
@@ -555,5 +563,10 @@ class OdsWritter {
 		if (borders.isBorderRight()) {
 			out.writeAttribute("fo:border-right", borders.getBorderRightProperties());
 		}
+    }
+
+    private void writeExtraFiles() throws IOException {
+        for (FileEntry entry : spread.getExtraFiles())
+            this.out.addEntry(entry.data, entry.path);
     }
 }
