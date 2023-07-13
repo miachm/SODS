@@ -22,8 +22,8 @@ class OdsWritter {
     private SpreadSheet spread;
     private Compressor out;
     private Map<Style, String> stylesUsed = new HashMap<>();
-    private Map<ColumnStyle, String> columnStyleStringMap = new HashMap<>();
-    private Map<RowStyle, String> rowStyleStringMap = new HashMap<>();
+    private Map<Double, String> columnStyleStringMap = new HashMap<>();
+    private Map<Double, String> rowStyleStringMap = new HashMap<>();
     private Map<TableStyle, String> tableStyleStringMap = new HashMap<>();
     private final String MIMETYPE= "application/vnd.oasis.opendocument.spreadsheet";
 
@@ -194,7 +194,7 @@ class OdsWritter {
 
             Double width = column.column_style.getWidth();
             if (width != null) {
-                String name = columnStyleStringMap.get(column.column_style);
+                String name = columnStyleStringMap.get(width);
                 if (name != null)
                     out.writeAttribute("table:style-name", name);
             }
@@ -343,7 +343,7 @@ class OdsWritter {
     private void writeRowHeight(XMLStreamWriter out, Row row) throws XMLStreamException {
         Double height = row.row_style.getHeight();
         if (height != null) {
-            String name = rowStyleStringMap.get(row.row_style);
+            String name = rowStyleStringMap.get(height);
             if (name != null)
                 out.writeAttribute("table:style-name", name);
         }
@@ -517,9 +517,7 @@ class OdsWritter {
     }
 
     private void writeColumnStyle(XMLStreamWriter out, Double width) throws XMLStreamException {
-        ColumnStyle columnStyle = new ColumnStyle();
-        columnStyle.setWidth(width);
-        if (!columnStyleStringMap.containsKey(columnStyle)) {
+        if (!columnStyleStringMap.containsKey(width)) {
             String key = "co" + columnStyleStringMap.size();
 
             out.writeStartElement("style:style");
@@ -530,14 +528,12 @@ class OdsWritter {
             out.writeEndElement();
             out.writeEndElement();
 
-            columnStyleStringMap.put(columnStyle, key);
+            columnStyleStringMap.put(width, key);
         }
     }
 
     private void writeRowStyle(XMLStreamWriter out, Double height) throws XMLStreamException {
-        RowStyle rowStyle = new RowStyle();
-        rowStyle.setHeight(height);
-        if (!rowStyleStringMap.containsKey(rowStyle)) {
+        if (!rowStyleStringMap.containsKey(height)) {
             String key = "ro" + rowStyleStringMap.size();
             out.writeStartElement("style:style");
             out.writeAttribute("style:family", "table-row");
@@ -547,7 +543,7 @@ class OdsWritter {
             out.writeEndElement();
             out.writeEndElement();
 
-            rowStyleStringMap.put(rowStyle, key);
+            rowStyleStringMap.put(height, key);
         }
     }
 
