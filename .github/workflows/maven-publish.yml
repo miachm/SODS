@@ -42,7 +42,7 @@ jobs:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
           
     - name: Update readme.md
-      run: sed -i 's/$(git tag | tail -n 1 | cut -c 2-)/${{ github.event.inputs.releaseversion }}/g' README.md
+      run: sed -i "s/$(git describe --tags --abbrev=0 | cut -c 2-)/${{ github.event.inputs.releaseversion }}/g" README.md
           
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
@@ -58,7 +58,7 @@ jobs:
           tag_name: "v${{ github.event.inputs.releaseversion }}"
           release_name: "v${{ github.event.inputs.releaseversion }}"
           body: |
-            Grab the new version from Maven central https://repo1.maven.org/maven2/de/codecentric/cxf-spring-boot-starter/${{ github.event.inputs.releaseversion }}/ by using it in your deps (also use the newest cxf-spring-boot-starter-maven-plugin https://github.com/codecentric/cxf-spring-boot-starter-maven-plugin):
+            Grab the new version from Maven central:
 
             ```
               <dependency>
