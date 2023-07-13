@@ -229,7 +229,7 @@ public class SpreadSheet implements Cloneable {
      * @param mimetype: Type of the file
      * @param data: The file content itself
      * @return True if the file already existed, false if not
-     * @throws IllegalArgumentException: The path belongs to a reserved file
+     * @throws IllegalArgumentException The path belongs to a reserved file
      */
     public boolean setAdditionalFile(String path, String mimetype, byte[] data)
     {
@@ -243,7 +243,7 @@ public class SpreadSheet implements Cloneable {
      * This function allows you to remove files that you have added to the Spreadsheet
      * 
      * @param path: Location (inside the Spreadsheet) where the file is placed
-     * @throws NullPointerException: if the string is null
+     * @throws NullPointerException if the string is null
      */
     public void removeAdditionalFile(String path)
     {
