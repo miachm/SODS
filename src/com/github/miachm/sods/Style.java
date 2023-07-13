@@ -143,6 +143,7 @@ public final class Style implements Cloneable {
 
     /**
      * Remove a specific condition rule in an index
+     * @param i The index of the condition rule.
      * @throws IndexOutOfBoundsException if the index is invalid
      */
     public void removeCondition(int i)
