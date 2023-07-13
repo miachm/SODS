@@ -381,13 +381,15 @@ class OdsReader {
                 return;
         }
 
-        if (style != null && !style.isDefault()) {
-            for (int j = sheet.getMaxColumns(); j < sheet.getMaxColumns() + numColumns; j++)
-                columns_styles.put(j, style);
-        }
-
         int index = sheet.getMaxColumns();
         sheet.appendColumns(numColumns);
+
+        if (style != null && !style.isDefault()) {
+            for (int j = index; j < index + numColumns; j++) {
+                sheet.setDefaultColumnCellStyle(j, style);
+                columns_styles.put(j, style);
+            }
+        }
 
         if (areHidden) {
             sheet.hideColumns(index, numColumns);
