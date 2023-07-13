@@ -162,7 +162,13 @@ public class OfficeValueTypeTest {
 
     @Test
     public void testWriteString() throws Exception {
+        assertWrite(OfficeValueType.STRING, "hello")
+                .containsAttribute("office:value-type", "string")
+                .containsAttribute("office:string-value", "hello");
 
+        assertWrite(OfficeValueType.STRING, "see\nyou")
+                .containsAttribute("office:value-type", "string")
+                .containsAttribute("office:string-value", "see&#x0a;you");
     }
 
     @Test
