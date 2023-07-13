@@ -1,7 +1,8 @@
 # SODS
 
 ![Build Status](https://github.com/miachm/SODS/actions/workflows/maven.yml/badge.svg)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.miachm.sods/SODS.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.miachm.sods%22%20AND%20a:%22SODS%22)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.miachm.sods/SODS.svg?label=Maven%20Central)]([https://search.maven.org/search?q=g:%22com.github.miachm.sods%22%20AND%20a:%22SODS%22](https://central.sonatype.com/artifact/com.github.miachm.sods/SODS))
+[![Javadoc](https://img.shields.io/badge/JavaDoc-Online-green)](https://miachm.github.io/SODS/)
 [![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)
 
 
