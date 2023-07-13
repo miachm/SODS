@@ -68,7 +68,13 @@ class Cell extends TableField {
     void setValue(Object value)
     {
         this.value = value;
-        style.setDateType(value instanceof LocalDate);
+        if (value instanceof LocalDate) {
+            if (style.getDataStyle() == null) {
+                style.setDataStyle(Style.ISO_DATE_DATA_STYLE);
+            }
+        } else if (Style.ISO_DATE_DATA_STYLE.equals(style.getDataStyle())) {
+            style.setDataStyle(null);
+        }
     }
 
     public void setFormula(String formula) {

@@ -8,6 +8,8 @@ import java.util.*;
 
 public final class Style implements Cloneable {
     static final Style default_style = new Style();
+    static final String PLAIN_DATA_STYLE = "@";
+    static final String ISO_DATE_DATA_STYLE = "YYYY-MM-DD";
 
     private boolean bold;
     private boolean italic;
@@ -19,7 +21,7 @@ public final class Style implements Cloneable {
     private boolean wrap = false;
     private TEXT_ALIGMENT horizontal_alignment = null;
     private VERTICAL_TEXT_ALIGMENT vertical_alignment = null;
-    private boolean isDate = false;
+    private String dataStyle;
     private List<ConditionalFormat> conditionalFormats = new ArrayList<>();
 
     /** Defines the text position of a Cell
@@ -300,18 +302,38 @@ public final class Style implements Cloneable {
      */
     public VERTICAL_TEXT_ALIGMENT getVerticalTextAligment() { return vertical_alignment;}
 
+    /**
+     * Returns the data style.
+     * This property is not populated when reading a spreadsheet.
+     *
+     * @return {@code null}, {@code @}, or {@code YYYY-MM-DD}
+     * @see #setDataStyle(String)
+     */
+    public String getDataStyle() {
+        return dataStyle;
+    }
+
+    /**
+     * Sets the data style that tells office software how to interpret and format content entered into a cell.
+     * At the moment, only the following data styles are supported:
+     *
+     * <ul>
+     *     <li>{@code null}, which is the default value and permits interpretation.</li>
+     *     <li>{@code @}, which forces all content to be interpreted as plain text.</li>
+     *     <li>{@code YYYY-MM-DD}, which formats dates in the ISO style.</li>
+     * </ul>
+     *
+     * @param dataStyle {@code null}, {@code @}, or {@code YYYY-MM-DD}
+     */
+    public void setDataStyle(String dataStyle) {
+        if (dataStyle != null && !PLAIN_DATA_STYLE.equals(dataStyle) && !ISO_DATE_DATA_STYLE.equals(dataStyle))
+            throw new IllegalArgumentException("At the moment, the only supported date styles are null, '" +
+                    PLAIN_DATA_STYLE + "', and '" + ISO_DATE_DATA_STYLE + "', but not '" + dataStyle + "'");
+        this.dataStyle = dataStyle;
+    }
+
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
-    }
-
-    boolean isDate()
-    {
-        return isDate;
-    }
-
-    void setDateType(boolean date)
-    {
-        isDate = date;
     }
 
     @Override
@@ -330,8 +352,7 @@ public final class Style implements Cloneable {
         if (!Objects.equals(fontColor, style.fontColor)) return false;
         if (!Objects.equals(backgroundColor, style.backgroundColor))
             return false;
-        if (isDate != style.isDate)
-            return false;
+        if (!Objects.equals(dataStyle, style.dataStyle)) return false;
         if (horizontal_alignment != style.horizontal_alignment)
             return false;
         if (!conditionalFormats.equals(style.conditionalFormats))
@@ -350,7 +371,7 @@ public final class Style implements Cloneable {
         result = 31 * result + fontSize;
         result = 31 * result + (borders != null ? borders.hashCode() : 0);
         result = 31 * result + (wrap ? 1 : 0);
-        result = 31 * result + (isDate ? 1 : 0);
+        result = 31 * result + (dataStyle != null ? dataStyle.hashCode() : 0);
         result = 31 * result + conditionalFormats.hashCode();
         result = 31 * result + (horizontal_alignment != null ? horizontal_alignment.hashCode() : 0);
         result = 31 * result + (vertical_alignment != null ? vertical_alignment.hashCode() : 0);
@@ -406,6 +427,10 @@ public final class Style implements Cloneable {
 
         if(vertical_alignment != null)
             result.put("vertical-align", getVerticalTextAligment().toString().toLowerCase());
+
+        if (dataStyle != null) {
+            result.put("data-style", dataStyle);
+        }
 
         return result;
     }
