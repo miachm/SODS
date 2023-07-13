@@ -338,7 +338,7 @@ class OdsWritter {
     private void writeStyles(XMLStreamWriter out) throws XMLStreamException {
         out.writeStartElement("office:automatic-styles");
 
-        writeDateFormatStyle(out);
+        writeDataFormatStyles(out);
 
         for (Sheet sheet : spread.getSheets()) {
             for (Row row : sheet.rows) {
@@ -370,7 +370,12 @@ class OdsWritter {
         out.writeEndElement();
     }
 
-    private void writeDateFormatStyle(XMLStreamWriter out) throws XMLStreamException {
+    private void writeDataFormatStyles(XMLStreamWriter out) throws XMLStreamException {
+        out.writeStartElement("number:text-style");
+        out.writeAttribute("style:name", "textstyle");
+        out.writeEmptyElement("number:text-content");
+        out.writeEndElement();
+
         out.writeStartElement("number:date-style");
         out.writeAttribute("style:name", "datestyle");
         out.writeStartElement("number:year");
@@ -408,7 +413,10 @@ class OdsWritter {
         out.writeAttribute("style:family", "table-cell");
         out.writeAttribute("style:name", key);
 
-        if (style.isDate())
+        String dataStyle = style.getDataStyle();
+        if (Style.PLAIN_DATA_STYLE.equals(dataStyle))
+            out.writeAttribute("style:data-style-name", "textstyle");
+        else if (Style.ISO_DATE_DATA_STYLE.equals(dataStyle))
             out.writeAttribute("style:data-style-name", "datestyle");
 
         if (style.hasTableCellProperties()) {
