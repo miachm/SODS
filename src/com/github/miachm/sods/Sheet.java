@@ -819,6 +819,40 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
+     * Gets the default cell style of a specific column.
+     * The default style is used as a fallback whenever a cell in the column doesn't specify its own style.
+     * It's safe to manipulate the returned style object since it is a copy of the original one.
+     *
+     * @param column The index of the column
+     * @throws IndexOutOfBoundsException if the column index is invalid
+     * @return The default cell style of the column. It cannot be null.
+     */
+    public Style getDefaultColumnCellStyle(int column) {
+        checkColumnRange(column);
+        int index = getIndex(columns, column);
+        if (index == columns.size())
+            return ColumnStyle.default_style.getDefaultCellStyleCopy();
+        else {
+            return columns.get(index).column_style.getDefaultCellStyleCopy();
+        }
+    }
+
+    /**
+     * Sets the default cell style of a specific column.
+     * The default style is used as a fallback whenever a cell in the column doesn't specify its own style.
+     *
+     * @param column The index of the column
+     * @param defaultColumnCellStyle The default cell style of the column. A clone of this object will be stored.
+     * @throws IndexOutOfBoundsException if the column is negative or &gt;= numColumns
+     * @throws IllegalArgumentException if the style is null
+     */
+    public void setDefaultColumnCellStyle(int column, Style defaultColumnCellStyle) {
+        checkColumnRange(column);
+        Column item = getFieldForEditing(columns, Column.class, column);
+        item.column_style.setDefaultCellStyle(defaultColumnCellStyle);
+    }
+
+    /**
      * @deprecated Use getMaxRow() instead
      * Return the last row of the sheet which contains useful data
      * @return The index of the last row

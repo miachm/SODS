@@ -1,9 +1,12 @@
 package com.github.miachm.sods;
 
+import java.util.Objects;
+
 class ColumnStyle implements Cloneable {
     static final ColumnStyle default_style = new ColumnStyle();
     private Double width;
     private boolean isHidden;
+    private Style defaultCellStyle = Style.default_style;
     private static final double EQUIVALENCE_CM = 10;
     private static final double EQUIVALENCE_PX = 0.264583333;
     private static final double EQUIVALENCE_IN = (2.54 * 10);
@@ -59,6 +62,29 @@ class ColumnStyle implements Cloneable {
         isHidden = hidden;
     }
 
+    public Style getDefaultCellStyleCopy() {
+        return cloneStyle(defaultCellStyle);
+    }
+
+    /** The returned style object must not be mutated. */
+    public Style getDefaultCellStyleDangerous() {
+        return defaultCellStyle;
+    }
+
+    public void setDefaultCellStyle(Style defaultCellStyle) {
+        if (defaultCellStyle == null)
+            throw new IllegalArgumentException("Default cell style cannot be null");
+        this.defaultCellStyle = cloneStyle(defaultCellStyle);
+    }
+
+    private static Style cloneStyle(Style style) {
+        try {
+            return (Style) style.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError("Style is not cloneable", e);
+        }
+    }
+
     @Override
     public Object clone()
     {
@@ -77,6 +103,7 @@ class ColumnStyle implements Cloneable {
         ColumnStyle that = (ColumnStyle) o;
 
         if (isHidden != that.isHidden) return false;
+        if (!Objects.equals(defaultCellStyle, that.defaultCellStyle)) return false;
         return width != null ? width.equals(that.width) : that.width == null;
     }
 
@@ -84,6 +111,7 @@ class ColumnStyle implements Cloneable {
     public int hashCode() {
         int result = width != null ? width.hashCode() : 0;
         result = 31 * result + (isHidden ? 1 : 0);
+        result = 31 * result + (defaultCellStyle != null ? defaultCellStyle.hashCode() : 0);
         return result;
     }
 
@@ -92,6 +120,7 @@ class ColumnStyle implements Cloneable {
         return "ColumnStyle{" +
                 "width=" + width +
                 ", isHidden=" + isHidden +
+                ", defaultCellStyle=" + defaultCellStyle +
                 '}';
     }
 }

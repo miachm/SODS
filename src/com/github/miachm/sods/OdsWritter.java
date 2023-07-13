@@ -202,6 +202,13 @@ class OdsWritter {
             if (column.column_style.isHidden())
                 out.writeAttribute("table:visibility", "collapse");
 
+            Style defaultCellStyle = column.column_style.getDefaultCellStyleDangerous();
+            if (!defaultCellStyle.isDefault()) {
+                String name = stylesUsed.get(defaultCellStyle);
+                if (name != null)
+                    out.writeAttribute("table:default-cell-style-name", name);
+            }
+
             out.writeEndElement();
         }
     }
@@ -367,6 +374,11 @@ class OdsWritter {
                 Double width = column.column_style.getWidth();
                 if (width != null) {
                     writeColumnStyle(out, width);
+                }
+
+                Style defaultCellStyle = column.column_style.getDefaultCellStyleDangerous();
+                if (!defaultCellStyle.isDefault()) {
+                    writeCellStyle(out, defaultCellStyle);
                 }
             }
 
