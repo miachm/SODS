@@ -274,7 +274,14 @@ class OdsWritter {
         Object v = cell.getValue();
         if (v != null) {
             OfficeValueType valueType = OfficeValueType.ofJavaType(v.getClass());
-            valueType.write(v, out);
+            /*
+                This fixes issue #65.
+                LibreOffice only writes the "string-value" attribute for formulaic cells. Writing it for non-formulaic
+                cells makes LibreOffice discard newlines when opening the sheet.
+             */
+            if (valueType != OfficeValueType.STRING || cell.getFormula() != null) {
+                valueType.write(v, out);
+            }
 
             out.writeStartElement("text:p");
             String text = v.toString();
