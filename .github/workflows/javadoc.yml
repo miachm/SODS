@@ -2,6 +2,8 @@ name: Deploy Javadoc
 
 on:
   push:
+    paths:
+      - src/**
     branches:
       - master
 
