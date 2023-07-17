@@ -58,7 +58,7 @@ public class OfficeCurrency {
 
         OfficeCurrency that = (OfficeCurrency) o;
 
-        if (currency != null ? !currency.getCurrencyCode().equals(that.currency.getCurrencyCode()) : that.currency != null) return false;
+		if (currency != null && that.currency != null ? !currency.getCurrencyCode().equals(that.currency.getCurrencyCode()) : that.currency != null) return false;
         return value != null ? value.equals(that.value) : that.value == null;
     }
 
