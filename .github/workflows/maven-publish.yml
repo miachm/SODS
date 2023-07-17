@@ -51,7 +51,7 @@ jobs:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
           
     - name: Update readme.md
-      run: sed -i "s/$(git describe --tags --abbrev=0 | cut -c 2-)/${{ github.event.inputs.releaseversion }}/g" README.md
+      run: git pull; sed -i "s/$(git describe --tags --abbrev=0 | cut -c 2-)/${{ github.event.inputs.releaseversion }}/g" README.md
           
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
