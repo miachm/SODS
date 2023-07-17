@@ -19,17 +19,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    
-    - name: Set up Maven Central Repository
-      uses: actions/setup-java@v1
-      with:
-        java-version: '8'
-        server-id: ossrh
-        server-username: MAVEN_USERNAME
-        server-password: MAVEN_PASSWORD
-        gpg-private-key: ${{ secrets.OSSHR_GPG_SECRET_KEY }}
-        gpg-passphrase: MAVEN_GPG_PASSPHRASE
-        overwrite-settings: true
         
     - name: Set projects Maven version to GitHub Action GUI set version
       run: mvn versions:set "-DnewVersion=${{ github.event.inputs.releaseversion }}"
@@ -42,7 +31,18 @@ jobs:
         java-version: 8
         target-folder: docs 
         project: maven
-          
+    
+    - name: Set up Maven Central Repository
+      uses: actions/setup-java@v1
+      with:
+        java-version: '8'
+        server-id: ossrh
+        server-username: MAVEN_USERNAME
+        server-password: MAVEN_PASSWORD
+        gpg-private-key: ${{ secrets.OSSHR_GPG_SECRET_KEY }}
+        gpg-passphrase: MAVEN_GPG_PASSPHRASE
+        overwrite-settings: true
+        
     - name: Publish toMaven repository
       run: mvn deploy --batch-mode --no-transfer-progress -P Release
       env:
