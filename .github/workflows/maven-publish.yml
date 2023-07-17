@@ -19,9 +19,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-        
-    - name: Set projects Maven version to GitHub Action GUI set version
-      run: mvn versions:set "-DnewVersion=${{ github.event.inputs.releaseversion }}"
       
     - name: Deploy JavaDoc 🚀
       uses: MathieuSoysal/Javadoc-publisher.yml@v2.4.0
@@ -43,6 +40,9 @@ jobs:
         gpg-passphrase: MAVEN_GPG_PASSPHRASE
         overwrite-settings: true
         
+    - name: Set projects Maven version to GitHub Action GUI set version
+      run: mvn versions:set "-DnewVersion=${{ github.event.inputs.releaseversion }}"
+      
     - name: Publish toMaven repository
       run: mvn deploy --batch-mode --no-transfer-progress -P Release
       env:
