@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * Represents a sheet in a Spreadsheet.
@@ -133,28 +134,19 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         }
     }
 
-    public <T extends TableField> T createInstanceOfT(Class<T> aClass) {
-        try {
-            return aClass.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    private <T extends TableField> T getFieldForEditing(List<T> fields, Class<T> aClass, int index)
+    private <T extends TableField> T getFieldForEditing(List<T> fields, Supplier<T> fieldSupplier, int index)
     {
-        List<T> list = getFieldForEditingRange(fields, aClass, index, 1);
+        List<T> list = getFieldForEditingRange(fields, fieldSupplier, index, 1);
         return list.get(0);
     }
 
-    private <T extends TableField> List<T> getFieldForEditingRange(List<T> fields, Class<T> aClass, int index, int howmany)
+    private <T extends TableField> List<T> getFieldForEditingRange(List<T> fields, Supplier<T> fieldSupplier, int index, int howmany)
     {
         Pair<Integer,Integer> pair = getIndexDelete(fields, index);
 
         if (pair.second > 0) {
             if (pair.first == fields.size()) {
-                fields.add(createInstanceOfT(aClass));
+                fields.add(fieldSupplier.get());
                 T item = fields.get(pair.first);
                 item.num_repeated = pair.second;
                 pair.first++;
@@ -195,7 +187,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
             }
         }
         if (howmany > 0) {
-            T item = createInstanceOfT(aClass);
+            T item = fieldSupplier.get();
             item.num_repeated = howmany;
             fields.add(item);
             list.add(item);
@@ -453,8 +445,8 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     Cell getCell(int row,int column){
-        Row item = getFieldForEditing(rows, Row.class, row);
-        Cell cell = getFieldForEditing(item.cells, Cell.class, column);
+        Row item = getFieldForEditing(rows, Row::new, row);
+        Cell cell = getFieldForEditing(item.cells, Cell::new, column);
         return cell;
     }
 
@@ -466,7 +458,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     public void hideRow(int row)
     {
         checkRowRange(row);
-        Row item = getFieldForEditing(rows, Row.class, row);
+        Row item = getFieldForEditing(rows, Row::new, row);
         item.row_style.setHidden(true);
     }
 
@@ -491,7 +483,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         checkRowRange(row);
         checkRowRange(row + howmany - 1);
 
-        List<Row> list = getFieldForEditingRange(rows, Row.class, row, howmany);
+        List<Row> list = getFieldForEditingRange(rows, Row::new, row, howmany);
         for (Row item : list)
             item.row_style.setHidden(hidden);
     }
@@ -504,7 +496,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     public void hideColumn(int column)
     {
         checkColumnRange(column);
-        Column item = getFieldForEditing(columns, Column.class, column);
+        Column item = getFieldForEditing(columns, Column::new, column);
         item.column_style.setHidden(true);
     }
 
@@ -529,7 +521,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         checkColumnRange(column);
         checkColumnRange(column + howmany - 1);
 
-        List<Column> list = getFieldForEditingRange(columns, Column.class, column, howmany);
+        List<Column> list = getFieldForEditingRange(columns, Column::new, column, howmany);
         for (Column item : list)
             item.column_style.setHidden(hidden);
     }
@@ -656,7 +648,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
             if (width < 0.0)
                 throw new IllegalArgumentException("Width can't be negative!");
         }
-        Column item = getFieldForEditing(columns, Column.class, column);
+        Column item = getFieldForEditing(columns, Column::new, column);
         item.column_style.setWidth(width);
     }
 
@@ -678,7 +670,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         checkColumnRange(column);
         checkColumnRange(column + numColumns - 1);
 
-        List<Column> list = getFieldForEditingRange(columns, Column.class, column, numColumns);
+        List<Column> list = getFieldForEditingRange(columns, Column::new, column, numColumns);
         for (Column item : list)
             item.column_style.setWidth(width);
     }
@@ -698,7 +690,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
             if (height < 0.0)
                 throw new IllegalArgumentException("Height can't be negative!");
         }
-        Row item = getFieldForEditing(rows, Row.class, row);
+        Row item = getFieldForEditing(rows, Row::new, row);
         item.row_style.setHeight(height);
     }
 
@@ -718,7 +710,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
             return;
         checkRowRange(row);
         checkRowRange(row + numRows - 1);
-        List<Row> list = getFieldForEditingRange(rows, Row.class, row, numRows);
+        List<Row> list = getFieldForEditingRange(rows, Row::new, row, numRows);
         for (Row item : list)
             item.row_style.setHeight(height);
     }
@@ -733,7 +725,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     public void showRow(int row)
     {
         checkRowRange(row);
-        Row item = getFieldForEditing(rows, Row.class, row);
+        Row item = getFieldForEditing(rows, Row::new, row);
         item.row_style.setHidden(false);
     }
 
@@ -746,7 +738,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     public void showColumn(int column)
     {
         checkColumnRange(column);
-        Column item = getFieldForEditing(columns, Column.class, column);
+        Column item = getFieldForEditing(columns, Column::new, column);
         item.column_style.setHidden(false);
     }
 
@@ -848,7 +840,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      */
     public void setDefaultColumnCellStyle(int column, Style defaultColumnCellStyle) {
         checkColumnRange(column);
-        Column item = getFieldForEditing(columns, Column.class, column);
+        Column item = getFieldForEditing(columns, Column::new, column);
         item.column_style.setDefaultCellStyle(defaultColumnCellStyle);
     }
 
