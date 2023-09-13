@@ -438,11 +438,11 @@ class OdsWritter {
             out.writeStartElement(STYLE, "table-cell-properties");
 
             if (style.getBackgroundColor() != null) {
-                out.writeAttribute("fo:background-color", style.getBackgroundColor().toString());
+                out.writeAttribute(FONT, "background-color", style.getBackgroundColor().toString());
             }
 
             if (style.isWrap()) {
-                out.writeAttribute("fo:wrap-option", "wrap");
+                out.writeAttribute(FONT, "wrap-option", "wrap");
             }
 
             if (style.getVerticalTextAligment() != null) {
@@ -465,10 +465,10 @@ class OdsWritter {
 
         out.writeStartElement(STYLE, "text-properties");
         if (style.isItalic())
-            out.writeAttribute("fo:font-style", "italic");
+            out.writeAttribute(FONT, "font-style", "italic");
 
         if (style.isBold())
-            out.writeAttribute("fo:font-weight", "bold");
+            out.writeAttribute(FONT, "font-weight", "bold");
 
         if (style.isUnderline()) {
             out.writeAttribute(STYLE, "text-underline-style", "solid");
@@ -478,16 +478,16 @@ class OdsWritter {
         }
 
         if (style.getFontSize() != -1)
-            out.writeAttribute("fo:font-size", "" + style.getFontSize() + "pt");
+            out.writeAttribute(FONT, "font-size", "" + style.getFontSize() + "pt");
 
         if (style.getFontColor() != null)
-            out.writeAttribute("fo:color", style.getFontColor().toString());
+            out.writeAttribute(FONT, "color", style.getFontColor().toString());
 
         out.writeEndElement();
 
         if(style.getTextAligment() != null) {
             out.writeStartElement(STYLE, "paragraph-properties");
-            out.writeAttribute("fo:text-align", toValue(style.getTextAligment()));
+            out.writeAttribute(FONT, "text-align", toValue(style.getTextAligment()));
             out.writeEndElement();
         }
 
@@ -564,23 +564,23 @@ class OdsWritter {
 
 		Borders borders = style.getBorders();
 		if (borders.isBorder()) {
-			out.writeAttribute("fo:border", borders.getBorderProperties());
+			out.writeAttribute(FONT, "border", borders.getBorderProperties());
 		}
 
 		if (borders.isBorderTop()) {
-			out.writeAttribute("fo:border-top", borders.getBorderTopProperties());
+			out.writeAttribute(FONT, "border-top", borders.getBorderTopProperties());
 		}
 
 		if (borders.isBorderBottom()) {
-			out.writeAttribute("fo:border-bottom", borders.getBorderBottomProperties());
+			out.writeAttribute(FONT, "border-bottom", borders.getBorderBottomProperties());
 		}
 
 		if (borders.isBorderLeft()) {
-			out.writeAttribute("fo:border-left", borders.getBorderLeftProperties());
+			out.writeAttribute(FONT, "border-left", borders.getBorderLeftProperties());
 		}
 
 		if (borders.isBorderRight()) {
-			out.writeAttribute("fo:border-right", borders.getBorderRightProperties());
+			out.writeAttribute(FONT, "border-right", borders.getBorderRightProperties());
 		}
     }
 
