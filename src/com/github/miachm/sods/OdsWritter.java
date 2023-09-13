@@ -7,17 +7,12 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.github.miachm.sods.OpenDocumentNamespaces.*;
+
 /**
  * Internal class for generate ODS files.
  */
 class OdsWritter {
-    private final static String office = "urn:oasis:names:tc:opendocument:xmlns:office:1.0";
-    private final static String table_namespace = "urn:oasis:names:tc:opendocument:xmlns:table:1.0";
-    private final static String text_namespace = "urn:oasis:names:tc:opendocument:xmlns:text:1.0";
-    private final static String font_namespace = "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0";
-    private final static String style_namespace = "urn:oasis:names:tc:opendocument:xmlns:style:1.0";
-    private final static String metadata_namespace = "http://purl.org/dc/elements/1.1/";
-    private final static String datatype_namespace ="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0";
 
     private SpreadSheet spread;
     private Compressor out;
@@ -60,29 +55,29 @@ class OdsWritter {
 
             out.writeStartDocument("UTF-8", "1.0");
             out.writeStartElement("manifest:manifest");
-            out.writeAttribute("xmlns:manifest", namespace);
-            out.writeAttribute("manifest:version", "1.2");
+            out.writeNamespace("manifest", namespace);
+            out.writeAttribute(namespace, "version", "1.2");
 
-            out.writeStartElement("manifest:file-entry");
-            out.writeAttribute("manifest:full-path", "/");
-            out.writeAttribute("manifest:version", "1.2");
-            out.writeAttribute("manifest:media-type", MIMETYPE);
+            out.writeStartElement(namespace, "file-entry");
+            out.writeAttribute(namespace, "full-path", "/");
+            out.writeAttribute(namespace, "version", "1.2");
+            out.writeAttribute(namespace, "media-type", MIMETYPE);
             out.writeEndElement();
 
-            out.writeStartElement("manifest:file-entry");
-            out.writeAttribute("manifest:full-path", "content.xml");
-            out.writeAttribute("manifest:media-type", "text/xml");
+            out.writeStartElement(namespace, "file-entry");
+            out.writeAttribute(namespace, "full-path", "content.xml");
+            out.writeAttribute(namespace, "media-type", "text/xml");
             out.writeEndElement();
 
-            out.writeStartElement("manifest:file-entry");
-            out.writeAttribute("manifest:full-path", "styles.xml");
-            out.writeAttribute("manifest:media-type", "text/xml");
+            out.writeStartElement(namespace, "file-entry");
+            out.writeAttribute(namespace, "full-path", "styles.xml");
+            out.writeAttribute(namespace, "media-type", "text/xml");
             out.writeEndElement();
             
             for (FileEntry entry : spread.getExtraFiles()) {
-                out.writeStartElement("manifest:file-entry");
-                out.writeAttribute("manifest:full-path", entry.path);
-                out.writeAttribute("manifest:media-type", entry.mimetype);
+                out.writeStartElement(namespace, "file-entry");
+                out.writeAttribute(namespace, "full-path", entry.path);
+                out.writeAttribute(namespace, "media-type", entry.mimetype);
                 out.writeEndElement();
             }
 
@@ -108,16 +103,17 @@ class OdsWritter {
                 new OutputStreamWriter(output, "utf-8"));
 
         out.writeStartDocument("UTF-8", "1.0");
-        out.writeStartElement( "office:document-content");
-        out.writeAttribute("xmlns:office", office);
-        out.writeAttribute("xmlns:table", table_namespace);
-        out.writeAttribute("xmlns:text",text_namespace);
-        out.writeAttribute("xmlns:fo",font_namespace);
-        out.writeAttribute("xmlns:style", style_namespace);
-        out.writeAttribute("xmlns:dc", metadata_namespace);
-        out.writeAttribute("xmlns:number", datatype_namespace);
+        out.setPrefix("office", OFFICE);
+        out.writeStartElement(OFFICE, "document-content");
+        out.writeNamespace("office", OFFICE);
+        out.writeNamespace("table", TABLE);
+        out.writeNamespace("text", TEXT);
+        out.writeNamespace("fo", FONT);
+        out.writeNamespace("style", STYLE);
+        out.writeNamespace("dc", METADATA);
+        out.writeNamespace("number", DATATYPE);
 
-        out.writeAttribute("office:version", "1.2");
+        out.writeAttribute(OFFICE, "version", "1.2");
 
         writeStyles(out);
         writeContent(out);
@@ -142,9 +138,10 @@ class OdsWritter {
         XMLStreamWriter out = XMLOutputFactory.newInstance().createXMLStreamWriter(
                 new OutputStreamWriter(output, "utf-8"));
         out.writeStartDocument("UTF-8", "1.0");
-        out.writeStartElement( "office:document-styles");
-        out.writeAttribute("xmlns:office", office);
-        out.writeAttribute("office:version", "1.2");
+        out.setPrefix("office", OFFICE);
+        out.writeStartElement(OFFICE, "document-styles");
+        out.writeNamespace("office", OFFICE);
+        out.writeAttribute(OFFICE, "version", "1.2");
         out.writeEndElement();
         out.writeEndDocument();
         out.close();
@@ -157,23 +154,23 @@ class OdsWritter {
     }
 
     private void writeContent(XMLStreamWriter out) throws XMLStreamException {
-        out.writeStartElement("office:body");
-        out.writeStartElement("office:spreadsheet");
+        out.writeStartElement(OFFICE, "body");
+        out.writeStartElement(OFFICE, "spreadsheet");
 
         for (Sheet sheet : spread.getSheets()) {
-            out.writeStartElement("table:table");
-            out.writeAttribute("table:name", sheet.getName());
+            out.writeStartElement(TABLE, "table");
+            out.writeAttribute(TABLE, "name", sheet.getName());
             if (sheet.isHidden()) {
                 TableStyle tableStyle = new TableStyle();
                 tableStyle.setHidden(true);
                 String name = tableStyleStringMap.get(tableStyle);
                 if (name != null)
-                    out.writeAttribute("table:style-name", name);
+                    out.writeAttribute(TABLE, "style-name", name);
             }
             if (sheet.isProtected()) {
-                out.writeAttribute("table:protected", "true");
-                out.writeAttribute("table:protection-key", sheet.getHashedPassword());
-                out.writeAttribute("table:protection-key-digest-algorithm", sheet.getHashedAlgorithm());
+                out.writeAttribute(TABLE, "protected", "true");
+                out.writeAttribute(TABLE, "protection-key", sheet.getHashedPassword());
+                out.writeAttribute(TABLE, "protection-key-digest-algorithm", sheet.getHashedAlgorithm());
             }
 
             writeColumnsStyles(out, sheet);
@@ -188,25 +185,25 @@ class OdsWritter {
 
     private void writeColumnsStyles(XMLStreamWriter out, Sheet sheet) throws XMLStreamException {
         for (Column column : sheet.columns){
-            out.writeStartElement("table:table-column");
+            out.writeStartElement(TABLE, "table-column");
             if (column.num_repeated > 1)
-                out.writeAttribute("table:number-columns-repeated", "" + column.num_repeated);
+                out.writeAttribute(TABLE, "number-columns-repeated", "" + column.num_repeated);
 
             Double width = column.column_style.getWidth();
             if (width != null) {
                 String name = columnStyleStringMap.get(width);
                 if (name != null)
-                    out.writeAttribute("table:style-name", name);
+                    out.writeAttribute(TABLE, "style-name", name);
             }
 
             if (column.column_style.isHidden())
-                out.writeAttribute("table:visibility", "collapse");
+                out.writeAttribute(TABLE, "visibility", "collapse");
 
             Style defaultCellStyle = column.column_style.getDefaultCellStyleDangerous();
             if (!defaultCellStyle.isDefault()) {
                 String name = stylesUsed.get(defaultCellStyle);
                 if (name != null)
-                    out.writeAttribute("table:default-cell-style-name", name);
+                    out.writeAttribute(TABLE, "default-cell-style-name", name);
             }
 
             out.writeEndElement();
@@ -215,9 +212,9 @@ class OdsWritter {
 
     private void writeContent(XMLStreamWriter out, Sheet sheet) throws XMLStreamException {
         for (Row row : sheet.rows) {
-            out.writeStartElement("table:table-row");
+            out.writeStartElement(TABLE, "table-row");
             if (row.num_repeated > 1)
-                out.writeAttribute("table:number-rows-repeated", ""+row.num_repeated);
+                out.writeAttribute(TABLE, "number-rows-repeated", ""+row.num_repeated);
             writeRowStyles(out, row);
 
             for (Cell cell :  row.cells) {
@@ -230,7 +227,7 @@ class OdsWritter {
 
     private void writeRowStyles(XMLStreamWriter out, Row row) throws XMLStreamException {
         if (row.row_style.isHidden())
-            out.writeAttribute("table:visibility", "collapse");
+            out.writeAttribute(TABLE, "visibility", "collapse");
 
         writeRowHeight(out, row);
     }
@@ -242,23 +239,23 @@ class OdsWritter {
         GroupCell group = cell.getGroup();
         if (group != null) {
             if (group.getCell() != cell) {
-                out.writeStartElement("table:covered-table-cell");
+                out.writeStartElement(TABLE, "covered-table-cell");
                 out.writeEndElement();
                 return;
             }
         }
-        out.writeStartElement("table:table-cell");
+        out.writeStartElement(TABLE, "table-cell");
         if (cell.num_repeated > 1)
-            out.writeAttribute("table:number-columns-repeated", ""+ cell.num_repeated);
+            out.writeAttribute(TABLE, "number-columns-repeated", ""+ cell.num_repeated);
         if (group != null) {
             if (group.getLength().getY() > 1)
-                out.writeAttribute("table:number-columns-spanned", "" + group.getLength().getY());
+                out.writeAttribute(TABLE, "number-columns-spanned", "" + group.getLength().getY());
             if (group.getLength().getX() > 1)
-                out.writeAttribute("table:number-rows-spanned", "" + group.getLength().getX());
+                out.writeAttribute(TABLE, "number-rows-spanned", "" + group.getLength().getX());
         }
 
         if (formula != null)
-            out.writeAttribute("table:formula", formula);
+            out.writeAttribute(TABLE, "formula", formula);
 
         setCellStyle(out, style);
         writeValue(out, cell);
@@ -273,7 +270,7 @@ class OdsWritter {
                 stylesUsed.put(style, key);
             }
 
-            out.writeAttribute("table:style-name", key);
+            out.writeAttribute(TABLE, "style-name", key);
         }
     }
 
@@ -290,27 +287,27 @@ class OdsWritter {
                 valueType.write(v, out);
             }
 
-            out.writeStartElement("text:p");
+            out.writeStartElement(TEXT, "p");
             String text = v.toString();
 
             for (int i = 0; i < text.length(); i++) {
                 if (text.charAt(i) == ' ') {
-                    out.writeStartElement("text:s");
+                    out.writeStartElement(TEXT, "s");
                     int cnt = 0;
                     while (i+cnt < text.length() && text.charAt(i + cnt) == ' ') {
                         cnt++;
                     }
                     if (cnt > 1)
-                        out.writeAttribute("text:c", "" + cnt);
+                        out.writeAttribute(TEXT, "c", "" + cnt);
                     i += cnt - 1 ;
                     out.writeEndElement();
                 }
                 else if (text.charAt(i) == '\t') {
-                    out.writeEmptyElement("text:tab");
+                    out.writeEmptyElement(TEXT, "tab");
                 }
                 else if (text.charAt(i) == '\n') {
                     out.writeEndElement();
-                    out.writeStartElement("text:p");
+                    out.writeStartElement(TEXT, "p");
                 }
                 else if (Character.isHighSurrogate(text.charAt(i)) && i + 1 < text.length() && Character.isLowSurrogate(text.charAt(i + 1))) {
                     // write surrogate pair
@@ -325,14 +322,14 @@ class OdsWritter {
         }
         OfficeAnnotation annotation = cell.getAnnotation();
         if (annotation != null) {
-            out.writeStartElement("office:annotation");
+            out.writeStartElement(OFFICE, "annotation");
             if (annotation.getLastModified() != null) {
-                out.writeStartElement("dc:date");
+                out.writeStartElement(METADATA,  "date");
                 out.writeCharacters(annotation.getLastModified().toString());
                 out.writeEndElement();
             }
             if (annotation.getMsg() != null) {
-                out.writeStartElement("text:p");
+                out.writeStartElement(TEXT, "p");
                 out.writeCharacters(annotation.getMsg());
                 out.writeEndElement();
             }
@@ -345,12 +342,12 @@ class OdsWritter {
         if (height != null) {
             String name = rowStyleStringMap.get(height);
             if (name != null)
-                out.writeAttribute("table:style-name", name);
+                out.writeAttribute(TABLE, "style-name", name);
         }
     }
 
     private void writeStyles(XMLStreamWriter out) throws XMLStreamException {
-        out.writeStartElement("office:automatic-styles");
+        out.writeStartElement(OFFICE, "automatic-styles");
 
         writeDataFormatStyles(out);
 
@@ -391,12 +388,12 @@ class OdsWritter {
 
     private void writeDataFormatStyles(XMLStreamWriter out) throws XMLStreamException {
         out.writeStartElement("number:text-style");
-        out.writeAttribute("style:name", "textstyle");
+        out.writeAttribute(STYLE, "name", "textstyle");
         out.writeEmptyElement("number:text-content");
         out.writeEndElement();
 
         out.writeStartElement("number:date-style");
-        out.writeAttribute("style:name", "datestyle");
+        out.writeAttribute(STYLE, "name", "datestyle");
         out.writeStartElement("number:year");
         out.writeAttribute("number:style", "long");
         out.writeEndElement();
@@ -428,18 +425,18 @@ class OdsWritter {
         for (ConditionalFormat conditionalFormat : style.getConditions()) {
             writeCellStyle(out, conditionalFormat.getStyleApplied());
         }
-        out.writeStartElement("style:style");
-        out.writeAttribute("style:family", "table-cell");
-        out.writeAttribute("style:name", key);
+        out.writeStartElement(STYLE, "style");
+        out.writeAttribute(STYLE, "family", "table-cell");
+        out.writeAttribute(STYLE, "name", key);
 
         String dataStyle = style.getDataStyle();
         if (Style.PLAIN_DATA_STYLE.equals(dataStyle))
-            out.writeAttribute("style:data-style-name", "textstyle");
+            out.writeAttribute(STYLE, "data-style-name", "textstyle");
         else if (Style.ISO_DATE_DATA_STYLE.equals(dataStyle))
-            out.writeAttribute("style:data-style-name", "datestyle");
+            out.writeAttribute(STYLE, "data-style-name", "datestyle");
 
         if (style.hasTableCellProperties()) {
-            out.writeStartElement("style:table-cell-properties");
+            out.writeStartElement(STYLE, "table-cell-properties");
 
             if (style.getBackgroundColor() != null) {
                 out.writeAttribute("fo:background-color", style.getBackgroundColor().toString());
@@ -450,7 +447,7 @@ class OdsWritter {
             }
 
             if (style.getVerticalTextAligment() != null) {
-                out.writeAttribute("style:vertical-align", style.getVerticalTextAligment().toString().toLowerCase());
+                out.writeAttribute(STYLE, "vertical-align", style.getVerticalTextAligment().toString().toLowerCase());
             }
 
             if(style.hasBorders()) {
@@ -461,13 +458,13 @@ class OdsWritter {
         }
 
         for (ConditionalFormat format : style.getConditions()) {
-            out.writeStartElement("style:map");
-            out.writeAttribute("style:condition", format.getRawCondition());
-            out.writeAttribute("style:apply-style-name", getConditionalFormatName(format.getStyleApplied()));
+            out.writeStartElement(STYLE, "map");
+            out.writeAttribute(STYLE, "condition", format.getRawCondition());
+            out.writeAttribute(STYLE, "apply-style-name", getConditionalFormatName(format.getStyleApplied()));
             out.writeEndElement();
         }
 
-        out.writeStartElement("style:text-properties");
+        out.writeStartElement(STYLE, "text-properties");
         if (style.isItalic())
             out.writeAttribute("fo:font-style", "italic");
 
@@ -475,10 +472,10 @@ class OdsWritter {
             out.writeAttribute("fo:font-weight", "bold");
 
         if (style.isUnderline()) {
-            out.writeAttribute("style:text-underline-style", "solid");
-            out.writeAttribute("style:text-underline-type", "single");
-            out.writeAttribute("style:text-underline-width", "auto");
-            out.writeAttribute("style:text-underline-color", "font-color");
+            out.writeAttribute(STYLE, "text-underline-style", "solid");
+            out.writeAttribute(STYLE, "text-underline-type", "single");
+            out.writeAttribute(STYLE, "text-underline-width", "auto");
+            out.writeAttribute(STYLE, "text-underline-color", "font-color");
         }
 
         if (style.getFontSize() != -1)
@@ -490,7 +487,7 @@ class OdsWritter {
         out.writeEndElement();
 
         if(style.getTextAligment() != null) {
-            out.writeStartElement("style:paragraph-properties");
+            out.writeStartElement(STYLE, "paragraph-properties");
             out.writeAttribute("fo:text-align", toValue(style.getTextAligment()));
             out.writeEndElement();
         }
@@ -520,11 +517,11 @@ class OdsWritter {
         if (!columnStyleStringMap.containsKey(width)) {
             String key = "co" + columnStyleStringMap.size();
 
-            out.writeStartElement("style:style");
-            out.writeAttribute("style:family", "table-column");
-            out.writeAttribute("style:name", key);
-            out.writeStartElement("style:table-column-properties");
-            out.writeAttribute("style:column-width", width.toString() + "mm");
+            out.writeStartElement(STYLE, "style");
+            out.writeAttribute(STYLE, "family", "table-column");
+            out.writeAttribute(STYLE, "name", key);
+            out.writeStartElement(STYLE, "table-column-properties");
+            out.writeAttribute(STYLE, "column-width", width.toString() + "mm");
             out.writeEndElement();
             out.writeEndElement();
 
@@ -535,11 +532,11 @@ class OdsWritter {
     private void writeRowStyle(XMLStreamWriter out, Double height) throws XMLStreamException {
         if (!rowStyleStringMap.containsKey(height)) {
             String key = "ro" + rowStyleStringMap.size();
-            out.writeStartElement("style:style");
-            out.writeAttribute("style:family", "table-row");
-            out.writeAttribute("style:name", key);
-            out.writeStartElement("style:table-row-properties");
-            out.writeAttribute("style:row-height", height.toString() + "mm");
+            out.writeStartElement(STYLE, "style");
+            out.writeAttribute(STYLE, "family", "table-row");
+            out.writeAttribute(STYLE, "name", key);
+            out.writeStartElement(STYLE, "table-row-properties");
+            out.writeAttribute(STYLE, "row-height", height.toString() + "mm");
             out.writeEndElement();
             out.writeEndElement();
 
@@ -552,11 +549,11 @@ class OdsWritter {
         tableStyle.setHidden(sheet.isHidden());
         if (!tableStyleStringMap.containsKey(tableStyle)) {
             String key = "tb" + tableStyleStringMap.size();
-            out.writeStartElement("style:style");
-            out.writeAttribute("style:family", "table");
-            out.writeAttribute("style:name", key);
-            out.writeStartElement("style:table-properties");
-            out.writeAttribute("table:display", tableStyle.isHidden() ? "false" : "true");
+            out.writeStartElement(STYLE, "style");
+            out.writeAttribute(STYLE, "family", "table");
+            out.writeAttribute(STYLE, "name", key);
+            out.writeStartElement(STYLE, "table-properties");
+            out.writeAttribute(TABLE, "display", tableStyle.isHidden() ? "false" : "true");
             out.writeEndElement();
             out.writeEndElement();
 
