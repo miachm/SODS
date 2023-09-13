@@ -51,33 +51,32 @@ class OdsWritter {
             XMLStreamWriter out = XMLOutputFactory.newInstance().createXMLStreamWriter(
                     new OutputStreamWriter(output, "utf-8"));
 
-            final String namespace = "urn:oasis:names:tc:opendocument:xmlns:manifest:1.0";
-
             out.writeStartDocument("UTF-8", "1.0");
-            out.writeStartElement("manifest:manifest");
-            out.writeNamespace("manifest", namespace);
-            out.writeAttribute(namespace, "version", "1.2");
+            out.setPrefix("manifest", MANIFEST);
+            out.writeStartElement(MANIFEST, "manifest");
+            out.writeNamespace("manifest", MANIFEST);
+            out.writeAttribute(MANIFEST, "version", "1.2");
 
-            out.writeStartElement(namespace, "file-entry");
-            out.writeAttribute(namespace, "full-path", "/");
-            out.writeAttribute(namespace, "version", "1.2");
-            out.writeAttribute(namespace, "media-type", MIMETYPE);
+            out.writeStartElement(MANIFEST, "file-entry");
+            out.writeAttribute(MANIFEST, "full-path", "/");
+            out.writeAttribute(MANIFEST, "version", "1.2");
+            out.writeAttribute(MANIFEST, "media-type", MIMETYPE);
             out.writeEndElement();
 
-            out.writeStartElement(namespace, "file-entry");
-            out.writeAttribute(namespace, "full-path", "content.xml");
-            out.writeAttribute(namespace, "media-type", "text/xml");
+            out.writeStartElement(MANIFEST, "file-entry");
+            out.writeAttribute(MANIFEST, "full-path", "content.xml");
+            out.writeAttribute(MANIFEST, "media-type", "text/xml");
             out.writeEndElement();
 
-            out.writeStartElement(namespace, "file-entry");
-            out.writeAttribute(namespace, "full-path", "styles.xml");
-            out.writeAttribute(namespace, "media-type", "text/xml");
+            out.writeStartElement(MANIFEST, "file-entry");
+            out.writeAttribute(MANIFEST, "full-path", "styles.xml");
+            out.writeAttribute(MANIFEST, "media-type", "text/xml");
             out.writeEndElement();
             
             for (FileEntry entry : spread.getExtraFiles()) {
-                out.writeStartElement(namespace, "file-entry");
-                out.writeAttribute(namespace, "full-path", entry.path);
-                out.writeAttribute(namespace, "media-type", entry.mimetype);
+                out.writeStartElement(MANIFEST, "file-entry");
+                out.writeAttribute(MANIFEST, "full-path", entry.path);
+                out.writeAttribute(MANIFEST, "media-type", entry.mimetype);
                 out.writeEndElement();
             }
 
