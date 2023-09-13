@@ -12,6 +12,8 @@ import java.time.format.DateTimeParseException;
 import java.util.Currency;
 import java.util.Locale;
 
+import static com.github.miachm.sods.OpenDocumentNamespaces.OFFICE;
+
 /**
  * see
  * http://docs.oasis-open.org/office/v1.2/part1/cd04/OpenDocument-v1.2-part1-cd04.html#a_19_387_office_value-type
@@ -38,8 +40,8 @@ enum OfficeValueType {
         @Override
         public void write(Object value, XMLStreamWriter writer) throws XMLStreamException {
             if (value instanceof Boolean) {
-                writer.writeAttribute("office:value-type", getId());
-                writer.writeAttribute("office:boolean-value", value.toString());
+                writer.writeAttribute(OFFICE, "value-type", getId());
+                writer.writeAttribute(OFFICE, "boolean-value", value.toString());
             }
         }
     },
@@ -66,18 +68,18 @@ enum OfficeValueType {
         @Override
         public void write(Object value, XMLStreamWriter writer) throws XMLStreamException {
             if (value instanceof OfficeCurrency) {
-                writer.writeAttribute("office:value-type", getId());
+                writer.writeAttribute(OFFICE, "value-type", getId());
 
                 OfficeCurrency currency = (OfficeCurrency) value;
 
                 if (currency.getValue() != null) {
                     NumberFormat formatter = NumberFormat.getInstance(Locale.US);
                     formatter.setGroupingUsed(false);
-                    writer.writeAttribute("office:value", formatter.format(currency.getValue()));
+                    writer.writeAttribute(OFFICE, "value", formatter.format(currency.getValue()));
                 }
 
                 if (currency.getCurrency() != null)
-                    writer.writeAttribute("office:currency", currency.getCurrency().getCurrencyCode());
+                    writer.writeAttribute(OFFICE, "currency", currency.getCurrency().getCurrencyCode());
             }
         }
     },
@@ -102,11 +104,11 @@ enum OfficeValueType {
         @Override
         public void write(Object value, XMLStreamWriter writer) throws XMLStreamException {
             if (value instanceof LocalDateTime) {
-                writer.writeAttribute("office:value-type", getId());
-                writer.writeAttribute("office:date-value", ((LocalDateTime) value).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                writer.writeAttribute(OFFICE, "value-type", getId());
+                writer.writeAttribute(OFFICE, "date-value", ((LocalDateTime) value).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             } else if (value instanceof LocalDate) {
-                writer.writeAttribute("office:value-type", getId());
-                writer.writeAttribute("office:date-value", ((LocalDate) value).format(DateTimeFormatter.ISO_LOCAL_DATE));
+                writer.writeAttribute(OFFICE, "value-type", getId());
+                writer.writeAttribute(OFFICE, "date-value", ((LocalDate) value).format(DateTimeFormatter.ISO_LOCAL_DATE));
             }
         }
     },
@@ -131,8 +133,8 @@ enum OfficeValueType {
         @Override
         public void write(Object value, XMLStreamWriter writer) throws XMLStreamException {
             if (value instanceof Number) {
-                writer.writeAttribute("office:value-type", getId());
-                writer.writeAttribute("office:value", value.toString());
+                writer.writeAttribute(OFFICE, "value-type", getId());
+                writer.writeAttribute(OFFICE, "value", value.toString());
             }
         }
     },
@@ -153,13 +155,13 @@ enum OfficeValueType {
         @Override
         public void write(Object value, XMLStreamWriter writer) throws XMLStreamException {
             if (value instanceof OfficePercentage) {
-                writer.writeAttribute("office:value-type", getId());
+                writer.writeAttribute(OFFICE, "value-type", getId());
 
                 OfficePercentage percentage = (OfficePercentage) value;
 
                 if (percentage.getValue() != null) {
                     NumberFormat formatter = NumberFormat.getInstance(Locale.US);
-                    writer.writeAttribute("office:value", formatter.format(percentage.getValue()));
+                    writer.writeAttribute(OFFICE, "value", formatter.format(percentage.getValue()));
                 }
             }
         }
@@ -173,8 +175,8 @@ enum OfficeValueType {
         @Override
         public void write(Object value, XMLStreamWriter writer) throws XMLStreamException {
             if (value instanceof String) {
-                writer.writeAttribute("office:value-type", this.getId());
-                writer.writeAttribute("office:string-value", value.toString().replace("\n", "&#x0a;"));
+                writer.writeAttribute(OFFICE, "value-type", this.getId());
+                writer.writeAttribute(OFFICE, "string-value", value.toString().replace("\n", "&#x0a;"));
             }
         }
     },
@@ -195,8 +197,8 @@ enum OfficeValueType {
         @Override
         public void write(Object value, XMLStreamWriter writer) throws XMLStreamException {
             if (value instanceof Duration) {
-                writer.writeAttribute("office:value-type", getId());
-                writer.writeAttribute("office:time-value", value.toString());
+                writer.writeAttribute(OFFICE, "value-type", getId());
+                writer.writeAttribute(OFFICE, "time-value", value.toString());
             }
         }
     },

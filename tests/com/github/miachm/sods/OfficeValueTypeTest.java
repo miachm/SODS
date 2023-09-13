@@ -27,6 +27,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.dom.DOMResult;
 import org.testng.annotations.Test;
+
+import static com.github.miachm.sods.OpenDocumentNamespaces.OFFICE;
 import static org.testng.AssertJUnit.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -213,6 +215,7 @@ public class OfficeValueTypeTest {
     private static NodeAssert assertWrite(OfficeValueType valueType, Object value) throws Exception {
         return NodeAssert.of(writer -> {
             writer.writeStartDocument();
+            writer.setPrefix("office", OFFICE);
             writer.writeStartElement("root");
             valueType.write(value, writer);
             writer.writeEndElement();
@@ -295,9 +298,15 @@ public class OfficeValueTypeTest {
         }
 
         public NodeAssert containsAttribute(String attrKey, String attrValue) {
-            assertTrue(target.hasAttribute(attrKey));
-            assertEquals(attrValue, target.getAttributeNode(attrKey).getValue());
-            return this;
+            if (attrKey.startsWith("office:")) {
+                String[] parts = attrKey.split(":");
+                assertEquals(attrValue, target.getAttributeNS(OFFICE, parts[1]));
+                return this;
+            } else {
+                assertTrue(target.hasAttribute(attrKey));
+                assertEquals(attrValue, target.getAttributeNode(attrKey).getValue());
+                return this;
+            }
         }
 
         public NodeAssert doesNotContainAttribute(String attrKey) {
