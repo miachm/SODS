@@ -13,6 +13,10 @@ class XmlReaderEventImpl implements XmlReader {
     @Override
     public XmlReaderInstanceEventImpl load(InputStream in) throws IOException {
         try {
+            // #77 Make the ODS files with DTD work on the JBoss-bundled Woodstox,
+            //     or ensure they work on another StAX implementation set to validate by default.
+            inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
+
             reader = inputFactory.createXMLStreamReader(in);
             // Skip start of document
             try {
