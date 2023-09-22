@@ -5,6 +5,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+import javax.xml.stream.XMLStreamConstants;
 
 class XmlReaderInstanceEventImpl implements XmlReaderInstance {
     private XMLStreamReader reader;
@@ -24,7 +25,7 @@ class XmlReaderInstanceEventImpl implements XmlReaderInstance {
                 String value = reader.getAttributeValue(i);
                 atributes.put(name, value);
             }
-        else if (reader.isCharacters()) {
+        else if (isCharacters(reader)) {
             characters = reader.getText();
             end = true;
         }
@@ -58,7 +59,7 @@ class XmlReaderInstanceEventImpl implements XmlReaderInstance {
                         return null;
                     }
                 }
-                else if (reader.isCharacters()) {
+                else if (isCharacters(reader)) {
                     if (contains(names, CHARACTERS))
                         return new XmlReaderInstanceEventImpl(reader, CHARACTERS);
                 }
@@ -85,7 +86,11 @@ class XmlReaderInstanceEventImpl implements XmlReaderInstance {
     public String getTag() {
         return tag;
     }
-
+    
+    private boolean isCharacters(XMLStreamReader reader) {
+        return reader.isCharacters() || reader.getEventType() == XMLStreamConstants.CDATA;
+    }
+    
     private String qNameToString(QName qName)
     {
         return qName.getPrefix() + ":" + qName.getLocalPart();

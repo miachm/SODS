@@ -505,7 +505,6 @@ class OdsReader {
             } else {
                 s.append("\n");
             }
-
             // Add content of any contained text:span tags
             XmlReaderInstance spanElement = textElement.nextElement("text:s",
                     XmlReaderInstance.CHARACTERS);

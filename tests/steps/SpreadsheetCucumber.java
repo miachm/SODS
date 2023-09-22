@@ -246,7 +246,7 @@ public class SpreadsheetCucumber {
         Object[][] items = World.sheet.getDataRange().getValues();
 
         for (int i = 0; i < table.size(); i++) {
-            for (int j = 0; j < table.size(); j++) {
+            for (int j = 0; j < table.get(i).size(); j++) {
                 String value = table.get(i).get(j);
                 if (value.equals(""))
                     value = null;

@@ -23,3 +23,9 @@ Feature: Bugs related to invalid cell value content in SODS
     When the client creates a Range with 1,1,1,1
     Then the formula of the range is "SUM(Operations!C:C)"
 
+  Scenario: Data tags returns a null value
+    When load a spreadsheet from the resource "emptyCell"
+    When get the first sheet
+    Then the cell values are:
+      | Test 1 |
+      | A      |
