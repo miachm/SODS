@@ -60,4 +60,42 @@ public class ZipCucumber {
         assertTrue(found);
     }
 
+    
+    @When("^gets the first tag \"([^\"]*)\" of the xml entry$")
+    public void gets_the_first_tag_of_the_xml_entry(String tag) throws Throwable {
+        XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+        XMLStreamReader reader = inputFactory.createXMLStreamReader(World.in);
+        while (reader.hasNext())
+        {
+            reader.next();
+            if (reader.isStartElement()) {
+                String name = reader.getName().getPrefix() + ":" + reader.getName().getLocalPart();
+                if (name.equals(tag)) {
+                    World.tag = reader;
+                    return;
+                }
+            }
+        }
+        
+        fail("Tag not found");
+    }
+
+    @Then("^the tag has the attribute \"([^\"]*)\" with the value \"([^\"]*)\"$")
+    public void the_tag_has_the_attribute_with_the_value(String key, String result) throws Throwable {
+        for (int i = 0; i < World.tag.getAttributeCount(); i++) {
+            String name = qNameToString(World.tag.getAttributeName(i));
+            String value = World.tag.getAttributeValue(i);
+            if (name.equals(key)) {   
+                assertEquals(value, result);
+                return;
+            }
+        }
+        
+        fail("Attribute not found");
+    }
+    
+    private String qNameToString(QName qName)
+    {
+        return qName.getPrefix() + ":" + qName.getLocalPart();
+    }
 }

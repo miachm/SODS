@@ -4,6 +4,7 @@ import com.github.miachm.sods.*;
 
 import java.io.InputStream;
 import java.util.List;
+import javax.xml.stream.XMLStreamReader;
 
 public class World {
     public static SpreadSheet spread;
@@ -16,6 +17,7 @@ public class World {
     public static ConditionalFormat conditionalFormat;
     public static Style style;
     public static ConditionalFormat otherConditionalFormat;
+    public static XMLStreamReader tag;
 
 
     public static void reset() {
@@ -29,6 +31,7 @@ public class World {
         conditionalFormat = null;
         otherConditionalFormat = null;
         style = null;
+        tag = null;
     }
 
 }
