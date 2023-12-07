@@ -42,6 +42,7 @@ class OdsWritter {
         } catch (XMLStreamException e) {
             throw new GenerateOdsException(e);
         }
+        out.flush();
         out.close();
     }
 

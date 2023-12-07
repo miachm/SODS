@@ -18,6 +18,10 @@ class Compressor implements Closeable {
         out.close();
     }
 
+    public void flush() throws IOException {
+        out.flush();
+    }
+
     void addEntry(byte[] data,String name) throws IOException {
         out.putNextEntry(new ZipEntry(name));
         out.write(data);
