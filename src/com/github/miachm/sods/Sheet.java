@@ -947,6 +947,14 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
+     * Rename this sheet
+     * @param newName The new name of the sheet
+     */
+    public void setName(String newName) {
+        this.name = newName;
+    }
+
+    /**
          * Equals method, two sheets are considered the same if have the same name and the same content (include formatting)
          * @param o The object to compare
          */
