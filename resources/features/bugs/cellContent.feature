@@ -29,3 +29,24 @@ Feature: Bugs related to invalid cell value content in SODS
     Then the cell values are:
       | Test 1 |
       | A      |
+
+  Scenario: Repeated rows were ignoring cell data
+    When load a spreadsheet from the resource "repeatedRows"
+    When get the first sheet
+    Then the cell values are:
+      | header1	|  header2	| header3 |
+      | 1       | 2             | 3       |
+      | 2       | 3             | 1       |
+      | 1       | 2             | 2       |
+      | 1       | 2             | 3       |
+      | 1       | 2             | 3       |
+      | 5       | 5             | 5       |
+      | 3       | 3             | 3       |
+      | 3       | 3             | 3       |
+      | 3       | 3             | 3       |
+      | 3       | 3             | 3       |
+      | 3       | 3             | 3       |
+      | 3       | 3             | 3       |
+      | 2       | 2             | 2       |
+      | 1       | 1             | 1       |
+

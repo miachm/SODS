@@ -344,7 +344,7 @@ class OdsReader {
                         if (rowStyle != null)
                             sheet.setRowHeights(sheet.getMaxRows()-numRows, numRows, rowStyle.getHeight());
                     }
-                    processCells(instance, sheet);
+                    processCells(instance, sheet, numRows);
                 }
             }
         }
@@ -404,7 +404,7 @@ class OdsReader {
         }
     }
 
-    private void processCells(XmlReaderInstance reader, Sheet sheet) {
+    private void processCells(XmlReaderInstance reader, Sheet sheet, int number_rows_repeated) {
         int column = 0;
         while (reader.hasNext()) {
             // number of columns repeated
@@ -435,15 +435,19 @@ class OdsReader {
                 if (columnsSpanned != null) {
                     columns = Integer.parseInt(columnsSpanned);
                 }
-
-                int positionX = sheet.getMaxRows()-1;
-                int positionY = column;
-                if (rows != 1 || columns != 1) {
-                    Pair<Vector, Vector> pair =  new Pair<>();
-                    pair.first = new Vector(positionX, positionY);
-                    pair.second = new Vector(rows, columns);
-                    groupCells.add(pair);
+                
+                if (number_rows_repeated == 1) {
+                    int positionX = sheet.getMaxRows()-1;
+                    int positionY = column;
+                    if (rows != 1 || columns != 1) {
+                        Pair<Vector, Vector> pair =  new Pair<>();
+                        pair.first = new Vector(positionX, positionY);
+                        pair.second = new Vector(rows, columns);
+                        groupCells.add(pair);
+                    }
                 }
+                int positionX = sheet.getMaxRows()-number_rows_repeated;
+                int positionY = column;
 
                 OfficeValueType valueType = OfficeValueType.ofReader(instance);
                 Object value = valueType.read(instance);
@@ -459,7 +463,7 @@ class OdsReader {
                     sheet.appendColumns(positionY + number_columns_repeated - sheet.getMaxColumns());
                 }
 
-                Range range = sheet.getRange(positionX, positionY, 1, number_columns_repeated);
+                Range range = sheet.getRange(positionX, positionY, number_rows_repeated, number_columns_repeated);
 
                 String formula = instance.getAttribValue("table:formula");
                 if (formula != null)
