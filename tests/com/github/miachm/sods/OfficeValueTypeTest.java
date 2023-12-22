@@ -166,11 +166,11 @@ public class OfficeValueTypeTest {
     public void testWriteString() throws Exception {
         assertWrite(OfficeValueType.STRING, "hello")
                 .containsAttribute("office:value-type", "string")
-                .containsAttribute("office:value", "hello");
+                .containsAttribute("office:string-value", "hello");
 
         assertWrite(OfficeValueType.STRING, "see\nyou")
                 .containsAttribute("office:value-type", "string")
-                .containsAttribute("office:value", "see&#x0a;you");
+                .containsAttribute("office:string-value", "see&#x0a;you");
     }
 
     @Test
