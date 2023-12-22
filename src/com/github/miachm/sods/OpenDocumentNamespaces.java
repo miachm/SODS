@@ -1,6 +1,6 @@
 package com.github.miachm.sods;
 
-public class OpenDocumentNamespaces {
+class OpenDocumentNamespaces {
     final static String MANIFEST = "urn:oasis:names:tc:opendocument:xmlns:manifest:1.0";
     final static String OFFICE = "urn:oasis:names:tc:opendocument:xmlns:office:1.0";
     final static String TABLE = "urn:oasis:names:tc:opendocument:xmlns:table:1.0";
