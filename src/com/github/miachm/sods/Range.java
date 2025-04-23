@@ -7,7 +7,7 @@ import java.util.TreeSet;
 
 /**
  * A range represents a subset of a Sheet.
- * You use ranges for write/read content in a Sheet.
+ * You use ranges for write/read content in a Sheet. It references a specific subset of the Sheet.
  */
 public class Range {
     private static final int MAX_PRINTABLE = 500;
