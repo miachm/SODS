@@ -459,7 +459,7 @@ class OdsReader {
                         continue;
                 }
 
-                if (positionY+number_columns_repeated >= sheet.getMaxColumns()) {
+                if (positionY+number_columns_repeated > sheet.getMaxColumns()) {
                     sheet.appendColumns(positionY + number_columns_repeated - sheet.getMaxColumns());
                 }
 

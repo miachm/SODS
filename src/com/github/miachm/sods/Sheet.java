@@ -70,7 +70,14 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * @throws IllegalArgumentException if howmany is negative, no changes will be done to the sheet
      */
     public void appendRows(int howmany){
-        insertRowsAfter(getMaxRows()-1,howmany);
+        if (howmany < 0)
+            throw new IllegalArgumentException("Howmany can not be negative: " + howmany);
+        if (howmany == 0)
+            return;
+        Row row = new Row();
+        row.num_repeated = howmany;
+        rows.add(row);
+        numRows += howmany;
     }
 
     /**
@@ -88,7 +95,20 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * @throws IllegalArgumentException if howmany is negative, no changes will be done to the sheet
      */
     public void appendColumns(int howmany){
-        insertColumnsAfter(getMaxColumns()-1,howmany);
+        if (howmany < 0)
+            throw new IllegalArgumentException("Howmany can not be negative: " + howmany);
+        if (howmany == 0)
+            return;
+
+        Column column = new Column();
+        column.num_repeated = howmany;
+        columns.add(column);
+        numColumns += howmany;
+        for (Row row : rows) {
+            Cell cell = new Cell();
+            cell.num_repeated = howmany;
+            row.cells.add(cell);
+        }
     }
 
     /**
@@ -427,16 +447,29 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
 
     private Pair<Integer,Integer> getIndexDelete(List<? extends TableField> fields, int index)
     {
-        for (int i = 0; i < fields.size(); i++) {
-            TableField item = fields.get(i);
-            if (index >= item.num_repeated) {
-                index -= item.num_repeated;
+        if (fields.isEmpty()) {
+            return new Pair<>(0, index);
+        }
+
+        final int fieldsSize = fields.size();
+
+        int fieldIndex = 0;
+        int remainingIndex = index;
+
+        for (TableField item : fields) {
+            if (remainingIndex >= item.num_repeated) {
+                remainingIndex -= item.num_repeated;
+                fieldIndex++;
+            } else {
+                return new Pair<>(fieldIndex, remainingIndex);
             }
-            else {
-                return new Pair<>(i, index);
+
+            if (fieldIndex >= fieldsSize) {
+                break;
             }
         }
-        return new Pair<>(fields.size(), index);
+
+        return new Pair<>(fieldIndex, remainingIndex);
     }
 
     private int getIndex(List<? extends TableField> fields, int index)
@@ -445,9 +478,14 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     Cell getCell(int row,int column){
-        Row item = getFieldForEditing(rows, Row::new, row);
-        Cell cell = getFieldForEditing(item.cells, Cell::new, column);
-        return cell;
+        Row item;
+        if (row == numRows-1) {
+            item = rows.get(rows.size()-1);
+        }
+        else {
+            item = getFieldForEditing(rows, Row::new, row);
+        }
+        return getFieldForEditing(item.cells, Cell::new, column);
     }
 
     /**
@@ -710,9 +748,14 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
             return;
         checkRowRange(row);
         checkRowRange(row + numRows - 1);
-        List<Row> list = getFieldForEditingRange(rows, Row::new, row, numRows);
-        for (Row item : list)
-            item.row_style.setHeight(height);
+        if (numRows == 1 && row == (rows.size() - 1)) {
+            rows.get(rows.size()-1).row_style.setHeight(height);
+        }
+        else {
+            List<Row> list = getFieldForEditingRange(rows, Row::new, row, numRows);
+            for (Row item : list)
+                item.row_style.setHeight(height);
+        }
     }
 
     /**

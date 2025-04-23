@@ -18,6 +18,7 @@ public class World {
     public static Style style;
     public static ConditionalFormat otherConditionalFormat;
     public static XMLStreamReader tag;
+    public static long millis_start;
 
 
     public static void reset() {
@@ -32,6 +33,7 @@ public class World {
         otherConditionalFormat = null;
         style = null;
         tag = null;
+        millis_start = 0;
     }
 
 }

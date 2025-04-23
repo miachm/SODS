@@ -259,4 +259,17 @@ public class SpreadsheetCucumber {
     public void get_the_sheet_from_the_spreadsheet(String name) throws Throwable {
         World.sheet = World.spread.getSheet(name);
     }
+
+    @Given("^a timer started$")
+    public void a_timer_started()
+    {
+        World.millis_start =  System.currentTimeMillis();
+    }
+
+    @Then("^the time elapsed is less than (\\d+) seconds$")
+    public void time_elapsed(long seconds)
+    {
+        long millis_endend =  System.currentTimeMillis();
+        assertTrue(millis_endend-World.millis_start < seconds*1000);
+    }
 }
