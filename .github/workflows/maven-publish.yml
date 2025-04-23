@@ -49,7 +49,7 @@ jobs:
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
         commit_message: Update POM version
-        file_pattern: 'pom.xml README.md'
+        file_pattern: 'docs pom.xml README.md'
         
     - name: Create GitHub Release
       id: create_release
