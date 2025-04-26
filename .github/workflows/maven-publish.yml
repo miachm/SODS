@@ -19,9 +19,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up GPG key
-      run: |
-        echo "${{ secrets.OSSHR_GPG_SECRET_KEY }}" | gpg --batch --yes --import
     - name: Set up Maven Central Repository
       uses: actions/setup-java@v1
       with:
@@ -30,20 +27,19 @@ jobs:
         server-username: MAVEN_USERNAME
         server-password: MAVEN_PASSWORD
         gpg-private-key: ${{ secrets.OSSHR_GPG_SECRET_KEY }}
+        gpg-passphrase: MAVEN_GPG_PASSPHRASE
         overwrite-settings: true
         
     - name: Set projects Maven version to GitHub Action GUI set version
       run: mvn versions:set "-DnewVersion=${{ github.event.inputs.releaseversion }}"
-    
-    - name: Build Javadoc
-      run: mvn javadoc:javadoc -DoutputDirectory=docs
-        
+      
     - name: Publish toMaven repository
-      run: mvn deploy --batch-mode --no-transfer-progress -P Release -Dgpg.skip=false
+      run: mvn deploy --batch-mode --no-transfer-progress -P Release
       env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-          #MAVEN_GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
+          
     - name: Update readme.md
       run: git fetch --unshallow; git pull; sed -i "s/$(git describe --tags --abbrev=0 | cut -c 2-)/${{ github.event.inputs.releaseversion }}/g" README.md
           
