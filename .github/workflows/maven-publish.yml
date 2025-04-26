@@ -18,7 +18,12 @@ jobs:
       packages: write
 
     steps:
-    - uses: actions/checkout@v3    
+    - uses: actions/checkout@v3
+    - name: Set up GPG key
+      run: |
+        echo "${{ secrets.OSSHR_GPG_SECRET_KEY }}" | gpg --batch --yes --output private.key
+        gpg --batch --import private.key
+        gpg --list-keys
     - name: Set up Maven Central Repository
       uses: actions/setup-java@v1
       with:
