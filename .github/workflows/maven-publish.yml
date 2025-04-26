@@ -36,7 +36,7 @@ jobs:
       run: mvn javadoc:javadoc -DoutputDirectory=docs
         
     - name: Publish toMaven repository
-      run: mvn deploy --batch-mode --no-transfer-progress -P Release
+      run: mvn deploy --batch-mode --no-transfer-progress -P Release -Dgpg.skip=false
       env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
