@@ -2,10 +2,10 @@ package steps;
 
 import com.github.miachm.sods.Sheet;
 import com.github.miachm.sods.SpreadSheet;
-import cucumber.api.DataTable;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.When;
+import io.cucumber.java.en.Then;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -248,7 +248,7 @@ public class SpreadsheetCucumber {
         for (int i = 0; i < table.size(); i++) {
             for (int j = 0; j < table.get(i).size(); j++) {
                 String value = table.get(i).get(j);
-                if (value.equals(""))
+                if (value != null && value.equals(""))
                     value = null;
                 assertEquals("Pos: " + i + ", " + j, value, items[i][j]);
             }

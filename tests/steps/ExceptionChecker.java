@@ -1,6 +1,6 @@
 package steps;
 
-import cucumber.api.java.en.Then;
+import io.cucumber.java.en.Then;
 
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;

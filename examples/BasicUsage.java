@@ -14,7 +14,7 @@ It loads a sample ODS file and prints his content in the stdout
 public class BasicUsage {
     public static void main(String args[]){
         try {
-            SpreadSheet spread = new SpreadSheet(new File("resources/BasicExample.ods"));
+            SpreadSheet spread = new SpreadSheet(new File("resources/CAS.ods"));
             System.out.println("Number of sheets: " + spread.getNumSheets());
 
             List<Sheet> sheets = spread.getSheets();

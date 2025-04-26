@@ -1,6 +1,7 @@
 package steps;
 
-import cucumber.api.java.en.When;
+import io.cucumber.java.en.When;
+import io.cucumber.java.en.Then;
 
 public class RowCucumber {
 

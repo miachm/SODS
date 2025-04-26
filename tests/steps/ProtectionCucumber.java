@@ -1,7 +1,7 @@
 package steps;
 
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.java.en.When;
+import io.cucumber.java.en.Then;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

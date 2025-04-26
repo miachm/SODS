@@ -1,9 +1,9 @@
 package steps;
 
 import com.github.miachm.sods.Sheet;
-import cucumber.api.DataTable;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.When;
+import io.cucumber.java.en.Then;
 
 import java.util.Iterator;
 
