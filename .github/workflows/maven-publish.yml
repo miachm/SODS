@@ -27,7 +27,6 @@ jobs:
         server-username: MAVEN_USERNAME
         server-password: MAVEN_PASSWORD
         gpg-private-key: ${{ secrets.OSSHR_GPG_SECRET_KEY }}
-        gpg-passphrase: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
         overwrite-settings: true
         
     - name: Set projects Maven version to GitHub Action GUI set version
@@ -41,8 +40,7 @@ jobs:
       env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
-          
+          #MAVEN_GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
     - name: Update readme.md
       run: git fetch --unshallow; git pull; sed -i "s/$(git describe --tags --abbrev=0 | cut -c 2-)/${{ github.event.inputs.releaseversion }}/g" README.md
           
