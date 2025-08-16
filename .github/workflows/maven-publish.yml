@@ -27,10 +27,10 @@ jobs:
           cache: maven
           # Central Portal credentials (Portal user token), NOT OSSRH
           server-id: central
-          server-username: CENTRAL_USERNAME
-          server-password: CENTRAL_PASSWORD
-          gpg-private-key: ${{ secrets.CENTRAL_GPG_PRIVATE_KEY_ARMOR }}
-          gpg-passphrase: GPG_PASSPHRASE
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.OSSHR_GPG_SECRET_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
         
     - name: Set projects Maven version to GitHub Action GUI set version
       run: mvn versions:set "-DnewVersion=${{ github.event.inputs.releaseversion }}"
