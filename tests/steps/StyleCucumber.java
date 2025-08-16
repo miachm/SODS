@@ -8,6 +8,7 @@ import cucumber.api.java.en.When;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class StyleCucumber {
 
@@ -109,7 +110,9 @@ public class StyleCucumber {
 
     @When("^apply the conditionalFormat to the cell (\\d+),(\\d+)$")
     public void apply_the_conditionalFormat_to_the_cell(int row, int column) throws Throwable {
-        World.sheet.getRange(row, column).getStyle().addCondition(World.conditionalFormat);
+        Style style = World.sheet.getRange(row, column).getStyle();
+        style.addCondition(World.conditionalFormat);
+        World.sheet.getRange(row, column).setStyle(style);
     }
 
     @Then("^the style of the conditionalFormat is World\\.style$")
@@ -119,6 +122,6 @@ public class StyleCucumber {
 
     @Then("^the World\\.conditionalFormat is equal to World\\.otherConditionalFormat$")
     public void the_World_conditionalFormat_is_equal_to_World_otherConditionalFormat() throws Throwable {
-        assertEquals(World.conditionalFormat, World.otherConditionalFormat);
+        assertTrue("Conditional formats should be equal in content", World.conditionalFormat.equals(World.otherConditionalFormat));
     }
 }

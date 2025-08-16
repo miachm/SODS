@@ -32,6 +32,8 @@ class Cell extends TableField {
 
     Style getStyleCopy()
     {
+        if (style.isDefault())
+            return new Style();
         try {
             return (Style) style.clone();
         } catch (CloneNotSupportedException e) {

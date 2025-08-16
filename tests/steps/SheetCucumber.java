@@ -204,4 +204,14 @@ public class SheetCucumber {
         range.setValues(array);
     }
 
+    @Given("^a sheet \"([^\"]*)\", size (\\d+)x(\\d+)$")
+    public void a_sheet_size_x(String name, int rows, int columns) throws Throwable {
+        World.sheet = new Sheet(name, rows, columns);
+    }
+
+    @When("^set the value \"([^\"]*)\" in cell (\\d+),(\\d+)$")
+    public void set_the_value_in_cell(String value, int row, int column) throws Throwable {
+        World.sheet.getRange(row, column).setValue(value);
+    }
+
 }

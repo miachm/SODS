@@ -6,7 +6,7 @@ import java.util.Objects;
  * This class refers to a specific rule to apply a conditional style.
  * It's usually composed by a boolean condition and the specific style to be applied.
  */
-public class ConditionalFormat {
+public class ConditionalFormat implements Cloneable {
     private Style apply;
     private String rawCondition;
 
@@ -37,6 +37,10 @@ public class ConditionalFormat {
         return Objects.hash(apply, rawCondition);
     }
 
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
     /**
      * Create a ConditionalFormat rule where the boolean condition is "values greater than X".
      * @param apply the style to ble applied if the condition turns true
