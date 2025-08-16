@@ -61,6 +61,12 @@ public class SpreadSheet implements Cloneable {
         OdsReader.load(in,this);
     }
 
+    public SpreadSheet(InputStream in, OdsOptionParameters options) throws IOException {
+        if (options == null) {
+            throw new NullPointerException("OdsOptionParameters cannot be null");
+        }
+        OdsReader.load(in, this, options);
+    }
     /**
      * Append a new sheet at the end of the book
      *
