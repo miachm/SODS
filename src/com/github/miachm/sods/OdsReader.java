@@ -18,7 +18,7 @@ class OdsReader {
         this.spread = spread;
         this.uncompressor = new Uncompressor(in);
         this.options = options;
-        this.spreadsheetParser = new SpreadsheetParser(stylesParser, spread);
+        this.spreadsheetParser = new SpreadsheetParser(stylesParser, spread, options);
     }
 
     static void load(InputStream in, SpreadSheet spread) throws IOException {

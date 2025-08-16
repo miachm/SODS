@@ -8,6 +8,9 @@ import cucumber.api.java.en.When;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -58,5 +61,38 @@ public class OdsOptionParametersCucumber {
     @Then("^it should throw a NullPointerException$")
     public void it_should_throw_null_pointer_exception() throws Throwable {
         ExceptionChecker.checkNullPointer();
+    }
+
+    @When("^I load a spreadsheet from the resource \"([^\"]*)\" with sheet numbers \\[([^\\]]*)\\]$")
+    public void i_load_a_spreadsheet_with_sheet_numbers(String resourceName, String sheetNumbersStr) throws Throwable {
+        OdsOptionParameters options = new OdsOptionParameters();
+        if (!sheetNumbersStr.trim().isEmpty()) {
+            List<Integer> sheetNumbers = Arrays.stream(sheetNumbersStr.split(","))
+                    .map(String::trim)
+                    .map(Integer::parseInt)
+                    .collect(Collectors.toList());
+            options.setSheetNumbers(sheetNumbers);
+        } else {
+            options.setSheetNumbers(Arrays.asList());
+        }
+        World.spread = new SpreadSheet(new FileInputStream(new File("resources/" + resourceName + ".ods")), options);
+    }
+
+    @When("^I load a spreadsheet from the resource \"([^\"]*)\" with null sheet numbers$")
+    public void i_load_a_spreadsheet_with_null_sheet_numbers(String resourceName) throws Throwable {
+        OdsOptionParameters options = new OdsOptionParameters();
+        options.setSheetNumbers(null);
+        World.spread = new SpreadSheet(new FileInputStream(new File("resources/" + resourceName + ".ods")), options);
+    }
+
+    @Then("^the spreadsheet should have (\\d+) sheets$")
+    public void the_spreadsheet_should_have_sheets(int expectedCount) throws Throwable {
+        assertEquals("Expected " + expectedCount + " sheets", expectedCount, World.spread.getNumSheets());
+    }
+
+    @Then("^the sheet at index (\\d+) should be named \"([^\"]*)\"$")
+    public void the_sheet_at_index_should_be_named(int index, String expectedName) throws Throwable {
+        assertEquals("Sheet at index " + index + " should be named " + expectedName, 
+                     expectedName, World.spread.getSheet(index).getName());
     }
 }

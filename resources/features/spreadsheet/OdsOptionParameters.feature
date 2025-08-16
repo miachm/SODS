@@ -28,3 +28,21 @@ Feature: Loading ODS files with OdsOptionParameters
   Scenario: Attempt to load spreadsheet with null options
     When I try to load a spreadsheet from the resource "testLoadOptions" with null options
     Then it should throw a NullPointerException
+
+  Scenario: Load spreadsheet with specific sheet numbers that exist
+    When I load a spreadsheet from the resource "testLoadOptions" with sheet numbers [0]
+    Then the spreadsheet should have 1 sheets
+    And the sheet at index 0 should be named "Sales"
+
+  Scenario: Load spreadsheet with sheet number that doesn't exist
+    When I load a spreadsheet from the resource "testLoadOptions" with sheet numbers [1]
+    Then the spreadsheet should have 0 sheets
+
+  Scenario: Load spreadsheet with empty sheet numbers list
+    When I load a spreadsheet from the resource "testLoadOptions" with sheet numbers []
+    Then the spreadsheet should have 0 sheets
+
+  Scenario: Load spreadsheet with null sheet numbers (default behavior)
+    When I load a spreadsheet from the resource "testLoadOptions" with null sheet numbers
+    Then the spreadsheet should have 1 sheets
+    And the sheet at index 0 should be named "Sales"
