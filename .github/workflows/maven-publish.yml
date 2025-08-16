@@ -20,15 +20,17 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up Maven Central Repository
-      uses: actions/setup-java@v1
+      uses: actions/setup-java@v4
       with:
-        java-version: '8'
-        server-id: ossrh
-        server-username: MAVEN_USERNAME
-        server-password: MAVEN_PASSWORD
-        gpg-private-key: ${{ secrets.OSSHR_GPG_SECRET_KEY }}
-        gpg-passphrase: MAVEN_GPG_PASSPHRASE
-        overwrite-settings: true
+          distribution: temurin
+          java-version: '8'
+          cache: maven
+          # Central Portal credentials (Portal user token), NOT OSSRH
+          server-id: central
+          server-username: CENTRAL_USERNAME
+          server-password: CENTRAL_PASSWORD
+          gpg-private-key: ${{ secrets.CENTRAL_GPG_PRIVATE_KEY_ARMOR }}
+          gpg-passphrase: GPG_PASSPHRASE
         
     - name: Set projects Maven version to GitHub Action GUI set version
       run: mvn versions:set "-DnewVersion=${{ github.event.inputs.releaseversion }}"
@@ -39,6 +41,7 @@ jobs:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
+          MAVEN_OPTS: "-Djava.net.preferIPv4Stack=true -Dmaven.wagon.http.retryHandler.count=5"
           
     - name: Update readme.md
       run: git fetch --unshallow; git pull; sed -i "s/$(git describe --tags --abbrev=0 | cut -c 2-)/${{ github.event.inputs.releaseversion }}/g" README.md
