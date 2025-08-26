@@ -1,183 +1,194 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.github.miachm.sods</groupId>
-    <artifactId>SODS</artifactId>
-    <packaging>jar</packaging>
-    <version>1.6.8</version>
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-    <name>Simple ODS library</name>
-    <description>A library for load/save ODS files in java.</description>
+  <groupId>com.github.miachm.sods</groupId>
+  <artifactId>SODS</artifactId>
+  <version>1.7.0</version>
+  <packaging>jar</packaging>
+
+  <name>Simple ODS library</name>
+  <description>A library for load/save ODS files in java.</description>
+  <url>https://github.com/miachm/SODS</url>
+
+  <licenses>
+    <license>
+      <name>The Unlicense</name>
+      <url>https://github.com/miachm/SODS/blob/master/LICENSE</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Miguel Chacon</name>
+      <email>miachm3@gmail.com</email>
+      <organization>SODS</organization>
+      <organizationUrl>https://github.com/miachm</organizationUrl>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git://github.com/miachm/SODS.git</connection>
+    <developerConnection>scm:git:ssh://github.com/miachm/SODS.git</developerConnection>
     <url>https://github.com/miachm/SODS</url>
+    <tag>HEAD</tag>
+  </scm>
 
-    <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+  <properties>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>6.8.8</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>info.cukes</groupId>
+      <artifactId>cucumber-java</artifactId>
+      <version>1.2.3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>info.cukes</groupId>
+      <artifactId>cucumber-testng</artifactId>
+      <version>1.2.3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.woodstox</groupId>
+      <artifactId>woodstox-core</artifactId>
+      <version>6.5.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>6.8.8</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>info.cukes</groupId>
-            <artifactId>cucumber-java</artifactId>
-            <version>1.2.3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>info.cukes</groupId>
-            <artifactId>cucumber-testng</artifactId>
-            <version>1.2.3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.woodstox</groupId>
-            <artifactId>woodstox-core</artifactId>
-            <version>6.5.1</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+<distributionManagement>
+  <snapshotRepository>
+    <id>central</id>
+    <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+  </snapshotRepository>
+</distributionManagement>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
+  <build>
+    <testResources>
+      <testResource>
+        <directory>resources</directory>
+      </testResource>
+    </testResources>
+    <sourceDirectory>${project.basedir}/src/</sourceDirectory>
+    <testSourceDirectory>${project.basedir}/tests/</testSourceDirectory>
 
-    <build>
-        <testResources>
-            <testResource>
-                <directory>resources</directory>
-            </testResource>
-        </testResources>
-        <sourceDirectory>${project.basedir}/src/</sourceDirectory>
-        <testSourceDirectory>${project.basedir}/tests/</testSourceDirectory>
-        <plugins>
-        <plugin>
-            <groupId>biz.aQute.bnd</groupId>
-            <artifactId>bnd-maven-plugin</artifactId>
-            <version>6.4.0</version>
-            <configuration>
-            <bnd><![CDATA[
+    <plugins>
+      <!-- OSGi bundle packaging kept as-is -->
+      <plugin>
+        <groupId>biz.aQute.bnd</groupId>
+        <artifactId>bnd-maven-plugin</artifactId>
+        <version>6.4.0</version>
+        <configuration>
+          <bnd><![CDATA[
             Export-Package:\
                 com.github.miachm.sods*
-            
+
             Bundle-SymbolicName: com.github.miachm.sods
             Automatic-Module-Name: com.github.miachm.sods
             -jpms-module-info: com.github.miachm.sods
-            ]]></bnd>
-            </configuration>
+          ]]></bnd>
+        </configuration>
+        <extensions>true</extensions>
+        <executions>
+          <execution>
+            <id>jar</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>Release</id>
+      <build>
+        <plugins>
+          <!-- Sonatype Central Publisher: replaces Nexus/OSSRH staging -->
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>0.8.0</version>
             <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>central</publishingServerId>
+              <autoPublish>true</autoPublish>
+              <waitUntil>published</waitUntil>
+            </configuration>
+          </plugin>
+
+          <!-- Attach sources.jar -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>3.3.1</version>
             <executions>
-                <execution>
-                    <id>jar</id>
-                    <goals>
-                        <goal>jar</goal>
-                    </goals>
-                </execution>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
             </executions>
-        </plugin>
+          </plugin>
+
+          <!-- Attach javadoc.jar -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.6.3</version>
+            <configuration>
+              <source>8</source>
+              <failOnError>false</failOnError>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!-- Sign all artifacts -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>3.2.7</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
-    </build>
-
-    <profiles>
-        <profile>
-            <id>Release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>2.2.1</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.3</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.8</version>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.5</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                                <configuration>
-                                  <gpgArguments>
-                                      <arg>--pinentry-mode</arg>
-                                      <arg>loopback</arg>
-                                  </gpgArguments>                              
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
-    <licenses>
-        <license>
-            <name>The Unlicense</name>
-            <url>https://github.com/miachm/SODS/blob/master/LICENSE</url>
-        </license>
-    </licenses>
-
-    <developers>
-        <developer>
-            <name>Miguel Chacon</name>
-            <email>miachm3@gmail.com</email>
-            <organization>SODS</organization>
-            <organizationUrl>https://github.com/miachm</organizationUrl>
-        </developer>
-    </developers>
-
-    <scm>
-        <connection>scm:git:git://github.com/miachm/SODS.git</connection>
-        <developerConnection>scm:git:ssh://github.com/miachm/SODS.git</developerConnection>
-        <url>https://github.com/miachm/SODS</url>
-    </scm>
+      </build>
+    </profile>
+  </profiles>
 </project>

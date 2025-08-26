@@ -12,15 +12,22 @@ class OdsReader {
     private final SpreadSheet spread;
     private final StylesParser stylesParser = new StylesParser();
     private final SpreadsheetParser spreadsheetParser;
+    private final OdsOptionParameters options;
 
-    private OdsReader(InputStream in, SpreadSheet spread) {
+    private OdsReader(InputStream in, SpreadSheet spread, OdsOptionParameters options) {
         this.spread = spread;
         this.uncompressor = new Uncompressor(in);
-        this.spreadsheetParser = new SpreadsheetParser(stylesParser, spread);
+        this.options = options;
+        this.spreadsheetParser = new SpreadsheetParser(stylesParser, spread, options);
     }
 
     static void load(InputStream in, SpreadSheet spread) throws IOException {
-        OdsReader reader = new OdsReader(in, spread);
+        OdsReader reader = new OdsReader(in, spread, new OdsOptionParameters());
+        reader.load();
+    }
+
+    static void load(InputStream in, SpreadSheet spread, OdsOptionParameters options) throws IOException {
+        OdsReader reader = new OdsReader(in, spread, options);
         reader.load();
     }
 
@@ -58,8 +65,10 @@ class OdsReader {
         XmlReaderInstance instance = reader.load(in);
         if (instance == null) return;
 
-        XmlReaderInstance stylesInstance = instance.nextElement("office:automatic-styles", "office:styles");
-        stylesParser.parseStyles(stylesInstance);
+        if (options.isLoadStyles()) {
+            XmlReaderInstance stylesInstance = instance.nextElement("office:automatic-styles", "office:styles");
+            stylesParser.parseStyles(stylesInstance);
+        }
 
         XmlReaderInstance contentInstance = instance.nextElement("office:body");
         spreadsheetParser.parseContent(contentInstance);

@@ -97,6 +97,7 @@ class OdsWritter {
         out.addEntry(MIMETYPE.getBytes(),"mimetype");
     }
 
+
     private void writeSpreadsheet() throws UnsupportedEncodingException, XMLStreamException {
         ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
         XMLStreamWriter out = XMLOutputFactory.newInstance().createXMLStreamWriter(
@@ -141,7 +142,23 @@ class OdsWritter {
         out.setPrefix("office", OFFICE);
         out.writeStartElement(OFFICE, "document-styles");
         out.writeNamespace("office", OFFICE);
+        out.writeNamespace("style", STYLE);
+        out.writeNamespace("fo", FONT);
         out.writeAttribute(OFFICE, "version", "1.2");
+        out.writeStartElement(OFFICE, "styles");
+        // Write conditional formatting target styles as common styles
+        for (Style style : stylesUsed.keySet()) {
+            if (!style.getConditions().isEmpty()) {
+                for (ConditionalFormat format : style.getConditions()) {
+                    Style targetStyle = format.getStyleApplied();
+                    String targetKey = stylesUsed.get(targetStyle);
+                    if (targetKey != null) {
+                        writeCellStyle(out, targetStyle, targetKey);
+                    }
+                }
+            }
+        }
+        out.writeEndElement();
         out.writeEndElement();
         out.writeEndDocument();
         out.close();
@@ -264,12 +281,7 @@ class OdsWritter {
 
     private void setCellStyle(XMLStreamWriter out, Style style) throws XMLStreamException {
         if (!style.isDefault()) {
-            String key = stylesUsed.get(style);
-            if (key == null) {
-                key = "cel" + stylesUsed.size();
-                stylesUsed.put(style, key);
-            }
-
+            String key = stylesUsed.computeIfAbsent(style, k -> "cel" + stylesUsed.size());
             out.writeAttribute(TABLE, "style-name", key);
         }
     }
@@ -414,7 +426,6 @@ class OdsWritter {
     }
 
     private void writeCellStyle(XMLStreamWriter out, Style style) throws XMLStreamException {
-
     	String key = stylesUsed.get(style);
         if (key == null)
         {
@@ -461,10 +472,13 @@ class OdsWritter {
         }
 
         for (ConditionalFormat format : style.getConditions()) {
-            out.writeStartElement(STYLE, "map");
-            out.writeAttribute(STYLE, "condition", format.getRawCondition());
-            out.writeAttribute(STYLE, "apply-style-name", getConditionalFormatName(format.getStyleApplied()));
-            out.writeEndElement();
+            String targetStyleName = getConditionalFormatName(format.getStyleApplied());
+            if (targetStyleName != null) {
+                out.writeStartElement(STYLE, "map");
+                out.writeAttribute(STYLE, "condition", format.getRawCondition());
+                out.writeAttribute(STYLE, "apply-style-name", targetStyleName);
+                out.writeEndElement();
+            }
         }
 
         out.writeStartElement(STYLE, "text-properties");

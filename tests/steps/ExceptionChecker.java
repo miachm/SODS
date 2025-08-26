@@ -23,6 +23,12 @@ public class ExceptionChecker {
                 exception.getClass().isInstance(lastException));
     }
 
+    public static void checkNullPointer() {
+        assertNotNull("Expected a NullPointerException to be registered", lastException);
+        assertTrue("Expected NullPointerException but got " + lastException.getClass().getName(),
+                lastException instanceof NullPointerException);
+    }
+
     public static void reset() {
         lastException = null;
     }
