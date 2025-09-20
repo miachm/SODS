@@ -11,11 +11,4 @@ SODS was designed with the next objetives:
 - Trustworthy, the project follows [fail-fast principle](https://en.wikipedia.org/wiki/Fail-fast_system).
 - Don't break anything. The library must be retro-compatible acording to [software versioning](https://en.wikipedia.org/wiki/Software_versioning). So an user using the version v1.1 of the library should be able to compile and use newer versions v1.y without touching anything. The idea is to keep a stable API.
 
-## Roadmap
-
-The roadmap is published inside Projects tab:
-https://github.com/miachm/SODS/projects
-
-You can open an Issue to suggest new ones.
-
 Thanks for you atention! ❤️
