@@ -309,10 +309,13 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
-     * Get the width of a column
+     * Get the width of a column.
+     *
+     * - Unit: millimeters (mm).
+     *
      * @param column The column index where start
      * @throws IndexOutOfBoundsException if the column index is invalid
-     * @return The width of the column, null if not specified
+     * @return The width of the column in millimeters, or null if not specified
      */
 
     public Double getColumnWidth(int column)
@@ -326,9 +329,12 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
-     * Get the height of a row
+     * Get the height of a row.
+     *
+     * - Unit: millimeters (mm).
+     *
      * @param row The row index where start
-     * @return The height of the row, null if not specified
+     * @return The height of the row in millimeters, or null if not specified
      */
 
     public Double getRowHeight(int row) {
@@ -671,9 +677,12 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
-     * Set a specific column width to a specific column
+     * Set a specific column width to a specific column.
+     *
+     * - Unit: millimeters (mm).
+     *
      * @param column The index of the column
-     * @param width The width of the column. It can be a null if you want to "unset" the width
+     * @param width The width of the column in millimeters. It can be null to "unset" the width
      * @throws IndexOutOfBoundsException if the column is negative or &gt;= numColumns
      * @throws IllegalArgumentException Width has to be positive
      */
@@ -691,10 +700,13 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
-     * Set a column width to a specific set of columns
+     * Set a column width to a specific set of columns.
+     *
+     * - Unit: millimeters (mm).
+     *
      * @param column The index of the column
      * @param numColumns The number of columns to be modified, starting on index.
-     * @param width The width of the column. It can be a null if you want to "unset" the width
+     * @param width The width of the column in millimeters. It can be null to "unset" the width
      * @throws IndexOutOfBoundsException if the column is negative or &gt;= numColumns
      * @throws IllegalArgumentException Width and numColumns has to be positive
      */
@@ -714,9 +726,12 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
-     * Set a specific row height to a specific row
+     * Set a specific row height to a specific row.
+     *
+     * - Unit: millimeters (mm).
+     *
      * @param row The index of the row
-     * @param height The height of the row. It can be a null if you want to "unset" the height
+     * @param height The height of the row in millimeters. It can be null to "unset" the height
      * @throws IndexOutOfBoundsException if the row is negative or &gt;= numRows
      * @throws IllegalArgumentException Height has to be positive
      */
@@ -733,10 +748,13 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
-     * Set a row height to a specific set of rows
+     * Set a row height to a specific set of rows.
+     *
+     * - Unit: millimeters (mm).
+     *
      * @param row The index of the row
      * @param numRows The number of rows to be modified, starting on index.
-     * @param height The height of the row. It can be a null if you want to "unset" the row
+     * @param height The height of the row in millimeters. It can be null to "unset" the row
      * @throws IndexOutOfBoundsException if the row is negative or &gt;= numRows
      * @throws IllegalArgumentException Height has to be positive
      */
