@@ -2,6 +2,10 @@ package com.github.miachm.sods;
 
 import java.util.List;
 
+/**
+ * Custom Load options for reading a Spreadsheet
+ */
+
 public class OdsOptionParameters {
     private boolean load_styles = true;
     private List<Integer> sheetNumbers;
