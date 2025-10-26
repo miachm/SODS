@@ -309,9 +309,8 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
-     * Get the width of a column.
+     * Get the width of a column. Unit: millimeters (mm).
      *
-     * - Unit: millimeters (mm).
      *
      * @param column The column index where start
      * @throws IndexOutOfBoundsException if the column index is invalid
@@ -329,9 +328,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
-     * Get the height of a row.
-     *
-     * - Unit: millimeters (mm).
+     * Get the height of a row. Unit: millimeters (mm).
      *
      * @param row The row index where start
      * @return The height of the row in millimeters, or null if not specified
@@ -677,9 +674,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
-     * Set a specific column width to a specific column.
-     *
-     * - Unit: millimeters (mm).
+     * Set a specific column width to a specific column. Unit: millimeters (mm).
      *
      * @param column The index of the column
      * @param width The width of the column in millimeters. It can be null to "unset" the width
@@ -700,9 +695,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
-     * Set a column width to a specific set of columns.
-     *
-     * - Unit: millimeters (mm).
+     * Set a column width to a specific set of columns. Unit: millimeters (mm).
      *
      * @param column The index of the column
      * @param numColumns The number of columns to be modified, starting on index.
@@ -726,9 +719,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
-     * Set a specific row height to a specific row.
-     *
-     * - Unit: millimeters (mm).
+     * Set a specific row height to a specific row. Unit: millimeters (mm).
      *
      * @param row The index of the row
      * @param height The height of the row in millimeters. It can be null to "unset" the height
@@ -748,9 +739,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
-     * Set a row height to a specific set of rows.
-     *
-     * - Unit: millimeters (mm).
+     * Set a row height to a specific set of rows. Unit: millimeters (mm).
      *
      * @param row The index of the row
      * @param numRows The number of rows to be modified, starting on index.
