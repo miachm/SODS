@@ -495,6 +495,56 @@ public class Range {
     }
 
     /**
+     * Set a font lineThrough style to the entire range
+     *
+     * @param lineThrough Boolean which indicates if the font has lineThrough style or not
+     */
+    public void setFontLineThrough(boolean lineThrough)
+    {
+        iterateRange((cell, row, column) -> cell.getStyle().setLineThrough(lineThrough));
+    }
+
+    /**
+     * Set a set of font lineThroughs styles to the range. The array must have the same size of the entire range itself
+     *
+     * <pre>
+     *     Range range = sheet.getRange(0, 0, 2, 2); // 2x2 Range
+     *     range.setFontLineThroughs(true, false, true, false); // Set the font lineThrough formatting for the range
+     * </pre>
+     *
+     * @param lineThrough The font lineThrough array, it must the same size of the range itself
+     * @throws IllegalArgumentException if the number of values is not equals to the size of range
+     */
+    public void setFontLineThroughs(boolean... lineThrough)
+    {
+        if (lineThrough.length != getNumValues())
+            throw new IllegalArgumentException("Error in setFontLineThroughs, the number of the arguments doesn't fit ("
+                    + lineThrough.length + " against " + getNumValues() + ")");
+
+        iterateRange((cell,row,column) -> cell.getStyle().setLineThrough(lineThrough[row*getNumColumns()+column]));
+    }
+
+    /**
+     * Set a set of font lineThroughs formatting to the range. The format array must have the same size of the entire range itself
+     *
+     * @param lineThrough The format 2D-array, it must have the same size of the range itself
+     * @throws IllegalArgumentException if the number of values is not equals to the size of range
+     */
+    public void setFontLineThroughs(boolean[][] lineThrough)
+    {
+        if (lineThrough.length == 0)
+            throw new IllegalArgumentException("Error in setFontLineThroughs, the array is empty");
+        if (lineThrough.length != getNumRows())
+            throw new IllegalArgumentException("Error in setFontLineThroughs, the number of rows doesn't fit ("
+                    + lineThrough.length + " against " + getNumRows() + ")");
+        if (lineThrough[0].length != getNumColumns())
+            throw new IllegalArgumentException("Error in setFontLineThroughs, the number of columns doesn't fit ("
+                    + lineThrough[0].length + " against " + getNumColumns() + ")");
+
+        iterateRange((cell,row,column) -> cell.getStyle().setLineThrough(lineThrough[row][column]));
+    }
+
+    /**
      * Set a font color to the entire range
      *
      * @param color The color to aplicate. A null value indicates no color

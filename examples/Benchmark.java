@@ -69,6 +69,7 @@ public class Benchmark {
                     range.setFontBold(random.nextBoolean());
                     range.setFontItalic(random.nextBoolean());
                     range.setFontUnderline(random.nextBoolean());
+                    range.setFontLineThrough(random.nextBoolean());
 
                     if (random.nextBoolean())
                         range.setBackgroundColor(getRandomColor(random));

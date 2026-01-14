@@ -55,7 +55,7 @@ Right now you can:
 - Reading existing ODS files (cell values and structure)
 - Manipulating cell values and sheet layout (create, remove and rename sheets).
 - Applying rich formatting, including:
-    - Bold, italic, and underline styles
+    - Bold, italic, underline and line through styles
     - Font size and color
     - Cell background color
     - Borders

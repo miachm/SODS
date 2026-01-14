@@ -284,6 +284,22 @@ public class SpreadSheetTest {
         assertFalse(styles[2][3].isUnderline());
         assertFalse(styles[2][4].isUnderline());
 
+        assertFalse(styles[0][0].isLineThrough());
+        assertFalse(styles[0][1].isLineThrough());
+        assertFalse(styles[0][2].isLineThrough());
+        assertTrue(styles[0][3].isLineThrough());
+        assertFalse(styles[0][4].isLineThrough());
+        assertTrue(styles[1][0].isLineThrough());
+        assertTrue(styles[1][1].isLineThrough());
+        assertTrue(styles[1][2].isLineThrough());
+        assertTrue(styles[1][3].isLineThrough());
+        assertFalse(styles[1][4].isLineThrough());
+        assertFalse(styles[2][0].isLineThrough());
+        assertFalse(styles[2][1].isLineThrough());
+        assertFalse(styles[2][2].isLineThrough());
+        assertFalse(styles[2][3].isLineThrough());
+        assertFalse(styles[2][4].isLineThrough());
+
         assertEquals(styles[0][0].getFontSize(), -1);
         assertEquals(styles[0][1].getFontSize(), -1);
         assertEquals(styles[0][2].getFontSize(), -1);
@@ -421,6 +437,7 @@ public class SpreadSheetTest {
         dataRange.setValue(" 1\nadasas ");// Testing leading spaces
         dataRange.setFontBold(true);
         dataRange.setFontUnderline(true);
+        dataRange.setFontLineThrough(true);
         dataRange.setFontColors(new Color("#43a2f5"));
         dataRange.setBackgroundColor(COLOR2);
         dataRange.setFontSize(18);

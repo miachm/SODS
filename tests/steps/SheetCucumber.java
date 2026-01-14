@@ -75,6 +75,7 @@ public class SheetCucumber {
         style.setBold(random.nextBoolean());
         style.setItalic(random.nextBoolean());
         style.setUnderline(random.nextBoolean());
+        style.setLineThrough(random.nextBoolean());
 
         if (random.nextBoolean())
             style.setBackgroundColor(getRandomColor(random));
