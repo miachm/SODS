@@ -496,6 +496,65 @@ public class RangeTest {
     }
 
     @Test
+    public void testSetFontLineThrough() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Range range = sheet.getDataRange();
+        range.setFontLineThrough(true);
+
+        Style[][] arr = range.getStyles();
+
+        assertEquals(arr[0][0].isLineThrough(), true);
+        assertEquals(arr[0][1].isLineThrough(), true);
+        assertEquals(arr[1][0].isLineThrough(), true);
+        assertEquals(arr[1][1].isLineThrough(), true);
+
+        range = sheet.getRange(1, 0);
+        range.setFontLineThrough(false);
+        assertEquals(range.getStyle().isLineThrough(), false);
+    }
+
+    @Test
+    public void testSetFontLineThroughs() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        Range range = sheet.getDataRange();
+        range.setFontLineThroughs(false, true, false, true);
+
+        Style[][] arr = range.getStyles();
+
+        assertEquals(arr[0][0].isLineThrough(), false);
+        assertEquals(arr[0][1].isLineThrough(), true);
+        assertEquals(arr[1][0].isLineThrough(), false);
+        assertEquals(arr[1][1].isLineThrough(), true);
+    }
+
+    @Test
+    public void testSetFontLineThroughsMat() throws Exception {
+        Sheet sheet = new Sheet("A");
+        sheet.appendRow();
+        sheet.appendColumn();
+
+        boolean[][] arr = new boolean[2][2];
+        arr[0][1] = true;
+        arr[1][1] = true;
+
+        Range range = sheet.getDataRange();
+        range.setFontLineThroughs(arr);
+
+        Style[][] result = range.getStyles();
+
+        assertEquals(result[0][0].isLineThrough(), false);
+        assertEquals(result[0][1].isLineThrough(), true);
+        assertEquals(result[1][0].isLineThrough(), false);
+        assertEquals(result[1][1].isLineThrough(), true);
+    }
+
+    @Test
     public void testSetFontColor() throws Exception {
         Sheet sheet = new Sheet("A");
         sheet.appendRow();
@@ -812,6 +871,7 @@ public class RangeTest {
 
         Style otherStyle = new Style();
         otherStyle.setUnderline(true);
+        otherStyle.setLineThrough(true);
         otherStyle.setItalic(true);
         otherStyle.setFontColor(new Color(0, 23, 12));
 
@@ -839,6 +899,7 @@ public class RangeTest {
 
         Style otherStyle = new Style();
         otherStyle.setUnderline(true);
+        otherStyle.setLineThrough(true);
         otherStyle.setItalic(true);
         otherStyle.setFontColor(new Color(0, 23, 12));
 

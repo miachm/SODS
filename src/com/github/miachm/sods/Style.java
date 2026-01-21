@@ -14,6 +14,7 @@ public final class Style implements Cloneable {
     private boolean bold;
     private boolean italic;
     private boolean underline;
+    private boolean lineThrough;
     private Color fontColor;
     private Color backgroundColor;
     private int fontSize = -1;
@@ -208,6 +209,24 @@ public final class Style implements Cloneable {
     }
 
     /**
+     * Returns if the font has a lineThrough style or not
+     *
+     * @return Returns true if the font has an lineThrough style
+     */
+    public boolean isLineThrough() {
+        return lineThrough;
+    }
+
+    /**
+     * Set a lineThrough font style
+     *
+     * @param lineThrough True for sets a lineThrough style font.
+     */
+    public void setLineThrough(boolean lineThrough) {
+        this.lineThrough = lineThrough;
+    }
+
+    /**
      * Sets the font size
      *
      * @param fontSize The font size to set. It must be greater of -1, a -1 value indicates no font size.
@@ -347,6 +366,7 @@ public final class Style implements Cloneable {
         if (bold != style.bold) return false;
         if (italic != style.italic) return false;
         if (underline != style.underline) return false;
+        if (lineThrough != style.lineThrough) return false;
         if (fontSize != style.fontSize) return false;
         if (!Objects.equals(borders, style.borders)) return false;
         if (wrap != style.wrap) return false;
@@ -367,6 +387,7 @@ public final class Style implements Cloneable {
         int result = (bold ? 1 : 0);
         result = 31 * result + (italic ? 1 : 0);
         result = 31 * result + (underline ? 1 : 0);
+        result = 31 * result + (lineThrough ? 1 : 0);
         result = 31 * result + (fontColor != null ? fontColor.hashCode() : 0);
         result = 31 * result + (backgroundColor != null ? backgroundColor.hashCode() : 0);
         result = 31 * result + fontSize;
@@ -401,6 +422,13 @@ public final class Style implements Cloneable {
 
         if (isUnderline()) {
             result.put("text-decoration", "underline");
+        }
+
+        if (isLineThrough()) {
+            String currentTextDecoration = result.get("text-decoration");
+            if (currentTextDecoration != null) {
+                result.put("text-decoration", currentTextDecoration + " line-through");
+            }
         }
 
         if (getFontSize() != -1) {

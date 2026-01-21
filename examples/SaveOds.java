@@ -19,6 +19,9 @@ public class SaveOds {
             // Set the underline style in the (3,3) cell
             sheet.getRange(2,2).setFontUnderline(true);
 
+            // Set the line through style in the (3,3) cell
+            sheet.getRange(2,2).setFontLineThrough(true);
+
             // Set a bold font to the first 2x2 grid
             sheet.getRange(0,0,2,2).setFontBold(true);
 

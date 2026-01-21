@@ -63,6 +63,9 @@ class StylesParser {
                     String underline = instance.getAttribValue("style:text-underline-style");
                     if (underline != null) style.setUnderline(underline.equals("solid"));
 
+                    String lineThrough = instance.getAttribValue("style:text-line-through-style");
+                    if (lineThrough != null) style.setLineThrough(lineThrough.equals("solid"));
+
                     String fontcolor = instance.getAttribValue("fo:color");
                     if (fontcolor != null && !fontcolor.equals("transparent")) {
                         try {

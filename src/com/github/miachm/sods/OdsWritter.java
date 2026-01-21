@@ -495,6 +495,13 @@ class OdsWritter {
             out.writeAttribute(STYLE, "text-underline-color", "font-color");
         }
 
+        if (style.isLineThrough()) {
+            out.writeAttribute(STYLE, "text-line-through-style", "solid");
+            out.writeAttribute(STYLE, "text-line-through-type", "single");
+            out.writeAttribute(STYLE, "text-line-through-width", "auto");
+            out.writeAttribute(STYLE, "text-line-through-color", "font-color");
+        }
+
         if (style.getFontSize() != -1)
             out.writeAttribute(FONT, "font-size", "" + style.getFontSize() + "pt");
 
