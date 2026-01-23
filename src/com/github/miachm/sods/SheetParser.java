@@ -186,18 +186,13 @@ class SheetParser {
             else s.append("\n");
 
             XmlReaderInstance spanElement;
-            while ((spanElement = textElement.nextElement("text:s", XmlReaderInstance.CHARACTERS)) != null) {
+            while ((spanElement = textElement.nextElement("text:s", "text:tab", XmlReaderInstance.CHARACTERS)) != null) {
                 if (spanElement.getTag().equals("text:s")) {
-                    int num = 1;
-                    String attrib = spanElement.getAttribValue("text:c");
-                    if (attrib != null && !attrib.isEmpty()) {
-                        try {
-                            num = Integer.parseInt(attrib);
-                        } catch (NumberFormatException e) {
-                            System.err.println("Invalid number of characters: " + attrib);
-                        }
-                    }
+                    int num = tryParseTextCAttribute(spanElement);
                     while (num-- > 0) s.append(" ");
+                } else if (spanElement.getTag().equals("text:tab")) {
+                    int num = tryParseTextCAttribute(spanElement);
+                    while (num-- > 0) s.append("\t");
                 }
 
                 String spanContent = spanElement.getContent();
@@ -238,5 +233,18 @@ class SheetParser {
 
         annotation.setMsg(msg.toString());
         return annotation.build();
+    }
+
+    private int tryParseTextCAttribute(XmlReaderInstance spanElement) {
+        int num = 1;
+        String attrib = spanElement.getAttribValue("text:c");
+        if (attrib != null && !attrib.isEmpty()) {
+            try {
+                num = Integer.parseInt(attrib);
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid number of characters: " + attrib);
+            }
+        }
+        return num;
     }
 }
