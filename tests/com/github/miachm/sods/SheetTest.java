@@ -614,4 +614,16 @@ public class SheetTest {
         Sheet sheet = spreadSheet.getSheet(0);
         assertTrue(sheet.isProtected());
     }
+
+    @Test
+    public void testSaveAndLoadWithTab() throws Exception {
+        String text = "test\ttest";
+        SpreadSheet spread = new SpreadSheet();
+        Sheet sheet = new Sheet("A");
+        spread.appendSheet(sheet);
+        Range cell = sheet.getRange(0, 0);
+        cell.setValue(text);
+        sheet = saveAndLoad(sheet);
+        assertEquals(text, sheet.getRange(0,0).getValue());
+    }
 }
