@@ -98,4 +98,28 @@ public class ZipCucumber {
     {
         return qName.getPrefix() + ":" + qName.getLocalPart();
     }
+
+    @Then("^the first entry in the ZIP archive is \"([^\"]*)\"$")
+    public void the_first_entry_in_the_ZIP_archive_is(String expectedName) throws Throwable {
+        try(ZipInputStream stream = new ZipInputStream(new ByteArrayInputStream(World.buffer))) {
+            ZipEntry entry = stream.getNextEntry();
+            assertNotNull("ZIP has no entries", entry);
+            assertEquals(expectedName, entry.getName());
+        }
+    }
+
+    @Then("^the \"([^\"]*)\" entry in the ZIP archive uses STORED compression method$")
+    public void the_entry_in_the_ZIP_archive_uses_STORED_compression_method(String name) throws Throwable {
+        try (ZipInputStream stream = new ZipInputStream(new ByteArrayInputStream(World.buffer))) {
+            ZipEntry entry;
+            while ((entry = stream.getNextEntry()) != null) {
+                if (entry.getName().equals(name)) {
+                    assertEquals("Entry should use STORED method", ZipEntry.STORED, entry.getMethod());
+                    return;
+                }
+            }
+        }
+        fail("Entry " + name + " not found");
+    }
+
 }
