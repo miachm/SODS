@@ -33,8 +33,8 @@ class OdsWritter {
     }
 
     private void save() throws IOException {
-        writeManifest();
         writeMymeType();
+        writeManifest();
         try {
             writeSpreadsheet();
             writeSettingsStyleFile();
