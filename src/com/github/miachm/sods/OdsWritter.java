@@ -94,7 +94,7 @@ class OdsWritter {
     }
 
     private void writeMymeType() throws IOException {
-        out.addEntry(MIMETYPE.getBytes(),"mimetype");
+        out.addEntry(MIMETYPE.getBytes(),"mimetype",true);
     }
 
 
