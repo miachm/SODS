@@ -13,4 +13,7 @@ class OpenDocumentNamespaces {
     final static String SVG = "urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0";
     final static String XLINK = "http://www.w3.org/1999/xlink";
     final static String CHART = "urn:oasis:names:tc:opendocument:xmlns:chart:1.0";
+    final static String CHART_OOO = "http://openoffice.org/2010/chart";
+    final static String LOEXT = "urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0";
+    final static String DR3D = "urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0";
 }

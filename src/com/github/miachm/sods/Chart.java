@@ -20,6 +20,13 @@ public class Chart {
     private String y;
     private String xAxisLabel;
     private String yAxisLabel;
+    private boolean displayLabel = true;
+    private final ChartStyle style = new ChartStyle();
+    private final ChartStyle plotAreaStyle = new ChartStyle();
+    private final ChartStyle wallStyle = new ChartStyle();
+    private final ChartAxis xAxis = new ChartAxis();
+    private final ChartAxis yAxis = new ChartAxis();
+    private boolean showWall = true;
 
     public String getType() {
         return type;
@@ -79,6 +86,34 @@ public class Chart {
 
     public String getYAxisLabel() {
         return yAxisLabel;
+    }
+
+    public boolean isDisplayLabel() {
+        return displayLabel;
+    }
+
+    public ChartStyle getStyle() {
+        return style;
+    }
+
+    public ChartStyle getPlotAreaStyle() {
+        return plotAreaStyle;
+    }
+
+    public ChartStyle getWallStyle() {
+        return wallStyle;
+    }
+
+    public ChartAxis getXAxis() {
+        return xAxis;
+    }
+
+    public ChartAxis getYAxis() {
+        return yAxis;
+    }
+
+    public boolean isShowWall() {
+        return showWall;
     }
 
     public void setType(String type) {
@@ -141,5 +176,13 @@ public class Chart {
 
     public void setYAxisLabel(String yAxisLabel) {
         this.yAxisLabel = yAxisLabel;
+    }
+
+    public void setDisplayLabel(boolean displayLabel) {
+        this.displayLabel = displayLabel;
+    }
+
+    public void setShowWall(boolean showWall) {
+        this.showWall = showWall;
     }
 }

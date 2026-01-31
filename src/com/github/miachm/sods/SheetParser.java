@@ -116,6 +116,7 @@ class SheetParser {
 
     private void parseDrawFrame(XmlReaderInstance frameInstance) {
         if (frameInstance == null || spread == null) return;
+        SpreadSheet.ChartFrame frame = buildChartFrame(frameInstance);
         while (frameInstance.hasNext()) {
             XmlReaderInstance child = frameInstance.nextElement("draw:object", "draw:object-ole");
             if (child == null) break;
@@ -123,10 +124,26 @@ class SheetParser {
             if (href != null) {
                 String objectPath = normalizeObjectPath(href);
                 if (objectPath != null) {
-                    spread.registerChartObject(objectPath, sheet);
+                    spread.registerChartObject(objectPath, sheet, frame);
                 }
             }
         }
+    }
+
+    private SpreadSheet.ChartFrame buildChartFrame(XmlReaderInstance frameInstance) {
+        if (frameInstance == null) return null;
+        String x = frameInstance.getAttribValue("svg:x");
+        String y = frameInstance.getAttribValue("svg:y");
+        String width = frameInstance.getAttribValue("svg:width");
+        String height = frameInstance.getAttribValue("svg:height");
+        if (isBlank(x) && isBlank(y) && isBlank(width) && isBlank(height)) {
+            return null;
+        }
+        return new SpreadSheet.ChartFrame(x, y, width, height);
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 
     private String normalizeObjectPath(String href) {
