@@ -21,6 +21,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     private boolean isHidden = false;
     private String hashed_password = null;
     private String hash_algorithm = null;
+    private final List<Chart> charts = new ArrayList<>();
 
     /**
      * Create an empty sheet with a given name.
@@ -378,6 +379,27 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Return all the charts associated with this sheet.
+     *
+     * @return An unmodifiable charts list.
+     */
+    public List<Chart> getCharts() {
+        return Collections.unmodifiableList(charts);
+    }
+
+    /**
+     * Adds a chart associated with this sheet.
+     *
+     * @param chart The chart to add. If null, it is ignored.
+     */
+    public void addChart(Chart chart) {
+        if (chart != null) {
+            chart.setSheet(this);
+            charts.add(chart);
+        }
     }
 
     /**

@@ -23,7 +23,9 @@ public class SpreadSheet implements Cloneable {
 
     private final List<Sheet> sheets = new ArrayList<Sheet>();
     private final Map<String, FileEntry> extraFiles = new HashMap<>();
-    private static final Set<String> reservedFiles = Stream.of("content.xml", "styles.xml", "META-INF/manifest.xml", "mimetype").collect(Collectors.toCollection(HashSet::new));
+    private final List<Chart> charts = new ArrayList<Chart>();
+    private final Map<String, Sheet> chartObjectSheets = new HashMap<>();
+    private final Map<String, List<Chart>> pendingCharts = new HashMap<>();
 
     /**
      * Create an empty spreadsheet
@@ -113,6 +115,9 @@ public class SpreadSheet implements Cloneable {
      */
     public void clear(){
         sheets.clear();
+        charts.clear();
+        chartObjectSheets.clear();
+        pendingCharts.clear();
     }
 
     /**
@@ -154,6 +159,64 @@ public class SpreadSheet implements Cloneable {
     public List<Sheet> getSheets()
     {
         return Collections.unmodifiableList(sheets);
+    }
+
+    /**
+     * Return all the charts of the book in a list.
+     *
+     * @return An unmodifiable charts list.
+     */
+    public List<Chart> getCharts() {
+        return Collections.unmodifiableList(charts);
+    }
+
+    void addChart(Chart chart) {
+        if (chart != null) {
+            charts.add(chart);
+        }
+    }
+
+    Collection<FileEntry> getExtraFiles() {
+        return extraFiles.values();
+    }
+
+    void registerChartObject(String objectPath, Sheet sheet) {
+        if (objectPath != null && sheet != null) {
+            chartObjectSheets.put(objectPath, sheet);
+            List<Chart> pending = pendingCharts.remove(objectPath);
+            if (pending != null) {
+                for (Chart chart : pending) {
+                    if (chart != null && chart.getSheet() == null) {
+                        sheet.addChart(chart);
+                    }
+                }
+            }
+        }
+    }
+
+    void addChart(Chart chart, String objectPath) {
+        if (chart == null) {
+            return;
+        }
+        addChart(chart);
+        if (objectPath == null) {
+            return;
+        }
+        Sheet sheet = chartObjectSheets.get(objectPath);
+        if (sheet != null) {
+            if (chart.getSheet() == null) {
+                sheet.addChart(chart);
+            }
+            return;
+        }
+        pendingCharts.computeIfAbsent(objectPath, key -> new ArrayList<>()).add(chart);
+    }
+
+    Sheet getChartSheet(String objectPath) {
+        if (objectPath == null) {
+            return null;
+        }
+        return chartObjectSheets.get(objectPath);
     }
 
     /**
@@ -227,49 +290,6 @@ public class SpreadSheet implements Cloneable {
      */
     public void save(OutputStream out) throws IOException {
         OdsWritter.save(out,this);
-    }
-    
-    Collection<FileEntry> getExtraFiles()
-    {
-        return extraFiles.values();
-    }
-    
-    /**
-     * This function allows you to add/edit additional files inside your Spreadsheet
-     * This is an advanced feature which could be useful if you intent to store
-     * macros inside the Spreadsheet file.This function will override existing files.
-     * 
-     * You can define folders using the '/' separator
-     * 
-     * There are some reserved paths that you can not use:
-     * - content.xml
-     * - styles.xml
-     * - mimetype
-     * - META-INF/manifest.xml
-     * 
-     * @param path: Location (inside the Spreadsheet) where the file should be placed
-     * @param mimetype: Type of the file
-     * @param data: The file content itself
-     * @return True if the file already existed, false if not
-     * @throws IllegalArgumentException The path belongs to a reserved file
-     */
-    public boolean setAdditionalFile(String path, String mimetype, byte[] data)
-    {
-        if (reservedFiles.contains(path)) {
-            throw new IllegalArgumentException("The file " + path + " is a reserved name");
-        }
-        return extraFiles.put(path, new FileEntry(path, mimetype, data)) != null;
-    }
-    
-    /**
-     * This function allows you to remove files that you have added to the Spreadsheet
-     * 
-     * @param path: Location (inside the Spreadsheet) where the file is placed
-     * @throws NullPointerException if the string is null
-     */
-    public void removeAdditionalFile(String path)
-    {
-        extraFiles.remove(path);
     }
 
     /**

@@ -10,6 +10,7 @@ class OdsReader {
     private static final Locale defaultLocal = Locale.US;
     private final Uncompressor uncompressor;
     private final XmlReader reader = new XmlReaderEventImpl();
+    private final ChartParser chartParser;
     private final SpreadSheet spread;
     private final StylesParser stylesParser = new StylesParser();
     private final SpreadsheetParser spreadsheetParser;
@@ -20,6 +21,7 @@ class OdsReader {
         this.uncompressor = new Uncompressor(in);
         this.options = options;
         this.spreadsheetParser = new SpreadsheetParser(stylesParser, spread, options);
+        this.chartParser = new ChartParser(stylesParser, spread, options);
     }
 
     private OdsReader(File file, SpreadSheet spread, OdsOptionParameters options) throws IOException {
@@ -27,6 +29,7 @@ class OdsReader {
         this.uncompressor = new Uncompressor(file);
         this.options = options;
         this.spreadsheetParser = new SpreadsheetParser(stylesParser, spread, options);
+        this.chartParser = new ChartParser(stylesParser, spread, options);
     }
 
     static void load(InputStream in, SpreadSheet spread) throws IOException {
@@ -50,21 +53,28 @@ class OdsReader {
     }
 
     private void load() throws IOException {
+        options.getLogger().fine("Loading spreadsheet...");
         boolean mimetypeChecked = false;
         String entry = uncompressor.nextFile();
         while (entry != null) {
+            options.getLogger().config("Parsing entry: " + entry);
             if (entry.endsWith(".xml")) {
-                processContent();
+                processContent(entry);
             } else if (entry.equals("mimetype")) {
+                options.getLogger().finer("Loading mimetype...");
                 checkMimeType();
                 mimetypeChecked = true;
+                options.getLogger().fine("Mimetype verified");
             }
             entry = uncompressor.nextFile();
         }
         uncompressor.close();
         spread.trimSheets();
+        chartParser.resolveChartData();
+        options.getLogger().info("Spreadsheet loaded, " + spread.getNumSheets() + " sheet(s)");
 
         if (!mimetypeChecked) {
+            options.getLogger().severe("This file doesn't contain a mimetype. It's invalid according to OpenDocument Specification");
             throw new NotAnOdsException("This file doesn't contain a mimetype");
         }
     }
@@ -73,12 +83,15 @@ class OdsReader {
         byte[] buff = new byte[CORRECT_MIMETYPE.getBytes().length];
         uncompressor.getInputStream().read(buff);
         String mimetype = new String(buff);
+        options.getLogger().finer("Mimetype read: " + mimetype);
         if (!mimetype.equals(CORRECT_MIMETYPE)) {
+            options.getLogger().severe("Invalid mimetype: " + mimetype);
             throw new NotAnOdsException("This file doesn't look like an ODS file. Mimetype: " + mimetype);
         }
     }
 
-    private void processContent() throws IOException {
+    private void processContent(String entryName) throws IOException {
+        options.getLogger().fine("Processing content");
         InputStream in = uncompressor.getInputStream();
         XmlReaderInstance instance = reader.load(in);
         if (instance == null) return;
@@ -86,10 +99,21 @@ class OdsReader {
         if (options.isLoadStyles()) {
             XmlReaderInstance stylesInstance = instance.nextElement("office:automatic-styles", "office:styles");
             stylesParser.parseStyles(stylesInstance);
+            options.getLogger().fine("Styles loaded");
         }
 
         XmlReaderInstance contentInstance = instance.nextElement("office:body");
-        spreadsheetParser.parseContent(contentInstance);
+
+        if (contentInstance != null) {
+            XmlReaderInstance spreadsheetInstance = contentInstance.nextElement("office:spreadsheet", "office:chart");
+            if (spreadsheetInstance != null) {
+                if (spreadsheetInstance.getTag().equals("office:chart")) {
+                    chartParser.parseContent(spreadsheetInstance, entryName);
+                } else {
+                    spreadsheetParser.parseContent(contentInstance);
+                }
+            }
+        }
 
         reader.close();
     }

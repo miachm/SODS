@@ -8,13 +8,15 @@ class SheetParser {
     private static final int BUGGED_COUNT = 10 * 1000;
     private final Sheet sheet;
     private final StylesParser stylesParser;
+    private final SpreadSheet spread;
     private final Map<Integer, Style> columnDefaultStyles = new HashMap<>();
     private final Map<Integer, Style> rowDefaultStyles = new HashMap<>();
     private final Set<Pair<Vector, Vector>> groupCells = new HashSet<>();
 
-    public SheetParser(Sheet sheet, StylesParser stylesParser) {
+    public SheetParser(Sheet sheet, StylesParser stylesParser, SpreadSheet spread) {
         this.sheet = sheet;
         this.stylesParser = stylesParser;
+        this.spread = spread;
     }
 
     public void parseSheet(XmlReaderInstance reader) {
@@ -33,7 +35,7 @@ class SheetParser {
         groupCells.clear();
 
         while (reader.hasNext()) {
-            XmlReaderInstance instance = reader.nextElement("table:table-column", "table:table-row");
+            XmlReaderInstance instance = reader.nextElement("table:table-column", "table:table-row", "draw:frame");
             if (instance == null) break;
 
             String styleName = instance.getAttribValue("table:default-cell-style-name");
@@ -41,6 +43,8 @@ class SheetParser {
 
             if (instance.getTag().equals("table:table-column")) {
                 parseColumnProperties(instance, style);
+            } else if (instance.getTag().equals("draw:frame")) {
+                parseDrawFrame(instance);
             } else if (instance.getTag().equals("table:table-row")) {
                 if (style != null) rowDefaultStyles.put(rowCount, style);
 
@@ -108,6 +112,34 @@ class SheetParser {
             ColumnStyle columnStyle = stylesParser.getColumnStyle(columnStyleName);
             if (columnStyle != null) sheet.setColumnWidths(sheet.getMaxColumns() - numColumns, numColumns, columnStyle.getWidth());
         }
+    }
+
+    private void parseDrawFrame(XmlReaderInstance frameInstance) {
+        if (frameInstance == null || spread == null) return;
+        while (frameInstance.hasNext()) {
+            XmlReaderInstance child = frameInstance.nextElement("draw:object", "draw:object-ole");
+            if (child == null) break;
+            String href = child.getAttribValue("xlink:href");
+            if (href != null) {
+                String objectPath = normalizeObjectPath(href);
+                if (objectPath != null) {
+                    spread.registerChartObject(objectPath, sheet);
+                }
+            }
+        }
+    }
+
+    private String normalizeObjectPath(String href) {
+        if (href == null) return null;
+        String trimmed = href.trim();
+        if (trimmed.isEmpty()) return null;
+        if (trimmed.startsWith("./")) {
+            trimmed = trimmed.substring(2);
+        }
+        if (trimmed.endsWith("/")) {
+            trimmed = trimmed.substring(0, trimmed.length() - 1);
+        }
+        return trimmed.isEmpty() ? null : trimmed;
     }
 
     private void processCells(XmlReaderInstance reader, int numberRowsRepeated) {
