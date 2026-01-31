@@ -321,8 +321,7 @@ class OdsWritter {
                     out.writeEmptyElement(TEXT, "tab");
                 }
                 else if (text.charAt(i) == '\n') {
-                    out.writeEndElement();
-                    out.writeStartElement(TEXT, "p");
+                    out.writeEmptyElement(TEXT, "line-break");
                 }
                 else if (Character.isHighSurrogate(text.charAt(i)) && i + 1 < text.length() && Character.isLowSurrogate(text.charAt(i + 1))) {
                     // write surrogate pair

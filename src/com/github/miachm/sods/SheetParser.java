@@ -186,13 +186,15 @@ class SheetParser {
             else s.append("\n");
 
             XmlReaderInstance spanElement;
-            while ((spanElement = textElement.nextElement("text:s", "text:tab", XmlReaderInstance.CHARACTERS)) != null) {
+            while ((spanElement = textElement.nextElement("text:s", "text:tab", "text:line-break", XmlReaderInstance.CHARACTERS)) != null) {
                 if (spanElement.getTag().equals("text:s")) {
                     int num = tryParseTextCAttribute(spanElement);
                     while (num-- > 0) s.append(" ");
                 } else if (spanElement.getTag().equals("text:tab")) {
                     int num = tryParseTextCAttribute(spanElement);
                     while (num-- > 0) s.append("\t");
+                } else if (spanElement.getTag().equals("text:line-break")) {
+                    s.append("\n");
                 }
 
                 String spanContent = spanElement.getContent();
