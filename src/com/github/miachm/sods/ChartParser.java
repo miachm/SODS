@@ -21,7 +21,12 @@ class ChartParser {
             if (type == null) type = instance.getAttribValue("chart:class");
             if (type != null) {
                 if ("bar".equals(type) || "chart:bar".equals(type)) {
-                    Chart chart = parseBarChart(instance);
+                    Chart chart = parseChart(instance, "bar");
+                    if (chart != null) {
+                        spread.addChart(chart, objectPath);
+                    }
+                } else if ("line".equals(type) || "chart:line".equals(type)) {
+                    Chart chart = parseChart(instance, "line");
                     if (chart != null) {
                         spread.addChart(chart, objectPath);
                     }
@@ -53,11 +58,11 @@ class ChartParser {
         }
     }
 
-    private Chart parseBarChart(XmlReaderInstance chartInstance) {
+    private Chart parseChart(XmlReaderInstance chartInstance, String type) {
         if (chartInstance == null) return null;
 
         Chart chart = new Chart();
-        chart.setType("bar");
+        chart.setType(type);
         chart.setWidth(chartInstance.getAttribValue("svg:width"));
         chart.setHeight(chartInstance.getAttribValue("svg:height"));
         

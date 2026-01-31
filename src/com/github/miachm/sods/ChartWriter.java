@@ -194,7 +194,7 @@ class ChartWriter {
         }
 
         out.writeStartElement(CHART, "plot-area");
-        out.writeAttribute(CHART, "style-name", "ch2");
+        out.writeAttribute(CHART, "style-name", isLineChart(chart) ? "ch3" : "ch2");
         out.writeAttribute(SVG, "x", "0cm");
         out.writeAttribute(SVG, "y", "0cm");
         out.writeAttribute(SVG, "width", normalizeSize(chart.getWidth(), "12cm"));
@@ -210,7 +210,7 @@ class ChartWriter {
         out.writeStartElement(CHART, "axis");
         out.writeAttribute(CHART, "dimension", "x");
         out.writeAttribute(CHART, "name", "primary-x");
-        out.writeAttribute(CHART, "style-name", "ch3");
+        out.writeAttribute(CHART, "style-name", getXAxisStyleName(chart));
         out.writeAttribute(CHART_OOO, "axis-type", "auto");
         out.writeStartElement(CHART_OOO, "date-scale");
         out.writeEndElement();
@@ -227,7 +227,7 @@ class ChartWriter {
         out.writeStartElement(CHART, "axis");
         out.writeAttribute(CHART, "dimension", "y");
         out.writeAttribute(CHART, "name", "primary-y");
-        out.writeAttribute(CHART, "style-name", "ch4");
+        out.writeAttribute(CHART, "style-name", getYAxisStyleName(chart));
         if (chart.getYAxisLabel() != null) {
             writeAxisTitle(out, chart.getYAxisLabel());
         }
@@ -609,14 +609,6 @@ class ChartWriter {
         chartDefaults.getGraphicProperties().setStroke("none");
         writeStyleWithDefaults(out, "ch1", chartDefaults, chart.getStyle(), null, null);
 
-        ChartStyle plotDefaults = new ChartStyle();
-        plotDefaults.getChartProperties().setIncludeHiddenCells(false);
-        plotDefaults.getChartProperties().setAutoPosition(true);
-        plotDefaults.getChartProperties().setAutoSize(true);
-        plotDefaults.getChartProperties().setTreatEmptyCells(ChartProperties.TreatEmptyCells.LeaveGap);
-        plotDefaults.getChartProperties().setRightAngledAxes(true);
-        writeStyleWithDefaults(out, "ch2", plotDefaults, chart.getPlotAreaStyle(), null, null);
-
         ChartStyle axisDefaults = new ChartStyle();
         axisDefaults.getChartProperties().setDisplayLabel(chart.isDisplayLabel());
         axisDefaults.getChartProperties().setLogarithmic(false);
@@ -629,41 +621,92 @@ class ChartWriter {
         axisDefaults.getTextProperties().setFontSizePt(10);
         axisDefaults.getTextProperties().setFontSizeAsianPt(10);
         axisDefaults.getTextProperties().setFontSizeComplexPt(10);
-        writeStyleWithDefaults(out, "ch3", axisDefaults, chart.getXAxis().getStyle(), chart.isDisplayLabel(), "N0");
-        writeStyleWithDefaults(out, "ch4", axisDefaults, chart.getYAxis().getStyle(), chart.isDisplayLabel(), "N0");
 
         ChartStyle gridDefaults = new ChartStyle();
         gridDefaults.getGraphicProperties().setStrokeColor(new Color("#b3b3b3"));
-        writeStyleWithDefaults(out, "ch5", gridDefaults, new ChartStyle(), null, null);
 
-        ChartStyle seriesDefaults = new ChartStyle();
-        seriesDefaults.getChartProperties().setLinkDataStyleToSource(true);
-        seriesDefaults.getGraphicProperties().setStroke("none");
-        seriesDefaults.getGraphicProperties().setFillColor(new Color("#004586"));
-        seriesDefaults.getGraphicProperties().setEdgeRounding("5%");
-        seriesDefaults.getTextProperties().setFontSizePt(10);
-        seriesDefaults.getTextProperties().setFontSizeAsianPt(10);
-        seriesDefaults.getTextProperties().setFontSizeComplexPt(10);
-        writeStyleWithDefaults(out, "ch6", seriesDefaults, new ChartStyle(), null, "N0");
+        ChartStyle wallDefaults = new ChartStyle();
+        wallDefaults.getGraphicProperties().setStroke("solid");
+        wallDefaults.getGraphicProperties().setStrokeColor(new Color("#b3b3b3"));
+        wallDefaults.getGraphicProperties().setFill("none");
+        wallDefaults.getGraphicProperties().setFillColor(new Color("#e6e6e6"));
 
-        if (chart.isShowWall()) {
-            ChartStyle wallDefaults = new ChartStyle();
-            wallDefaults.getGraphicProperties().setStroke("solid");
-            wallDefaults.getGraphicProperties().setStrokeColor(new Color("#b3b3b3"));
-            wallDefaults.getGraphicProperties().setFill("none");
-            wallDefaults.getGraphicProperties().setFillColor(new Color("#e6e6e6"));
-            writeStyleWithDefaults(out, "ch7", wallDefaults, chart.getWallStyle(), null, null);
-        }
+        if (isLineChart(chart)) {
+            ChartStyle legendDefaults = new ChartStyle();
+            legendDefaults.getChartProperties().setAutoPosition(true);
+            legendDefaults.getGraphicProperties().setStroke("none");
+            legendDefaults.getGraphicProperties().setStrokeColor(new Color("#b3b3b3"));
+            legendDefaults.getGraphicProperties().setFill("none");
+            legendDefaults.getGraphicProperties().setFillColor(new Color("#e6e6e6"));
+            legendDefaults.getTextProperties().setFontSizePt(10);
+            legendDefaults.getTextProperties().setFontSizeAsianPt(10);
+            legendDefaults.getTextProperties().setFontSizeComplexPt(10);
+            writeStyleWithDefaults(out, "ch2", legendDefaults, new ChartStyle(), null, null);
 
-        int seriesIndex = 0;
-        for (ChartSeries series : chart.getSeries()) {
-            if (series.getValuesRangeAddress() == null) {
-                continue;
+            ChartStyle plotDefaults = new ChartStyle();
+            plotDefaults.getChartProperties().setSymbolType("automatic");
+            plotDefaults.getChartProperties().setIncludeHiddenCells(false);
+            plotDefaults.getChartProperties().setTreatEmptyCells(ChartProperties.TreatEmptyCells.LeaveGap);
+            plotDefaults.getChartProperties().setRightAngledAxes(true);
+            writeStyleWithDefaults(out, "ch3", plotDefaults, chart.getPlotAreaStyle(), null, null);
+
+            if (hasLineCustomAxes(chart)) {
+                writeStyleWithDefaults(out, "ch4x", axisDefaults, chart.getXAxis().getStyle(), chart.isDisplayLabel(), "N0");
+                writeStyleWithDefaults(out, "ch4y", axisDefaults, chart.getYAxis().getStyle(), chart.isDisplayLabel(), "N0");
+            } else {
+                writeStyleWithDefaults(out, "ch4", axisDefaults, chart.getXAxis().getStyle(), chart.isDisplayLabel(), "N0");
             }
-            if (series.getStyle().hasAnyProperties()) {
-                writeStyleWithDefaults(out, "ch-series-" + (seriesIndex + 1), seriesDefaults, series.getStyle(), null, "N0");
+
+            writeStyleWithDefaults(out, "ch5", gridDefaults, new ChartStyle(), null, null);
+
+            ChartStyle seriesDefaults = buildLineSeriesDefaults();
+            writeStyleWithDefaults(out, "ch6", seriesDefaults, new ChartStyle(), null, "N0");
+
+            if (chart.isShowWall()) {
+                writeStyleWithDefaults(out, "ch7", wallDefaults, chart.getWallStyle(), null, null);
             }
-            seriesIndex++;
+
+            int seriesIndex = 0;
+            for (ChartSeries series : chart.getSeries()) {
+                if (series.getValuesRangeAddress() == null) {
+                    continue;
+                }
+                if (series.getStyle().hasAnyProperties()) {
+                    writeStyleWithDefaults(out, "ch-series-" + (seriesIndex + 1), seriesDefaults, series.getStyle(), null, "N0");
+                }
+                seriesIndex++;
+            }
+        } else {
+            ChartStyle plotDefaults = new ChartStyle();
+            plotDefaults.getChartProperties().setIncludeHiddenCells(false);
+            plotDefaults.getChartProperties().setAutoPosition(true);
+            plotDefaults.getChartProperties().setAutoSize(true);
+            plotDefaults.getChartProperties().setTreatEmptyCells(ChartProperties.TreatEmptyCells.LeaveGap);
+            plotDefaults.getChartProperties().setRightAngledAxes(true);
+            writeStyleWithDefaults(out, "ch2", plotDefaults, chart.getPlotAreaStyle(), null, null);
+
+            writeStyleWithDefaults(out, "ch3", axisDefaults, chart.getXAxis().getStyle(), chart.isDisplayLabel(), "N0");
+            writeStyleWithDefaults(out, "ch4", axisDefaults, chart.getYAxis().getStyle(), chart.isDisplayLabel(), "N0");
+
+            writeStyleWithDefaults(out, "ch5", gridDefaults, new ChartStyle(), null, null);
+
+            ChartStyle seriesDefaults = buildBarSeriesDefaults();
+            writeStyleWithDefaults(out, "ch6", seriesDefaults, new ChartStyle(), null, "N0");
+
+            if (chart.isShowWall()) {
+                writeStyleWithDefaults(out, "ch7", wallDefaults, chart.getWallStyle(), null, null);
+            }
+
+            int seriesIndex = 0;
+            for (ChartSeries series : chart.getSeries()) {
+                if (series.getValuesRangeAddress() == null) {
+                    continue;
+                }
+                if (series.getStyle().hasAnyProperties()) {
+                    writeStyleWithDefaults(out, "ch-series-" + (seriesIndex + 1), seriesDefaults, series.getStyle(), null, "N0");
+                }
+                seriesIndex++;
+            }
         }
     }
 
@@ -737,6 +780,22 @@ class ChartWriter {
         writeBooleanAttr(out, CHART, "right-angled-axes", pick(custom.getRightAngledAxes(), defaults.getRightAngledAxes()));
         writeBooleanAttr(out, CHART, "include-hidden-cells",
                 pick(custom.getIncludeHiddenCells(), defaults.getIncludeHiddenCells()));
+        String symbolType = pick(custom.getSymbolType(), defaults.getSymbolType());
+        if (symbolType != null) {
+            out.writeAttribute(CHART, "symbol-type", symbolType);
+        }
+        String symbolName = pick(custom.getSymbolName(), defaults.getSymbolName());
+        if (symbolName != null) {
+            out.writeAttribute(CHART, "symbol-name", symbolName);
+        }
+        String symbolWidth = pick(custom.getSymbolWidth(), defaults.getSymbolWidth());
+        if (symbolWidth != null) {
+            out.writeAttribute(CHART, "symbol-width", symbolWidth);
+        }
+        String symbolHeight = pick(custom.getSymbolHeight(), defaults.getSymbolHeight());
+        if (symbolHeight != null) {
+            out.writeAttribute(CHART, "symbol-height", symbolHeight);
+        }
         writeBooleanAttr(out, TEXT, "line-break", pick(custom.getTextLineBreak(), defaults.getTextLineBreak()));
         writeBooleanAttr(out, LOEXT, "try-staggering-first",
                 pick(custom.getTryStaggeringFirst(), defaults.getTryStaggeringFirst()));
@@ -821,6 +880,68 @@ class ChartWriter {
 
     private <T> T pick(T preferred, T fallback) {
         return preferred != null ? preferred : fallback;
+    }
+
+    private boolean isLineChart(Chart chart) {
+        if (chart == null) {
+            return false;
+        }
+        String type = chart.getType();
+        if (type == null) {
+            return false;
+        }
+        return "line".equalsIgnoreCase(type) || "chart:line".equalsIgnoreCase(type);
+    }
+
+    private boolean hasLineCustomAxes(Chart chart) {
+        if (!isLineChart(chart)) {
+            return false;
+        }
+        return chart.getXAxis().getStyle().hasAnyProperties()
+                || chart.getYAxis().getStyle().hasAnyProperties();
+    }
+
+    private String getXAxisStyleName(Chart chart) {
+        if (!isLineChart(chart)) {
+            return "ch3";
+        }
+        return hasLineCustomAxes(chart) ? "ch4x" : "ch4";
+    }
+
+    private String getYAxisStyleName(Chart chart) {
+        if (!isLineChart(chart)) {
+            return "ch4";
+        }
+        return hasLineCustomAxes(chart) ? "ch4y" : "ch4";
+    }
+
+    private ChartStyle buildLineSeriesDefaults() {
+        ChartStyle seriesDefaults = new ChartStyle();
+        seriesDefaults.getChartProperties().setSymbolType("named-symbol");
+        seriesDefaults.getChartProperties().setSymbolName("square");
+        seriesDefaults.getChartProperties().setSymbolWidth("0.25cm");
+        seriesDefaults.getChartProperties().setSymbolHeight("0.25cm");
+        seriesDefaults.getChartProperties().setLinkDataStyleToSource(true);
+        seriesDefaults.getGraphicProperties().setStrokeWidth("0.08cm");
+        seriesDefaults.getGraphicProperties().setStrokeColor(new Color("#004586"));
+        seriesDefaults.getGraphicProperties().setFillColor(new Color("#004586"));
+        seriesDefaults.getGraphicProperties().setEdgeRounding("5%");
+        seriesDefaults.getTextProperties().setFontSizePt(10);
+        seriesDefaults.getTextProperties().setFontSizeAsianPt(10);
+        seriesDefaults.getTextProperties().setFontSizeComplexPt(10);
+        return seriesDefaults;
+    }
+
+    private ChartStyle buildBarSeriesDefaults() {
+        ChartStyle seriesDefaults = new ChartStyle();
+        seriesDefaults.getChartProperties().setLinkDataStyleToSource(true);
+        seriesDefaults.getGraphicProperties().setStroke("none");
+        seriesDefaults.getGraphicProperties().setFillColor(new Color("#004586"));
+        seriesDefaults.getGraphicProperties().setEdgeRounding("5%");
+        seriesDefaults.getTextProperties().setFontSizePt(10);
+        seriesDefaults.getTextProperties().setFontSizeAsianPt(10);
+        seriesDefaults.getTextProperties().setFontSizeComplexPt(10);
+        return seriesDefaults;
     }
 
     private String normalizeChartClass(String type) {
