@@ -33,8 +33,8 @@ class OdsWritter {
     }
 
     private void save() throws IOException {
-        writeManifest();
         writeMymeType();
+        writeManifest();
         try {
             writeSpreadsheet();
             writeSettingsStyleFile();
@@ -94,7 +94,7 @@ class OdsWritter {
     }
 
     private void writeMymeType() throws IOException {
-        out.addEntry(MIMETYPE.getBytes(),"mimetype");
+        out.addEntry(MIMETYPE.getBytes(),"mimetype",true);
     }
 
 
