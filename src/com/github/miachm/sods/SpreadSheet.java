@@ -45,7 +45,23 @@ public class SpreadSheet implements Cloneable {
      * @see #SpreadSheet(InputStream)
      */
     public SpreadSheet(File file) throws IOException {
-        this(new FileInputStream(file));
+        OdsReader.load(file, this);
+    }
+
+   /**
+     * Load a Spreadsheet from an ODS file specifying options.
+     *
+     * @param file The file to load. It must be a valid readable file
+     * @param options The options to use when loading the spreadsheet
+     * @throws NullPointerException If the file is null
+     * @throws FileNotFoundException If the file doesn't exist or it can be readed
+     * @throws NotAnOdsException If the file isn't an ODS file.
+     * @throws OperationNotSupportedException If the ODS file has a feature which it's not implemented in this library
+     * @throws IOException If an unexpected IO error is produced
+     * @see #SpreadSheet(InputStream)
+     */
+    public SpreadSheet(File file, OdsOptionParameters options) throws IOException {
+        OdsReader.load(file, this, options);
     }
 
     /**

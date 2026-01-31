@@ -1,5 +1,6 @@
 package com.github.miachm.sods;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
@@ -21,6 +22,13 @@ class OdsReader {
         this.spreadsheetParser = new SpreadsheetParser(stylesParser, spread, options);
     }
 
+    private OdsReader(File file, SpreadSheet spread, OdsOptionParameters options) throws IOException {
+        this.spread = spread;
+        this.uncompressor = new Uncompressor(file);
+        this.options = options;
+        this.spreadsheetParser = new SpreadsheetParser(stylesParser, spread, options);
+    }
+
     static void load(InputStream in, SpreadSheet spread) throws IOException {
         OdsReader reader = new OdsReader(in, spread, new OdsOptionParameters());
         reader.load();
@@ -28,6 +36,16 @@ class OdsReader {
 
     static void load(InputStream in, SpreadSheet spread, OdsOptionParameters options) throws IOException {
         OdsReader reader = new OdsReader(in, spread, options);
+        reader.load();
+    }
+
+    static void load(File file, SpreadSheet spread) throws IOException {
+        OdsReader reader = new OdsReader(file, spread, new OdsOptionParameters());
+        reader.load();
+    }
+
+    static void load(File file, SpreadSheet spread, OdsOptionParameters options) throws IOException {
+        OdsReader reader = new OdsReader(file, spread, options);
         reader.load();
     }
 
