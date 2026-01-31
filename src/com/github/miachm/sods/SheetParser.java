@@ -176,9 +176,13 @@ class SheetParser {
         boolean firstTextElement = true;
 
         XmlReaderInstance textElement;
-        while ((textElement = cellReader.nextElement("text:p", "text:h", "office:annotation")) != null) {
+        while ((textElement = cellReader.nextElement("text:p", "text:h", "office:annotation", "table:help-message")) != null) {
             if (textElement.getTag().equals("office:annotation")) {
                 range.setAnnotation(getOfficeAnnotation(textElement));
+                continue;
+            }
+            if (textElement.getTag().equals("table:help-message")) {
+                range.setHelpMessage(getTableHelpMessage(textElement));
                 continue;
             }
 
@@ -235,6 +239,25 @@ class SheetParser {
 
         annotation.setMsg(msg.toString());
         return annotation.build();
+    }
+
+    private OfficeHelpMessage getTableHelpMessage(XmlReaderInstance reader) {
+        String title = reader.getAttribValue("table:title");
+        String displayStr = reader.getAttribValue("table:display");
+        boolean display = displayStr == null || "true".equals(displayStr);
+
+        StringBuilder msg = new StringBuilder();
+        while (reader.hasNext()) {
+            XmlReaderInstance instance = reader.nextElement("text:p");
+            if (instance == null) break;
+            XmlReaderInstance chars = instance.nextElement(XmlReaderInstance.CHARACTERS);
+            if (msg.length() > 0) msg.append("\n");
+            if (chars != null && chars.getContent() != null) msg.append(chars.getContent());
+        }
+
+        String message = msg.toString().isEmpty() ? null : msg.toString();
+        if (title == null && message == null) return null;
+        return new OfficeHelpMessage(title, message, display);
     }
 
     private int tryParseTextCAttribute(XmlReaderInstance spanElement) {

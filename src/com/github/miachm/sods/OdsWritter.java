@@ -349,6 +349,20 @@ class OdsWritter {
             }
             out.writeEndElement();
         }
+        OfficeHelpMessage helpMessage = cell.getHelpMessage();
+        if (helpMessage != null && (helpMessage.getTitle() != null || helpMessage.getMessage() != null)) {
+            out.writeStartElement(TABLE, "help-message");
+            if (helpMessage.getTitle() != null)
+                out.writeAttribute(TABLE, "title", helpMessage.getTitle());
+            if (!helpMessage.isDisplay())
+                out.writeAttribute(TABLE, "display", "false");
+            if (helpMessage.getMessage() != null) {
+                out.writeStartElement(TEXT, "p");
+                out.writeCharacters(helpMessage.getMessage());
+                out.writeEndElement();
+            }
+            out.writeEndElement();
+        }
     }
 
     private void writeRowHeight(XMLStreamWriter out, Row row) throws XMLStreamException {

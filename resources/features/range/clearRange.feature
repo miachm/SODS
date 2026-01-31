@@ -8,6 +8,7 @@ Feature: Clear a Range
     Then the range does not contain any formula
     Then the range does not contain any style
     Then the range does not contain any annotation
+    Then the range does not contain any help message
     When the client creates a Range with 0,0,1,1
     Then the range value is not null
 
@@ -25,5 +26,6 @@ Feature: Clear a Range
     Then the range does not contain any formula
     Then the range does not contain any style
     Then the range does not contain any annotation
+    Then the range does not contain any help message
     When the client creates a Range with 0,0,1,1
     Then the range value is not null

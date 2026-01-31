@@ -24,7 +24,6 @@ public class MultiLineCellTest {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         spread.save(out);
-        spread.save(new File("test.ods"));
         SpreadSheet loaded = new SpreadSheet(new ByteArrayInputStream(out.toByteArray()));
         assertEquals(value, loaded.getSheet(0).getRange(0, 0).getValue());
     }

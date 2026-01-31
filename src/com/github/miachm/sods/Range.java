@@ -67,6 +67,7 @@ public class Range {
         dest.setFormulas(getFormulas());
         dest.setStyles(getStyles());
         dest.setAnnotations(getAnnotations());
+        dest.setHelpMessages(getHelpMessages());
     }
 
     /**
@@ -285,6 +286,69 @@ public class Range {
         OfficeAnnotation[][] arr = new OfficeAnnotation[getNumRows()][getNumColumns()];
         iterateRange((cell, row, column) ->  arr[row][column] = cell.getAnnotation());
         return arr;
+    }
+
+    /**
+     * Returns the help message of the first cell in this range.
+     *
+     * @return The help message, or null if not set
+     * @see OfficeHelpMessage
+     */
+    public OfficeHelpMessage getHelpMessage() {
+        return getFirstCell().getHelpMessage();
+    }
+
+    /**
+     * Returns the rectangular grid of help messages for this range.
+     *
+     * @return A two-dimensional array of help messages; entries may be null
+     * @see OfficeHelpMessage
+     */
+    public OfficeHelpMessage[][] getHelpMessages() {
+        OfficeHelpMessage[][] arr = new OfficeHelpMessage[getNumRows()][getNumColumns()];
+        iterateRange((cell, row, column) -> arr[row][column] = cell.getHelpMessage());
+        return arr;
+    }
+
+    /**
+     * Set a help message for all cells in this range.
+     *
+     * @param helpMessage The help message to set
+     * @see OfficeHelpMessage
+     */
+    public void setHelpMessage(OfficeHelpMessage helpMessage) {
+        iterateRange((cell, row, column) -> cell.setHelpMessage(helpMessage));
+    }
+
+    /**
+     * Set help messages for the range. The array must have the same size as the range.
+     *
+     * @param helpMessages The help messages array
+     * @throws IllegalArgumentException if the array size does not match the range
+     */
+    public void setHelpMessages(OfficeHelpMessage... helpMessages) {
+        if (helpMessages.length != getNumValues())
+            throw new IllegalArgumentException("Error in setHelpMessages, the number of arguments doesn't fit ("
+                    + helpMessages.length + " against " + getNumValues() + ")");
+        iterateRange((cell, row, column) -> cell.setHelpMessage(helpMessages[row * getNumColumns() + column]));
+    }
+
+    /**
+     * Set help messages for the range. The 2D array must have the same size as the range.
+     *
+     * @param helpMessages The help messages 2D array
+     * @throws IllegalArgumentException if the array size does not match the range
+     */
+    public void setHelpMessages(OfficeHelpMessage[][] helpMessages) {
+        if (helpMessages.length == 0)
+            throw new IllegalArgumentException("Error in setHelpMessages, the array is empty");
+        if (helpMessages.length != getNumRows())
+            throw new IllegalArgumentException("Error in setHelpMessages, the number of rows doesn't fit ("
+                    + helpMessages.length + " against " + getNumRows() + ")");
+        if (helpMessages[0].length != getNumColumns())
+            throw new IllegalArgumentException("Error in setHelpMessages, the number of columns doesn't fit ("
+                    + helpMessages[0].length + " against " + getNumColumns() + ")");
+        iterateRange((cell, row, column) -> cell.setHelpMessage(helpMessages[row][column]));
     }
 
     /**

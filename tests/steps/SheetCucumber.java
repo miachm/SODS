@@ -96,17 +96,20 @@ public class SheetCucumber {
         List<Style> styles = new ArrayList<>();
         List<String> formulas = new ArrayList<>();
         List<OfficeAnnotation> annotations = new ArrayList<>();
+        List<OfficeHelpMessage> helpMessages = new ArrayList<>();
         for (int i = 0; i < range.getNumValues(); i++) {
             integers.add(random.nextInt());
             styles.add(getRandomStyle());
             formulas.add(getRandomFormula());
             annotations.add(getRandomAnnotations());
+            helpMessages.add(getRandomHelpMessage());
         }
 
         range.setValues(integers.toArray());
         range.setStyles(styles.toArray(new Style[0]));
         range.setFormulas(formulas.toArray(new String[0]));
         range.setAnnotations(annotations.toArray(new OfficeAnnotation[0]));
+        range.setHelpMessages(helpMessages.toArray(new OfficeHelpMessage[0]));
     }
 
     private OfficeAnnotation getRandomAnnotations() {
@@ -117,6 +120,12 @@ public class SheetCucumber {
                 1 + random.nextInt(29), random.nextInt(24), 1, 1);
         String msg = "MSG: " + random.nextInt();
         return new OfficeAnnotation(msg, date);
+    }
+
+    private OfficeHelpMessage getRandomHelpMessage() {
+        if (random.nextBoolean())
+            return null;
+        return new OfficeHelpMessage("Title" + random.nextInt(), "Help: " + random.nextInt());
     }
 
     private String getRandomFormula() {

@@ -1,5 +1,6 @@
 package steps;
 
+import com.github.miachm.sods.OfficeHelpMessage;
 import com.github.miachm.sods.Range;
 import com.github.miachm.sods.Style;
 import cucumber.api.java.en.Then;
@@ -86,6 +87,14 @@ public class RangeCucumber {
                 assertNull(o);
     }
 
+    @Then("^the range does not contain any help message$")
+    public void the_range_does_not_contain_any_help_message() throws Throwable {
+        OfficeHelpMessage[][] arr = World.range.getHelpMessages();
+        for (OfficeHelpMessage[] row : arr)
+            for (OfficeHelpMessage o : row)
+                assertNull(o);
+    }
+
     @Then("^the range value is not null$")
     public void the_range_value_is_not_null() throws Throwable {
         assertNotNull(World.range.getValue());
@@ -104,6 +113,7 @@ public class RangeCucumber {
         assertTrue(Arrays.deepEquals(World.range.getStyles(), range.getStyles()));
         assertTrue(Arrays.deepEquals(World.range.getFormulas(), range.getFormulas()));
         assertTrue(Arrays.deepEquals(World.range.getAnnotations(), range.getAnnotations()));
+        assertTrue(Arrays.deepEquals(World.range.getHelpMessages(), range.getHelpMessages()));
     }
 
     @When("^the client copy to the Range (\\d+),(\\d+),(\\d+),(\\d+) and catch the exception$")

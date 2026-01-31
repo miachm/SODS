@@ -9,6 +9,7 @@ class Cell extends TableField {
     private Style style = Style.default_style;
     private GroupCell group;
     private OfficeAnnotation annotation;
+    private OfficeHelpMessage helpMessage;
 
     Cell()
     {
@@ -58,6 +59,7 @@ class Cell extends TableField {
         formula = null;
         style = Style.default_style;
         annotation = null;
+        helpMessage = null;
     }
 
     String getFormula() {
@@ -110,6 +112,14 @@ class Cell extends TableField {
         this.annotation = annotation;
     }
 
+    public OfficeHelpMessage getHelpMessage() {
+        return helpMessage;
+    }
+
+    public void setHelpMessage(OfficeHelpMessage helpMessage) {
+        this.helpMessage = helpMessage;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -131,6 +141,7 @@ class Cell extends TableField {
         if (!Objects.equals(value, cell.value)) return false;
         if (!Objects.equals(formula, cell.formula)) return false;
         if (!Objects.equals(annotation, cell.annotation)) return false;
+        if (!Objects.equals(helpMessage, cell.helpMessage)) return false;
         if (!Objects.equals(num_repeated, cell.num_repeated)) return false;
         return style.equals(cell.getStyle());
     }
@@ -146,7 +157,8 @@ class Cell extends TableField {
         result = 31 * result + (formula != null ? formula.hashCode() : 0);
         result = 31 * result + style.hashCode();
         result = 31 * result + (group != null ? group.hashCode() : 0);
-        result = 31 * result + annotation.hashCode();
+        result = 31 * result + (annotation != null ? annotation.hashCode() : 0);
+        result = 31 * result + (helpMessage != null ? helpMessage.hashCode() : 0);
         return result;
     }
 
