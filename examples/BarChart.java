@@ -36,8 +36,15 @@ public class BarChart {
             chart.setYAxisLabel("Books read");
             chart.setCategoriesRangeAddress("Sheet1.A2:Sheet1.A13");
 
+            chart.getStyle().getGraphicProperties().setStroke("none");
+            chart.getPlotAreaStyle().getChartProperties().setAutoSize(true);
+            chart.getXAxis().getStyle().getChartProperties().setDisplayLabel(true);
+            chart.getYAxis().getStyle().getChartProperties().setDisplayLabel(true);
+            chart.getYAxis().getStyle().getGraphicProperties().setStrokeColor(new com.github.miachm.sods.Color("#b3b3b3"));
+
             ChartSeries series = new ChartSeries();
             series.setValuesRangeAddress("Sheet1.B2:Sheet1.B13");
+            series.getStyle().getGraphicProperties().setFillColor(new com.github.miachm.sods.Color("#004586"));
             chart.addSeries(series);
 
             sheet.addChart(chart);

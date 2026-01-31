@@ -20,7 +20,7 @@ public class ChartProperties {
         }
     }
 
-    private Boolean displayLabel;
+    private Boolean displayLabel = true;
     private Boolean logarithmic;
     private Boolean reverseDirection;
     private Boolean linkDataStyleToSource;
