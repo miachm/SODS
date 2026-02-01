@@ -155,4 +155,16 @@ public class ChartGraphicProperties {
                 || fillColor != null
                 || edgeRounding != null;
     }
+
+    void copyFrom(ChartGraphicProperties other) {
+        if (other == null) {
+            throw new IllegalArgumentException("ChartGraphicProperties cannot be null");
+        }
+        stroke = other.stroke;
+        fill = other.fill;
+        strokeWidth = other.strokeWidth;
+        strokeColor = other.strokeColor;
+        fillColor = other.fillColor;
+        edgeRounding = other.edgeRounding;
+    }
 }

@@ -248,10 +248,13 @@ public class Chart {
      * This style groups chart, graphic, and text properties applied at the
      * chart level.
      *
-     * @return The chart style.
+     * It's safe to manipulate the returned style since it is a copy.
+     * Call {@link #setStyle(ChartStyle)} to apply changes.
+     *
+     * @return A copy of the chart style.
      */
     public ChartStyle getStyle() {
-        return style;
+        return style.copy();
     }
 
     /**
@@ -260,10 +263,13 @@ public class Chart {
      * The plot area is the region where data series are drawn. Styles here
      * affect the background and borders of that region.
      *
-     * @return The plot area style.
+     * It's safe to manipulate the returned style since it is a copy.
+     * Call {@link #setPlotAreaStyle(ChartStyle)} to apply changes.
+     *
+     * @return A copy of the plot area style.
      */
     public ChartStyle getPlotAreaStyle() {
-        return plotAreaStyle;
+        return plotAreaStyle.copy();
     }
 
     /**
@@ -272,10 +278,13 @@ public class Chart {
      * The wall is the back plane used in 3D charts. Styles here affect
      * its appearance.
      *
-     * @return The wall style.
+     * It's safe to manipulate the returned style since it is a copy.
+     * Call {@link #setWallStyle(ChartStyle)} to apply changes.
+     *
+     * @return A copy of the wall style.
      */
     public ChartStyle getWallStyle() {
-        return wallStyle;
+        return wallStyle.copy();
     }
 
     /**
@@ -484,6 +493,42 @@ public class Chart {
      */
     public void setDisplayLabel(boolean displayLabel) {
         this.displayLabel = displayLabel;
+    }
+
+    /**
+     * Sets the chart style.
+     *
+     * The provided style is copied, so subsequent changes to the input
+     * object do not affect the chart.
+     *
+     * @param style The chart style.
+     */
+    public void setStyle(ChartStyle style) {
+        this.style.copyFrom(style);
+    }
+
+    /**
+     * Sets the plot area style.
+     *
+     * The provided style is copied, so subsequent changes to the input
+     * object do not affect the chart.
+     *
+     * @param plotAreaStyle The plot area style.
+     */
+    public void setPlotAreaStyle(ChartStyle plotAreaStyle) {
+        this.plotAreaStyle.copyFrom(plotAreaStyle);
+    }
+
+    /**
+     * Sets the wall style.
+     *
+     * The provided style is copied, so subsequent changes to the input
+     * object do not affect the chart.
+     *
+     * @param wallStyle The wall style.
+     */
+    public void setWallStyle(ChartStyle wallStyle) {
+        this.wallStyle.copyFrom(wallStyle);
     }
 
     /**

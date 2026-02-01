@@ -1,5 +1,6 @@
 import com.github.miachm.sods.Chart;
 import com.github.miachm.sods.ChartSeries;
+import com.github.miachm.sods.ChartStyle;
 import com.github.miachm.sods.Sheet;
 import com.github.miachm.sods.SpreadSheet;
 
@@ -36,15 +37,28 @@ public class BarChart {
             chart.setYAxisLabel("Books read");
             chart.setCategoriesRangeAddress("Sheet1.A2:Sheet1.A13");
 
-            chart.getStyle().getGraphicProperties().setStroke("none");
-            chart.getPlotAreaStyle().getChartProperties().setAutoSize(true);
-            chart.getXAxis().getStyle().getChartProperties().setDisplayLabel(true);
-            chart.getYAxis().getStyle().getChartProperties().setDisplayLabel(true);
-            chart.getYAxis().getStyle().getGraphicProperties().setStrokeColor(new com.github.miachm.sods.Color("#b3b3b3"));
+            ChartStyle chartStyle = chart.getStyle();
+            chartStyle.getGraphicProperties().setStroke("none");
+            chart.setStyle(chartStyle);
+
+            ChartStyle plotAreaStyle = chart.getPlotAreaStyle();
+            plotAreaStyle.getChartProperties().setAutoSize(true);
+            chart.setPlotAreaStyle(plotAreaStyle);
+
+            ChartStyle xAxisStyle = chart.getXAxis().getStyle();
+            xAxisStyle.getChartProperties().setDisplayLabel(true);
+            chart.getXAxis().setStyle(xAxisStyle);
+
+            ChartStyle yAxisStyle = chart.getYAxis().getStyle();
+            yAxisStyle.getChartProperties().setDisplayLabel(true);
+            yAxisStyle.getGraphicProperties().setStrokeColor(new com.github.miachm.sods.Color("#b3b3b3"));
+            chart.getYAxis().setStyle(yAxisStyle);
 
             ChartSeries series = new ChartSeries();
             series.setValuesRangeAddress("Sheet1.B2:Sheet1.B13");
-            series.getStyle().getGraphicProperties().setFillColor(new com.github.miachm.sods.Color("#004586"));
+            ChartStyle seriesStyle = series.getStyle();
+            seriesStyle.getGraphicProperties().setFillColor(new com.github.miachm.sods.Color("#004586"));
+            series.setStyle(seriesStyle);
             chart.addSeries(series);
 
             sheet.addChart(chart);

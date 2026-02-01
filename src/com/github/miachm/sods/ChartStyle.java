@@ -47,7 +47,22 @@ public class ChartStyle {
         return textProperties;
     }
 
+    ChartStyle copy() {
+        ChartStyle copy = new ChartStyle();
+        copy.copyFrom(this);
+        return copy;
+    }
+
     boolean hasAnyProperties() {
         return chartProperties.hasAny() || graphicProperties.hasAny() || textProperties.hasAny();
+    }
+
+    void copyFrom(ChartStyle other) {
+        if (other == null) {
+            throw new IllegalArgumentException("ChartStyle cannot be null");
+        }
+        chartProperties.copyFrom(other.chartProperties);
+        graphicProperties.copyFrom(other.graphicProperties);
+        textProperties.copyFrom(other.textProperties);
     }
 }

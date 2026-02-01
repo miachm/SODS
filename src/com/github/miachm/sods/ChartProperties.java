@@ -417,4 +417,26 @@ public class ChartProperties {
                 || treatEmptyCells != null
                 || axisPosition != null;
     }
+
+    void copyFrom(ChartProperties other) {
+        if (other == null) {
+            throw new IllegalArgumentException("ChartProperties cannot be null");
+        }
+        displayLabel = other.displayLabel;
+        logarithmic = other.logarithmic;
+        reverseDirection = other.reverseDirection;
+        linkDataStyleToSource = other.linkDataStyleToSource;
+        autoPosition = other.autoPosition;
+        autoSize = other.autoSize;
+        rightAngledAxes = other.rightAngledAxes;
+        includeHiddenCells = other.includeHiddenCells;
+        textLineBreak = other.textLineBreak;
+        tryStaggeringFirst = other.tryStaggeringFirst;
+        symbolType = other.symbolType;
+        symbolName = other.symbolName;
+        symbolWidth = other.symbolWidth;
+        symbolHeight = other.symbolHeight;
+        treatEmptyCells = other.treatEmptyCells;
+        axisPosition = other.axisPosition;
+    }
 }

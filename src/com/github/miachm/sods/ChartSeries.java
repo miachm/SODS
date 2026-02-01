@@ -70,10 +70,25 @@ public class ChartSeries {
      *
      * The style controls how this series is rendered (colors, markers, text).
      *
-     * @return The series style.
+     * It's safe to manipulate the returned style since it is a copy.
+     * Call {@link #setStyle(ChartStyle)} to apply changes.
+     *
+     * @return A copy of the series style.
      */
     public ChartStyle getStyle() {
-        return style;
+        return style.copy();
+    }
+
+    /**
+     * Sets the series style.
+     *
+     * The provided style is copied, so subsequent changes to the input
+     * object do not affect the series.
+     *
+     * @param style The series style.
+     */
+    public void setStyle(ChartStyle style) {
+        this.style.copyFrom(style);
     }
 
     /**

@@ -178,4 +178,17 @@ public class ChartTextProperties {
                 || fontFamily != null
                 || color != null;
     }
+
+    void copyFrom(ChartTextProperties other) {
+        if (other == null) {
+            throw new IllegalArgumentException("ChartTextProperties cannot be null");
+        }
+        fontSizePt = other.fontSizePt;
+        fontSizeAsianPt = other.fontSizeAsianPt;
+        fontSizeComplexPt = other.fontSizeComplexPt;
+        fontWeight = other.fontWeight;
+        fontStyle = other.fontStyle;
+        fontFamily = other.fontFamily;
+        color = other.color;
+    }
 }

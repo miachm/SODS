@@ -1,5 +1,6 @@
 import com.github.miachm.sods.Chart;
 import com.github.miachm.sods.ChartSeries;
+import com.github.miachm.sods.ChartStyle;
 import com.github.miachm.sods.Color;
 import com.github.miachm.sods.Sheet;
 import com.github.miachm.sods.SpreadSheet;
@@ -44,34 +45,49 @@ public class LineChart {
             chart.setYAxisLabel("Avg Temp (C)");
             chart.setCategoriesRangeAddress("Sheet1.A2:Sheet1.A13");
 
-            chart.getStyle().getGraphicProperties().setStroke("none");
-            chart.getPlotAreaStyle().getChartProperties().setAutoSize(true);
-            chart.getXAxis().getStyle().getChartProperties().setDisplayLabel(true);
-            chart.getYAxis().getStyle().getChartProperties().setDisplayLabel(true);
-            chart.getYAxis().getStyle().getGraphicProperties().setStrokeColor(new Color("#b3b3b3"));
+            ChartStyle chartStyle = chart.getStyle();
+            chartStyle.getGraphicProperties().setStroke("none");
+            chart.setStyle(chartStyle);
+
+            ChartStyle plotAreaStyle = chart.getPlotAreaStyle();
+            plotAreaStyle.getChartProperties().setAutoSize(true);
+            chart.setPlotAreaStyle(plotAreaStyle);
+
+            ChartStyle xAxisStyle = chart.getXAxis().getStyle();
+            xAxisStyle.getChartProperties().setDisplayLabel(true);
+            chart.getXAxis().setStyle(xAxisStyle);
+
+            ChartStyle yAxisStyle = chart.getYAxis().getStyle();
+            yAxisStyle.getChartProperties().setDisplayLabel(true);
+            yAxisStyle.getGraphicProperties().setStrokeColor(new Color("#b3b3b3"));
+            chart.getYAxis().setStyle(yAxisStyle);
 
             ChartSeries series2024 = new ChartSeries();
             series2024.setValuesRangeAddress("Sheet1.B2:Sheet1.B13");
             series2024.setLabelRangeAddress("Sheet1.B1:Sheet1.B1");
-            series2024.getStyle().getGraphicProperties().setStrokeColor(new Color("#004586"));
-            series2024.getStyle().getGraphicProperties().setFillColor(new Color("#004586"));
-            series2024.getStyle().getGraphicProperties().setStrokeWidth("0.08cm");
-            series2024.getStyle().getChartProperties().setSymbolType("named-symbol");
-            series2024.getStyle().getChartProperties().setSymbolName("circle");
-            series2024.getStyle().getChartProperties().setSymbolWidth("0.25cm");
-            series2024.getStyle().getChartProperties().setSymbolHeight("0.25cm");
+            ChartStyle series2024Style = series2024.getStyle();
+            series2024Style.getGraphicProperties().setStrokeColor(new Color("#004586"));
+            series2024Style.getGraphicProperties().setFillColor(new Color("#004586"));
+            series2024Style.getGraphicProperties().setStrokeWidth("0.08cm");
+            series2024Style.getChartProperties().setSymbolType("named-symbol");
+            series2024Style.getChartProperties().setSymbolName("circle");
+            series2024Style.getChartProperties().setSymbolWidth("0.25cm");
+            series2024Style.getChartProperties().setSymbolHeight("0.25cm");
+            series2024.setStyle(series2024Style);
             chart.addSeries(series2024);
 
             ChartSeries series2025 = new ChartSeries();
             series2025.setValuesRangeAddress("Sheet1.C2:Sheet1.C13");
             series2025.setLabelRangeAddress("Sheet1.C1:Sheet1.C1");
-            series2025.getStyle().getGraphicProperties().setStrokeColor(new Color("#ff7c43"));
-            series2025.getStyle().getGraphicProperties().setFillColor(new Color("#ff7c43"));
-            series2025.getStyle().getGraphicProperties().setStrokeWidth("0.08cm");
-            series2025.getStyle().getChartProperties().setSymbolType("named-symbol");
-            series2025.getStyle().getChartProperties().setSymbolName("square");
-            series2025.getStyle().getChartProperties().setSymbolWidth("0.25cm");
-            series2025.getStyle().getChartProperties().setSymbolHeight("0.25cm");
+            ChartStyle series2025Style = series2025.getStyle();
+            series2025Style.getGraphicProperties().setStrokeColor(new Color("#ff7c43"));
+            series2025Style.getGraphicProperties().setFillColor(new Color("#ff7c43"));
+            series2025Style.getGraphicProperties().setStrokeWidth("0.08cm");
+            series2025Style.getChartProperties().setSymbolType("named-symbol");
+            series2025Style.getChartProperties().setSymbolName("square");
+            series2025Style.getChartProperties().setSymbolWidth("0.25cm");
+            series2025Style.getChartProperties().setSymbolHeight("0.25cm");
+            series2025.setStyle(series2025Style);
             chart.addSeries(series2025);
 
             sheet.addChart(chart);
