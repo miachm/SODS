@@ -353,7 +353,26 @@ public final class Style implements Cloneable {
     }
 
     public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+        Style copy = (Style) super.clone();
+        if (borders != null) {
+            copy.borders = (Borders) borders.clone();
+        }
+        if (conditionalFormats != null) {
+            List<ConditionalFormat> clonedFormats = new ArrayList<>(conditionalFormats.size());
+            for (ConditionalFormat format : conditionalFormats) {
+                if (format == null) {
+                    clonedFormats.add(null);
+                    continue;
+                }
+                Style applied = format.getStyleApplied();
+                Style appliedCopy = applied == null ? null : (Style) applied.clone();
+                clonedFormats.add(new ConditionalFormat(appliedCopy, format.getRawCondition()));
+            }
+            copy.conditionalFormats = clonedFormats;
+        } else {
+            copy.conditionalFormats = new ArrayList<>();
+        }
+        return copy;
     }
 
     @Override

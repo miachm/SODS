@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * This a class which represents the nature of the borders of a cell.
  */
-public class Borders {
+public class Borders implements Cloneable {
 
     private boolean border = false;
     
@@ -399,6 +399,11 @@ public class Borders {
 		}
 		
 		return true;
+	}
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
 	}
 	
 	

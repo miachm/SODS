@@ -9,7 +9,13 @@ import java.util.function.Supplier;
 /**
  * Represents a sheet in a Spreadsheet.
  *
- * You can create empty sheets and add to an existing Spreadsheet
+ * You can create empty sheets and add to an existing Spreadsheet. Sheets can
+ * also host charts and images that reference their cell ranges. Charts are
+ * stored with range addresses that point back to this sheet, while images are
+ * anchored to a specific cell with size and offset information.
+ *
+ * @see Chart
+ * @see SheetImage
  */
 public class Sheet implements Cloneable,Comparable<Sheet> {
 
@@ -21,6 +27,11 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     private boolean isHidden = false;
     private String hashed_password = null;
     private String hash_algorithm = null;
+    private final List<Chart> charts = new ArrayList<>();
+    private final List<SheetImage> images = new ArrayList<>();
+
+    private static final double DEFAULT_COLUMN_WIDTH_MM = 22.58;
+    private static final double DEFAULT_ROW_HEIGHT_MM = 4.52;
 
     /**
      * Create an empty sheet with a given name.
@@ -378,6 +389,137 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Return all the charts associated with this sheet.
+     *
+     * The list contains chart metadata that references ranges within this
+     * sheet. The returned list is unmodifiable.
+     *
+     * @return An unmodifiable charts list.
+     * @see Chart
+     */
+    public List<Chart> getCharts() {
+        return Collections.unmodifiableList(charts);
+    }
+
+    /**
+     * Adds a chart associated with this sheet.
+     *
+     * The chart will be linked to this sheet so its range addresses can be
+     * resolved during serialization.
+     *
+     * @param chart The chart to add.
+     * @see Chart
+     */
+    public void addChart(Chart chart) {
+        if (chart == null) {
+            throw new NullPointerException("Chart can not be null");
+        }
+        chart.setSheet(this);
+        charts.add(chart);
+    }
+
+    /**
+     * Return all the images associated with this sheet.
+     *
+     * The returned list is unmodifiable and contains the images anchored
+     * to cells in this sheet.
+     *
+     * @return An unmodifiable images list.
+     * @see SheetImage
+     */
+    public List<SheetImage> getImages() {
+        return Collections.unmodifiableList(images);
+    }
+
+    /**
+     * Adds an image anchored to a range in this sheet.
+     *
+     * The image is anchored to the top-left cell of the range and its size
+     * is derived from the range dimensions. Offsets are initialized to 0cm.
+     *
+     * @param anchor The range used to position the image
+     * @param data The image bytes
+     * @param mimeType The image MIME type
+     * @return The created image instance
+     * @see SheetImage
+     */
+    public SheetImage addImage(Range anchor, byte[] data, String mimeType) {
+        if (anchor == null)
+            throw new NullPointerException("Anchor range cannot be null");
+        if (data == null)
+            throw new NullPointerException("Image data cannot be null");
+        if (mimeType == null)
+            throw new NullPointerException("Image mime type cannot be null");
+        if (anchor.getSheet() != this)
+            throw new IllegalArgumentException("Anchor range must belong to this sheet");
+
+        getCell(anchor.getRow(), anchor.getColumn());
+        SheetImage image = new SheetImage(data, mimeType);
+        image.setAnchorRow(anchor.getRow());
+        image.setAnchorColumn(anchor.getColumn());
+        image.setX("0cm");
+        image.setY("0cm");
+        image.setWidth(formatSize(sumColumnWidths(anchor.getColumn(), anchor.getNumColumns())));
+        image.setHeight(formatSize(sumRowHeights(anchor.getRow(), anchor.getNumRows())));
+        addImage(image);
+        return image;
+    }
+
+    /**
+     * Adds a preconfigured image to this sheet.
+     *
+     * The image may already have size, offsets, and anchor set. If the
+     * name is missing, a default name is assigned.
+     *
+     * @param image The image to add
+     * @see SheetImage
+     */
+    public void addImage(SheetImage image) {
+        if (image == null) {
+            throw new NullPointerException("Image cannot be null");
+        }
+        if (image.getName() == null) {
+            image.setName("Image " + (images.size() + 1));
+        }
+        images.add(image);
+    }
+
+    List<SheetImage> getImagesInternal() {
+        return images;
+    }
+
+    private String formatSize(double mm) {
+        double cm = mm / 10.0;
+        return String.format(java.util.Locale.US, "%.3fcm", cm);
+    }
+
+    private double sumColumnWidths(int start, int count) {
+        double total = 0.0;
+        for (int i = 0; i < count; i++) {
+            total += getColumnWidthOrDefault(start + i);
+        }
+        return total;
+    }
+
+    private double sumRowHeights(int start, int count) {
+        double total = 0.0;
+        for (int i = 0; i < count; i++) {
+            total += getRowHeightOrDefault(start + i);
+        }
+        return total;
+    }
+
+    private double getColumnWidthOrDefault(int column) {
+        Double width = getColumnWidth(column);
+        return width == null ? DEFAULT_COLUMN_WIDTH_MM : width;
+    }
+
+    private double getRowHeightOrDefault(int row) {
+        Double height = getRowHeight(row);
+        return height == null ? DEFAULT_ROW_HEIGHT_MM : height;
     }
 
     /**

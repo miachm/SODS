@@ -4,34 +4,42 @@ class SpreadsheetParser {
     private final StylesParser stylesParser;
     private final SpreadSheet spread;
     private final OdsOptionParameters options;
+    private final ChartObjectRegistry chartObjectRegistry;
+    private final ImageObjectRegistry imageObjectRegistry;
 
-    public SpreadsheetParser(StylesParser stylesParser, SpreadSheet spread, OdsOptionParameters options) {
+    public SpreadsheetParser(StylesParser stylesParser, SpreadSheet spread, OdsOptionParameters options,
+                              ChartObjectRegistry chartObjectRegistry,
+                              ImageObjectRegistry imageObjectRegistry) {
         this.stylesParser = stylesParser;
         this.spread = spread;
         this.options = options;
+        this.chartObjectRegistry = chartObjectRegistry;
+        this.imageObjectRegistry = imageObjectRegistry;
     }
 
     public void parseContent(XmlReaderInstance bodyInstance) {
-        if (bodyInstance == null) return;
-        XmlReaderInstance spreadsheetInstance = bodyInstance.nextElement("office:spreadsheet");
-        if (spreadsheetInstance != null) {
-            int currentSheetIndex = 0;
-            while (spreadsheetInstance.hasNext()) {
-                XmlReaderInstance tableInstance = spreadsheetInstance.nextElement("table:table");
-                if (tableInstance != null) {
-                    boolean shouldLoadSheet = options.getSheetNumbers() == null || 
-                                            options.getSheetNumbers().contains(currentSheetIndex);
-                    
-                    if (shouldLoadSheet) {
-                        String name = tableInstance.getAttribValue("table:name");
-                        Sheet sheet = new Sheet(name, 0, 0);
-                        SheetParser sheetParser = new SheetParser(sheet, stylesParser);
-                        sheetParser.parseSheet(tableInstance);
-                        spread.appendSheet(sheet);
-                    }
-                    currentSheetIndex++;
+        options.getLogger().fine("Parsing spreadsheet content");
+        int currentSheetIndex = 0;
+        while (bodyInstance.hasNext()) {
+            XmlReaderInstance tableInstance = bodyInstance.nextElement("table:table");
+            if (tableInstance != null) {
+                String name = tableInstance.getAttribValue("table:name");
+                boolean shouldLoadSheet = options.getSheetNumbers() == null ||
+                                        options.getSheetNumbers().contains(currentSheetIndex);
+
+                if (shouldLoadSheet) {
+                    options.getLogger().fine("Loading sheet " + currentSheetIndex + ": '" + name + "'");
+                    Sheet sheet = new Sheet(name, 0, 0);
+                    SheetParser sheetParser = new SheetParser(sheet, stylesParser, spread, options,
+                            chartObjectRegistry, imageObjectRegistry);
+                    sheetParser.parseSheet(tableInstance);
+                    spread.appendSheet(sheet);
+                } else {
+                    options.getLogger().fine("Skipping sheet " + currentSheetIndex + ": '" + name + "'");
                 }
+                currentSheetIndex++;
             }
         }
+        options.getLogger().fine("Parsed " + currentSheetIndex + " sheet(s)");
     }
 }

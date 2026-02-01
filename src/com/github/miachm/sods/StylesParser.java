@@ -2,14 +2,17 @@ package com.github.miachm.sods;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 class StylesParser {
+    private final OdsOptionParameters options;
     private Map<String, Style> cellStyles = new HashMap<>();
     private Map<String, ColumnStyle> columnStyles = new HashMap<>();
     private Map<String, RowStyle> rowStyles = new HashMap<>();
     private Map<String, TableStyle> tableStyles = new HashMap<>();
 
-    public StylesParser() {
+    public StylesParser(OdsOptionParameters options) {
+        this.options = options;
         cellStyles.put("Default", new Style());
     }
 
@@ -71,7 +74,7 @@ class StylesParser {
                         try {
                             style.setFontColor(new Color(fontcolor));
                         } catch (IllegalArgumentException e) {
-                            System.err.println(e.getMessage());
+                            logger().warning(e.getMessage());
                         }
                     }
 
@@ -82,7 +85,7 @@ class StylesParser {
                             int fontSize = (int) Math.round(Double.parseDouble(fontsize.substring(0, index)));
                             style.setFontSize(fontSize);
                         } catch (NumberFormatException e) {
-                            System.err.println("Error, invalid font size " + fontsize);
+                            logger().warning("Invalid font size: " + fontsize);
                         }
                     }
                     break;
@@ -93,7 +96,7 @@ class StylesParser {
                         try {
                             style.setBackgroundColor(new Color(backgroundColor));
                         } catch (IllegalArgumentException e) {
-                            System.err.println(e.getMessage());
+                            logger().warning(e.getMessage());
                         }
                     }
 
@@ -187,5 +190,9 @@ class StylesParser {
 
     public TableStyle getTableStyle(String name) {
         return tableStyles.get(name);
+    }
+
+    private Logger logger() {
+        return options == null ? Logger.getLogger("ODS_Reader") : options.getLogger();
     }
 }

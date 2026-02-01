@@ -2,13 +2,10 @@ package com.github.miachm.sods;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,8 +19,6 @@ import java.util.stream.Stream;
 public class SpreadSheet implements Cloneable {
 
     private final List<Sheet> sheets = new ArrayList<Sheet>();
-    private final Map<String, FileEntry> extraFiles = new HashMap<>();
-    private static final Set<String> reservedFiles = Stream.of("content.xml", "styles.xml", "META-INF/manifest.xml", "mimetype").collect(Collectors.toCollection(HashSet::new));
 
     /**
      * Create an empty spreadsheet
@@ -106,12 +101,16 @@ public class SpreadSheet implements Cloneable {
             throw new NullPointerException();
 
         sheets.add(pos,sheet);
+        SheetRegistry.register(this, sheet);
     }
 
     /**
      * Remove all sheets of the book. This only remove the link, the sheets objects are not modified in any way.
      */
     public void clear(){
+        for (Sheet sheet : sheets) {
+            SheetRegistry.unregister(sheet);
+        }
         sheets.clear();
     }
 
@@ -122,7 +121,10 @@ public class SpreadSheet implements Cloneable {
      * @throws IndexOutOfBoundsException if the index is out of range
      */
     public void deleteSheet(int pos) {
-        sheets.remove(pos);
+        Sheet removed = sheets.remove(pos);
+        if (removed != null) {
+            SheetRegistry.unregister(removed);
+        }
     }
 
     /**
@@ -133,7 +135,16 @@ public class SpreadSheet implements Cloneable {
      * @see #deleteSheet(Sheet)
      */
     public boolean deleteSheet(String name){
-        return sheets.removeIf((sheet) -> sheet.getName().equals(name));
+        boolean removed = false;
+        for (int i = sheets.size() - 1; i >= 0; i--) {
+            Sheet sheet = sheets.get(i);
+            if (sheet.getName().equals(name)) {
+                sheets.remove(i);
+                SheetRegistry.unregister(sheet);
+                removed = true;
+            }
+        }
+        return removed;
     }
 
     /**
@@ -143,7 +154,11 @@ public class SpreadSheet implements Cloneable {
      * @see #deleteSheet(String)
      */
     public boolean deleteSheet(Sheet sheet){
-        return sheets.remove(sheet);
+        boolean removed = sheets.remove(sheet);
+        if (removed) {
+            SheetRegistry.unregister(sheet);
+        }
+        return removed;
     }
 
     /**
@@ -203,7 +218,11 @@ public class SpreadSheet implements Cloneable {
     {
         if (sheet == null)
             throw new NullPointerException();
-        sheets.set(pos,sheet);
+        Sheet old = sheets.set(pos,sheet);
+        if (old != null) {
+            SheetRegistry.unregister(old);
+        }
+        SheetRegistry.register(this, sheet);
     }
 
     /**
@@ -227,49 +246,6 @@ public class SpreadSheet implements Cloneable {
      */
     public void save(OutputStream out) throws IOException {
         OdsWritter.save(out,this);
-    }
-    
-    Collection<FileEntry> getExtraFiles()
-    {
-        return extraFiles.values();
-    }
-    
-    /**
-     * This function allows you to add/edit additional files inside your Spreadsheet
-     * This is an advanced feature which could be useful if you intent to store
-     * macros inside the Spreadsheet file.This function will override existing files.
-     * 
-     * You can define folders using the '/' separator
-     * 
-     * There are some reserved paths that you can not use:
-     * - content.xml
-     * - styles.xml
-     * - mimetype
-     * - META-INF/manifest.xml
-     * 
-     * @param path: Location (inside the Spreadsheet) where the file should be placed
-     * @param mimetype: Type of the file
-     * @param data: The file content itself
-     * @return True if the file already existed, false if not
-     * @throws IllegalArgumentException The path belongs to a reserved file
-     */
-    public boolean setAdditionalFile(String path, String mimetype, byte[] data)
-    {
-        if (reservedFiles.contains(path)) {
-            throw new IllegalArgumentException("The file " + path + " is a reserved name");
-        }
-        return extraFiles.put(path, new FileEntry(path, mimetype, data)) != null;
-    }
-    
-    /**
-     * This function allows you to remove files that you have added to the Spreadsheet
-     * 
-     * @param path: Location (inside the Spreadsheet) where the file is placed
-     * @throws NullPointerException if the string is null
-     */
-    public void removeAdditionalFile(String path)
-    {
-        extraFiles.remove(path);
     }
 
     /**

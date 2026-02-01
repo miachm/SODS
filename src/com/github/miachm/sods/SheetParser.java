@@ -8,13 +8,22 @@ class SheetParser {
     private static final int BUGGED_COUNT = 10 * 1000;
     private final Sheet sheet;
     private final StylesParser stylesParser;
+    private final SpreadSheet spread;
+    private final OdsOptionParameters options;
+    private final ChartObjectRegistry chartObjectRegistry;
+    private final ImageObjectRegistry imageObjectRegistry;
     private final Map<Integer, Style> columnDefaultStyles = new HashMap<>();
     private final Map<Integer, Style> rowDefaultStyles = new HashMap<>();
     private final Set<Pair<Vector, Vector>> groupCells = new HashSet<>();
 
-    public SheetParser(Sheet sheet, StylesParser stylesParser) {
+    public SheetParser(Sheet sheet, StylesParser stylesParser, SpreadSheet spread, OdsOptionParameters options,
+                       ChartObjectRegistry chartObjectRegistry, ImageObjectRegistry imageObjectRegistry) {
         this.sheet = sheet;
         this.stylesParser = stylesParser;
+        this.spread = spread;
+        this.options = options;
+        this.chartObjectRegistry = chartObjectRegistry;
+        this.imageObjectRegistry = imageObjectRegistry;
     }
 
     public void parseSheet(XmlReaderInstance reader) {
@@ -33,7 +42,7 @@ class SheetParser {
         groupCells.clear();
 
         while (reader.hasNext()) {
-            XmlReaderInstance instance = reader.nextElement("table:table-column", "table:table-row");
+            XmlReaderInstance instance = reader.nextElement("table:table-column", "table:table-row", "draw:frame");
             if (instance == null) break;
 
             String styleName = instance.getAttribValue("table:default-cell-style-name");
@@ -41,6 +50,8 @@ class SheetParser {
 
             if (instance.getTag().equals("table:table-column")) {
                 parseColumnProperties(instance, style);
+            } else if (instance.getTag().equals("draw:frame")) {
+                parseDrawFrame(instance, null, null);
             } else if (instance.getTag().equals("table:table-row")) {
                 if (style != null) rowDefaultStyles.put(rowCount, style);
 
@@ -110,6 +121,100 @@ class SheetParser {
         }
     }
 
+    private void parseDrawFrame(XmlReaderInstance frameInstance, Integer anchorRow, Integer anchorColumn) {
+        if (frameInstance == null || spread == null) return;
+        ChartObjectRegistry.ChartFrame frame = buildChartFrame(frameInstance);
+        String frameName = frameInstance.getAttribValue("draw:name");
+        while (frameInstance.hasNext()) {
+            XmlReaderInstance child = frameInstance.nextElement("draw:object", "draw:object-ole", "draw:image");
+            if (child == null) break;
+            if ("draw:image".equals(child.getTag())) {
+                if (options != null && !options.isLoadImages()) {
+                    continue;
+                }
+                String href = child.getAttribValue("xlink:href");
+                String mimeType = child.getAttribValue("draw:mime-type");
+                String imagePath = normalizeObjectPath(href);
+                if (imagePath == null) {
+                    options.getLogger().warning("ImagePath is null. Checking if the image is inline");
+                    if (hasInlineBinaryData(child)) {
+                        options.getLogger().warning("Skipping inline image with office:binary-data (unsupported).");
+                    }
+                    continue;
+                }
+                if (imagePath != null) {
+                    if (anchorRow != null && anchorColumn != null) {
+                        sheet.getCell(anchorRow, anchorColumn);
+                    }
+                    SheetImage image = new SheetImage(imagePath, mimeType, null);
+                    image.setName(frameName);
+                    if (frame != null) {
+                        image.setX(frame.x);
+                        image.setY(frame.y);
+                        image.setWidth(frame.width);
+                        image.setHeight(frame.height);
+                    }
+                    image.setAnchorRow(anchorRow);
+                    image.setAnchorColumn(anchorColumn);
+                    if (imageObjectRegistry != null) {
+                        imageObjectRegistry.registerImagePath(imagePath, image);
+                    }
+                    sheet.addImage(image);
+                }
+            } else {
+                if (options != null && !options.isLoadGraphs()) {
+                    continue;
+                }
+                String href = child.getAttribValue("xlink:href");
+                if (href != null) {
+                    String objectPath = normalizeObjectPath(href);
+                    if (objectPath != null) {
+                        chartObjectRegistry.registerChartObject(objectPath, sheet, frame);
+                    }
+                }
+            }
+        }
+    }
+
+    private ChartObjectRegistry.ChartFrame buildChartFrame(XmlReaderInstance frameInstance) {
+        if (frameInstance == null) return null;
+        String x = frameInstance.getAttribValue("svg:x");
+        String y = frameInstance.getAttribValue("svg:y");
+        String width = frameInstance.getAttribValue("svg:width");
+        String height = frameInstance.getAttribValue("svg:height");
+        if (isBlank(x) && isBlank(y) && isBlank(width) && isBlank(height)) {
+            return null;
+        }
+        return new ChartObjectRegistry.ChartFrame(x, y, width, height);
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    private String normalizeObjectPath(String href) {
+        if (href == null) return null;
+        String trimmed = href.trim();
+        if (trimmed.isEmpty()) return null;
+        if (trimmed.startsWith("./")) {
+            trimmed = trimmed.substring(2);
+        }
+        if (trimmed.endsWith("/")) {
+            trimmed = trimmed.substring(0, trimmed.length() - 1);
+        }
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private boolean hasInlineBinaryData(XmlReaderInstance imageInstance) {
+        if (imageInstance == null) return false;
+        while (imageInstance.hasNext()) {
+            XmlReaderInstance binary = imageInstance.nextElement("office:binary-data");
+            if (binary == null) break;
+            return true;
+        }
+        return false;
+    }
+
     private void processCells(XmlReaderInstance reader, int numberRowsRepeated) {
         int column = 0;
         while (reader.hasNext()) {
@@ -166,19 +271,23 @@ class SheetParser {
             if (style == null) style = rowDefaultStyles.get(sheet.getMaxRows() - 1);
             if (style != null && !style.isDefault()) range.setStyle(style);
 
-            readCellText(instance, range);
+            readCellContent(instance, range, positionX, positionY);
             column += numberColumnsRepeated;
         }
     }
 
-    private void readCellText(XmlReaderInstance cellReader, Range range) {
+    private void readCellContent(XmlReaderInstance cellReader, Range range, int row, int column) {
         StringBuffer s = new StringBuffer();
         boolean firstTextElement = true;
 
         XmlReaderInstance textElement;
-        while ((textElement = cellReader.nextElement("text:p", "text:h", "office:annotation")) != null) {
+        while ((textElement = cellReader.nextElement("text:p", "text:h", "office:annotation", "draw:frame")) != null) {
             if (textElement.getTag().equals("office:annotation")) {
                 range.setAnnotation(getOfficeAnnotation(textElement));
+                continue;
+            }
+            if (textElement.getTag().equals("draw:frame")) {
+                parseDrawFrame(textElement, row, column);
                 continue;
             }
 
@@ -186,13 +295,15 @@ class SheetParser {
             else s.append("\n");
 
             XmlReaderInstance spanElement;
-            while ((spanElement = textElement.nextElement("text:s", "text:tab", XmlReaderInstance.CHARACTERS)) != null) {
+            while ((spanElement = textElement.nextElement("text:s", "text:tab", "text:line-break", XmlReaderInstance.CHARACTERS)) != null) {
                 if (spanElement.getTag().equals("text:s")) {
                     int num = tryParseTextCAttribute(spanElement);
                     while (num-- > 0) s.append(" ");
                 } else if (spanElement.getTag().equals("text:tab")) {
                     int num = tryParseTextCAttribute(spanElement);
                     while (num-- > 0) s.append("\t");
+                } else if (spanElement.getTag().equals("text:line-break")) {
+                    s.append("\n");
                 }
 
                 String spanContent = spanElement.getContent();
@@ -221,7 +332,7 @@ class SheetParser {
                     try {
                         if (content != null) annotation.setLastModified(LocalDateTime.parse(content));
                     } catch (DateTimeParseException e) {
-                        System.err.println("DATE INVALID IN OFFICE ANNOTATION");
+                        logger().warning("Invalid date in office annotation.");
                     }
                 }
             } else if (instance.getTag().equals("text:p")) {
@@ -242,9 +353,13 @@ class SheetParser {
             try {
                 num = Integer.parseInt(attrib);
             } catch (NumberFormatException e) {
-                System.err.println("Invalid number of characters: " + attrib);
+                logger().warning("Invalid number of characters: " + attrib);
             }
         }
         return num;
+    }
+
+    private java.util.logging.Logger logger() {
+        return options == null ? java.util.logging.Logger.getLogger("ODS_Reader") : options.getLogger();
     }
 }
