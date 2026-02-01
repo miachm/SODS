@@ -410,14 +410,15 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * The chart will be linked to this sheet so its range addresses can be
      * resolved during serialization.
      *
-     * @param chart The chart to add. If null, it is ignored.
+     * @param chart The chart to add.
      * @see Chart
      */
     public void addChart(Chart chart) {
-        if (chart != null) {
-            chart.setSheet(this);
-            charts.add(chart);
+        if (chart == null) {
+            throw new NullPointerException("Chart can not be null");
         }
+        chart.setSheet(this);
+        charts.add(chart);
     }
 
     /**
@@ -477,7 +478,9 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
      * @see SheetImage
      */
     public void addImage(SheetImage image) {
-        if (image == null) return;
+        if (image == null) {
+            throw new NullPointerException("Image cannot be null");
+        }
         if (image.getName() == null) {
             image.setName("Image " + (images.size() + 1));
         }

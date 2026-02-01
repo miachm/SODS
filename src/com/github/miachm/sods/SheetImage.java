@@ -26,8 +26,8 @@ public class SheetImage {
      * The image data is copied on access and stored as-is for serialization
      * into the ODS package.
      *
-     * @param data The image bytes.
-     * @param mimeType The image MIME type.
+     * @param data The raw image bytes.
+     * @param mimeType The image MIME type (image/png for example).
      */
     public SheetImage(byte[] data, String mimeType) {
         this.data = data;
