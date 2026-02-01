@@ -17,14 +17,17 @@ class OdsReader {
     private final SpreadsheetParser spreadsheetParser;
     private final OdsOptionParameters options;
     private final ChartObjectRegistry chartObjectRegistry;
+    private final ImageObjectRegistry imageObjectRegistry;
 
     private OdsReader(InputStream in, SpreadSheet spread, OdsOptionParameters options) {
         this.spread = spread;
         this.uncompressor = new Uncompressor(in);
         this.options = options;
         this.chartObjectRegistry = new ChartObjectRegistry();
+        this.imageObjectRegistry = new ImageObjectRegistry();
         this.stylesParser = new StylesParser(options);
-        this.spreadsheetParser = new SpreadsheetParser(stylesParser, spread, options, chartObjectRegistry);
+        this.spreadsheetParser = new SpreadsheetParser(stylesParser, spread, options, chartObjectRegistry,
+                imageObjectRegistry);
         this.chartParser = new ChartParser(stylesParser, spread, options, chartObjectRegistry);
     }
 
@@ -33,8 +36,10 @@ class OdsReader {
         this.uncompressor = new Uncompressor(file);
         this.options = options;
         this.chartObjectRegistry = new ChartObjectRegistry();
+        this.imageObjectRegistry = new ImageObjectRegistry();
         this.stylesParser = new StylesParser(options);
-        this.spreadsheetParser = new SpreadsheetParser(stylesParser, spread, options, chartObjectRegistry);
+        this.spreadsheetParser = new SpreadsheetParser(stylesParser, spread, options, chartObjectRegistry,
+                imageObjectRegistry);
         this.chartParser = new ChartParser(stylesParser, spread, options, chartObjectRegistry);
     }
 
@@ -75,7 +80,7 @@ class OdsReader {
                 if (options.isLoadImages()) {
                     byte[] data = readEntryData(uncompressor.getInputStream());
                     if (data != null) {
-                        spread.registerFile(entry, guessImageMimeType(entry), data);
+                        imageObjectRegistry.registerFile(entry, guessImageMimeType(entry), data);
                     }
                 }
             }

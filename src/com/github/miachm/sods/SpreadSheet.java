@@ -2,14 +2,10 @@ package com.github.miachm.sods;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,9 +19,7 @@ import java.util.stream.Stream;
 public class SpreadSheet implements Cloneable {
 
     private final List<Sheet> sheets = new ArrayList<Sheet>();
-    private final Map<String, FileEntry> extraFiles = new HashMap<>();
-    private final Map<String, List<SheetImage>> pendingImages = new HashMap<>();
-    private int imageCounter = 1;
+    // No image registry at model level; handled by IO layer.
 
     /**
      * Create an empty spreadsheet
@@ -108,15 +102,17 @@ public class SpreadSheet implements Cloneable {
             throw new NullPointerException();
 
         sheets.add(pos,sheet);
-        sheet.setParent(this);
+        SheetRegistry.register(this, sheet);
     }
 
     /**
      * Remove all sheets of the book. This only remove the link, the sheets objects are not modified in any way.
      */
     public void clear(){
+        for (Sheet sheet : sheets) {
+            SheetRegistry.unregister(sheet);
+        }
         sheets.clear();
-        pendingImages.clear();
     }
 
     /**
@@ -126,7 +122,10 @@ public class SpreadSheet implements Cloneable {
      * @throws IndexOutOfBoundsException if the index is out of range
      */
     public void deleteSheet(int pos) {
-        sheets.remove(pos);
+        Sheet removed = sheets.remove(pos);
+        if (removed != null) {
+            SheetRegistry.unregister(removed);
+        }
     }
 
     /**
@@ -137,7 +136,16 @@ public class SpreadSheet implements Cloneable {
      * @see #deleteSheet(Sheet)
      */
     public boolean deleteSheet(String name){
-        return sheets.removeIf((sheet) -> sheet.getName().equals(name));
+        boolean removed = false;
+        for (int i = sheets.size() - 1; i >= 0; i--) {
+            Sheet sheet = sheets.get(i);
+            if (sheet.getName().equals(name)) {
+                sheets.remove(i);
+                SheetRegistry.unregister(sheet);
+                removed = true;
+            }
+        }
+        return removed;
     }
 
     /**
@@ -147,7 +155,11 @@ public class SpreadSheet implements Cloneable {
      * @see #deleteSheet(String)
      */
     public boolean deleteSheet(Sheet sheet){
-        return sheets.remove(sheet);
+        boolean removed = sheets.remove(sheet);
+        if (removed) {
+            SheetRegistry.unregister(sheet);
+        }
+        return removed;
     }
 
     /**
@@ -158,105 +170,6 @@ public class SpreadSheet implements Cloneable {
     public List<Sheet> getSheets()
     {
         return Collections.unmodifiableList(sheets);
-    }
-
-    Collection<FileEntry> getExtraFiles() {
-        return extraFiles.values();
-    }
-
-    FileEntry getExtraFile(String path) {
-        return extraFiles.get(path);
-    }
-
-    void registerFile(String path, String mimeType, byte[] data) {
-        if (path == null || data == null) {
-            return;
-        }
-        extraFiles.put(path, new FileEntry(path, mimeType, data));
-        List<SheetImage> pending = pendingImages.remove(path);
-        if (pending != null) {
-            for (SheetImage image : pending) {
-                if (image == null) continue;
-                image.setData(data);
-                if (image.getMimeType() == null) {
-                    image.setMimeType(mimeType);
-                }
-                if (image.getPath() == null) {
-                    image.setPath(path);
-                }
-            }
-        }
-    }
-
-    void registerImagePath(String path, SheetImage image) {
-        if (path == null || image == null) {
-            return;
-        }
-        FileEntry entry = extraFiles.get(path);
-        if (entry != null) {
-            image.setData(entry.data);
-            if (image.getMimeType() == null) {
-                image.setMimeType(entry.mimetype);
-            }
-            if (image.getPath() == null) {
-                image.setPath(path);
-            }
-            return;
-        }
-        List<SheetImage> list = pendingImages.computeIfAbsent(path, key -> new ArrayList<>());
-        if (!list.contains(image)) {
-            list.add(image);
-        }
-    }
-
-    void registerImage(SheetImage image) {
-        if (image == null) {
-            return;
-        }
-        String path = image.getPath();
-        if (path == null || path.trim().isEmpty()) {
-            String extension = extensionForMime(image.getMimeType());
-            path = buildImagePath(extension);
-            image.setPath(path);
-        }
-        if (image.getMimeType() == null) {
-            image.setMimeType(mimeTypeForExtension(path));
-        }
-        byte[] data = image.getDataInternal();
-        if (data != null) {
-            extraFiles.put(path, new FileEntry(path, image.getMimeType(), data));
-        }
-    }
-
-    private String buildImagePath(String extension) {
-        String ext = (extension == null || extension.isEmpty()) ? "png" : extension;
-        String path;
-        do {
-            path = "Pictures/Image" + imageCounter++ + "." + ext;
-        } while (extraFiles.containsKey(path));
-        return path;
-    }
-
-    private String extensionForMime(String mimeType) {
-        if (mimeType == null) return "png";
-        String normalized = mimeType.toLowerCase(Locale.US);
-        if (normalized.contains("png")) return "png";
-        if (normalized.contains("jpeg") || normalized.contains("jpg")) return "jpg";
-        if (normalized.contains("gif")) return "gif";
-        if (normalized.contains("bmp")) return "bmp";
-        if (normalized.contains("svg")) return "svg";
-        return "png";
-    }
-
-    private String mimeTypeForExtension(String path) {
-        if (path == null) return null;
-        String lower = path.toLowerCase(Locale.US);
-        if (lower.endsWith(".png")) return "image/png";
-        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
-        if (lower.endsWith(".gif")) return "image/gif";
-        if (lower.endsWith(".bmp")) return "image/bmp";
-        if (lower.endsWith(".svg")) return "image/svg+xml";
-        return null;
     }
 
     /**
@@ -306,8 +219,11 @@ public class SpreadSheet implements Cloneable {
     {
         if (sheet == null)
             throw new NullPointerException();
-        sheets.set(pos,sheet);
-        sheet.setParent(this);
+        Sheet old = sheets.set(pos,sheet);
+        if (old != null) {
+            SheetRegistry.unregister(old);
+        }
+        SheetRegistry.register(this, sheet);
     }
 
     /**

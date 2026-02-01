@@ -141,7 +141,6 @@ class SheetWriter {
         int zIndex = startZIndex;
         for (SheetImage image : images) {
             if (image == null) continue;
-            spread.registerImage(image);
             String path = image.getPath();
             if (path == null) continue;
             out.writeStartElement(DRAW, "frame");
@@ -323,7 +322,6 @@ class SheetWriter {
         }
         for (SheetImage image : images) {
             if (image == null) continue;
-            spread.registerImage(image);
             String path = image.getPath();
             if (path == null) continue;
             out.writeStartElement(DRAW, "frame");

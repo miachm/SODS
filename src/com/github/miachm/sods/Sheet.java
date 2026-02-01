@@ -23,7 +23,6 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     private String hash_algorithm = null;
     private final List<Chart> charts = new ArrayList<>();
     private final List<SheetImage> images = new ArrayList<>();
-    private SpreadSheet parent;
 
     private static final double DEFAULT_COLUMN_WIDTH_MM = 22.58;
     private static final double DEFAULT_ROW_HEIGHT_MM = 4.52;
@@ -457,26 +456,6 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
             image.setName("Image " + (images.size() + 1));
         }
         images.add(image);
-        if (parent != null) {
-            parent.registerImage(image);
-        }
-    }
-
-    void setParent(SpreadSheet parent) {
-        this.parent = parent;
-        if (parent == null) return;
-        for (SheetImage image : images) {
-            if (image == null) continue;
-            if (image.getPath() != null && image.getDataInternal() == null) {
-                parent.registerImagePath(image.getPath(), image);
-            } else {
-                parent.registerImage(image);
-            }
-        }
-    }
-
-    SpreadSheet getParent() {
-        return parent;
     }
 
     List<SheetImage> getImagesInternal() {

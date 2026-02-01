@@ -21,6 +21,7 @@ class OdsWritter {
     private final StyleWriter styleWriter;
     private final ChartWriter chartWriter;
     private final SheetWriter sheetWriter;
+    private final ImageObjectRegistry imageObjectRegistry;
     private final String MIMETYPE= "application/vnd.oasis.opendocument.spreadsheet";
 
     private OdsWritter(OutputStream o, SpreadSheet spread) {
@@ -30,6 +31,7 @@ class OdsWritter {
         this.styleWriter = new StyleWriter(spread);
         this.chartWriter = new ChartWriter(spread);
         this.sheetWriter = new SheetWriter(spread, styleWriter, chartWriter);
+        this.imageObjectRegistry = new ImageObjectRegistry();
     }
 
     public static void save(OutputStream out, SpreadSheet spread) throws IOException {
@@ -136,20 +138,20 @@ class OdsWritter {
     }
 
     private void writeExtraFiles() throws IOException {
-        for (FileEntry entry : spread.getExtraFiles())
+        for (FileEntry entry : imageObjectRegistry.getFiles())
             this.out.addEntry(entry.data, entry.path);
     }
 
     private void prepareImages() {
         for (Sheet sheet : spread.getSheets()) {
             for (SheetImage image : sheet.getImages()) {
-                spread.registerImage(image);
+                imageObjectRegistry.registerImage(image);
             }
         }
     }
 
     private void appendExtraFileEntries(XMLStreamWriter out) throws XMLStreamException {
-        for (FileEntry entry : spread.getExtraFiles()) {
+        for (FileEntry entry : imageObjectRegistry.getFiles()) {
             if (entry == null || entry.path == null) continue;
             out.writeStartElement(MANIFEST, "file-entry");
             out.writeAttribute(MANIFEST, "full-path", entry.path);

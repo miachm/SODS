@@ -11,17 +11,19 @@ class SheetParser {
     private final SpreadSheet spread;
     private final OdsOptionParameters options;
     private final ChartObjectRegistry chartObjectRegistry;
+    private final ImageObjectRegistry imageObjectRegistry;
     private final Map<Integer, Style> columnDefaultStyles = new HashMap<>();
     private final Map<Integer, Style> rowDefaultStyles = new HashMap<>();
     private final Set<Pair<Vector, Vector>> groupCells = new HashSet<>();
 
     public SheetParser(Sheet sheet, StylesParser stylesParser, SpreadSheet spread, OdsOptionParameters options,
-                       ChartObjectRegistry chartObjectRegistry) {
+                       ChartObjectRegistry chartObjectRegistry, ImageObjectRegistry imageObjectRegistry) {
         this.sheet = sheet;
         this.stylesParser = stylesParser;
         this.spread = spread;
         this.options = options;
         this.chartObjectRegistry = chartObjectRegistry;
+        this.imageObjectRegistry = imageObjectRegistry;
     }
 
     public void parseSheet(XmlReaderInstance reader) {
@@ -154,6 +156,9 @@ class SheetParser {
                     }
                     image.setAnchorRow(anchorRow);
                     image.setAnchorColumn(anchorColumn);
+                    if (imageObjectRegistry != null) {
+                        imageObjectRegistry.registerImagePath(imagePath, image);
+                    }
                     sheet.addImage(image);
                 }
             } else {
