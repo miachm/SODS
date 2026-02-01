@@ -31,9 +31,10 @@ jobs:
 
       - name: Update docs folder
         run: |
-          rm -rf docs
+          git rm -r docs || true
           mkdir -p docs
           cp -R target/reports/apidocs/. docs/
+          touch docs/.nojekyll
 
       - name: Commit and push if changed
         run: |
