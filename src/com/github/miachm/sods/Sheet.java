@@ -9,7 +9,13 @@ import java.util.function.Supplier;
 /**
  * Represents a sheet in a Spreadsheet.
  *
- * You can create empty sheets and add to an existing Spreadsheet
+ * You can create empty sheets and add to an existing Spreadsheet. Sheets can
+ * also host charts and images that reference their cell ranges. Charts are
+ * stored with range addresses that point back to this sheet, while images are
+ * anchored to a specific cell with size and offset information.
+ *
+ * @see Chart
+ * @see SheetImage
  */
 public class Sheet implements Cloneable,Comparable<Sheet> {
 
@@ -388,7 +394,11 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     /**
      * Return all the charts associated with this sheet.
      *
+     * The list contains chart metadata that references ranges within this
+     * sheet. The returned list is unmodifiable.
+     *
      * @return An unmodifiable charts list.
+     * @see Chart
      */
     public List<Chart> getCharts() {
         return Collections.unmodifiableList(charts);
@@ -397,7 +407,11 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     /**
      * Adds a chart associated with this sheet.
      *
+     * The chart will be linked to this sheet so its range addresses can be
+     * resolved during serialization.
+     *
      * @param chart The chart to add. If null, it is ignored.
+     * @see Chart
      */
     public void addChart(Chart chart) {
         if (chart != null) {
@@ -409,7 +423,11 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     /**
      * Return all the images associated with this sheet.
      *
+     * The returned list is unmodifiable and contains the images anchored
+     * to cells in this sheet.
+     *
      * @return An unmodifiable images list.
+     * @see SheetImage
      */
     public List<SheetImage> getImages() {
         return Collections.unmodifiableList(images);
@@ -418,10 +436,14 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     /**
      * Adds an image anchored to a range in this sheet.
      *
+     * The image is anchored to the top-left cell of the range and its size
+     * is derived from the range dimensions. Offsets are initialized to 0cm.
+     *
      * @param anchor The range used to position the image
      * @param data The image bytes
      * @param mimeType The image MIME type
      * @return The created image instance
+     * @see SheetImage
      */
     public SheetImage addImage(Range anchor, byte[] data, String mimeType) {
         if (anchor == null)
@@ -448,7 +470,11 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     /**
      * Adds a preconfigured image to this sheet.
      *
+     * The image may already have size, offsets, and anchor set. If the
+     * name is missing, a default name is assigned.
+     *
      * @param image The image to add
+     * @see SheetImage
      */
     public void addImage(SheetImage image) {
         if (image == null) return;
