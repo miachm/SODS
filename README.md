@@ -5,8 +5,7 @@
 [![Javadoc](https://img.shields.io/badge/JavaDoc-Online-green)](https://miachm.github.io/SODS/)
 [![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)
 
-
-A simple library for process ODS files in Java. It allows read/write ODS files.
+A simple Java library for reading and writing ODS (OpenDocument Spreadsheet) files. It supports parsing spreadsheets, editing cells and sheets, applying formatting, images, charts and saving the updated ODS documents back.
 
 ## Install
 
