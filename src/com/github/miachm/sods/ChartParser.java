@@ -20,13 +20,9 @@ class ChartParser {
             String type = instance.getAttribValue("chart:type");
             if (type == null) type = instance.getAttribValue("chart:class");
             if (type != null) {
-                if ("bar".equals(type) || "chart:bar".equals(type)) {
-                    Chart chart = parseChart(instance, "bar");
-                    if (chart != null) {
-                        spread.addChart(chart, objectPath);
-                    }
-                } else if ("line".equals(type) || "chart:line".equals(type)) {
-                    Chart chart = parseChart(instance, "line");
+                String normalizedType = normalizeChartType(type);
+                if (normalizedType != null) {
+                    Chart chart = parseChart(instance, normalizedType);
                     if (chart != null) {
                         spread.addChart(chart, objectPath);
                     }
@@ -104,7 +100,7 @@ class ChartParser {
                 series.setValuesRangeAddress(valuesRange);
                 series.setLabelRangeAddress(labelRange);
                 if (valuesRange != null || labelRange != null) {
-                    options.getLogger().fine("Bar chart series: values=" + valuesRange + ", labels=" + labelRange);
+                    options.getLogger().fine("Chart series: values=" + valuesRange + ", labels=" + labelRange);
                 }
                 if (valuesRange != null) {
                     appendRangeValues(valuesRange, series::addValue);
@@ -125,6 +121,49 @@ class ChartParser {
             if (categories == null) break;
             String range = categories.getAttribValue("table:cell-range-address");
             if (range != null) return range;
+        }
+        return null;
+    }
+
+    private String normalizeChartType(String type) {
+        if (type == null) return null;
+        String trimmed = type.trim();
+        if (trimmed.isEmpty()) return null;
+        if ("bar".equals(trimmed) || "chart:bar".equals(trimmed)) {
+            return "bar";
+        }
+        if ("line".equals(trimmed) || "chart:line".equals(trimmed)) {
+            return "line";
+        }
+        if ("area".equals(trimmed) || "chart:area".equals(trimmed)) {
+            return "area";
+        }
+        if ("circle".equals(trimmed) || "chart:circle".equals(trimmed)) {
+            return "circle";
+        }
+        if ("bubble".equals(trimmed) || "chart:bubble".equals(trimmed)) {
+            return "bubble";
+        }
+        if ("filled-radar".equals(trimmed) || "chart:filled-radar".equals(trimmed)) {
+            return "filled-radar";
+        }
+        if ("gantt".equals(trimmed) || "chart:gantt".equals(trimmed)) {
+            return "gantt";
+        }
+        if ("radar".equals(trimmed) || "chart:radar".equals(trimmed)) {
+            return "radar";
+        }
+        if ("ring".equals(trimmed) || "chart:ring".equals(trimmed)) {
+            return "ring";
+        }
+        if ("scatter".equals(trimmed) || "chart:scatter".equals(trimmed)) {
+            return "scatter";
+        }
+        if ("stock".equals(trimmed) || "chart:stock".equals(trimmed)) {
+            return "stock";
+        }
+        if ("surface".equals(trimmed) || "chart:surface".equals(trimmed)) {
+            return "surface";
         }
         return null;
     }
