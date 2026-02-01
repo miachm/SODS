@@ -475,6 +475,10 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         }
     }
 
+    SpreadSheet getParent() {
+        return parent;
+    }
+
     List<SheetImage> getImagesInternal() {
         return images;
     }

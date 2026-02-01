@@ -27,7 +27,7 @@ class ChartParser {
                         spread.addChart(chart, objectPath);
                     }
                 } else {
-                    options.getLogger().info("Unsupported chart type: " + type);
+                    options.getLogger().warning("Unsupported chart type: " + type);
                 }
             }
         }
@@ -90,7 +90,6 @@ class ChartParser {
                     String categoriesRange = readCategoriesRange(child);
                     if (categoriesRange != null) {
                         chart.setCategoriesRangeAddress(categoriesRange);
-                        appendRangeValues(categoriesRange, chart::addCategory);
                     }
                 }
             } else if ("chart:series".equals(child.getTag())) {
@@ -101,13 +100,6 @@ class ChartParser {
                 series.setLabelRangeAddress(labelRange);
                 if (valuesRange != null || labelRange != null) {
                     options.getLogger().fine("Chart series: values=" + valuesRange + ", labels=" + labelRange);
-                }
-                if (valuesRange != null) {
-                    appendRangeValues(valuesRange, series::addValue);
-                    appendRangeValues(valuesRange, value -> chart.addData(value == null ? null : String.valueOf(value)));
-                }
-                if (labelRange != null) {
-                    appendRangeValues(labelRange, series::addLabel);
                 }
                 chart.addSeries(series);
             }
@@ -206,46 +198,20 @@ class ChartParser {
         String start = rangeParts[0];
         String end = rangeParts.length > 1 ? rangeParts[1] : rangeParts[0];
 
-        SheetPart startPart = splitSheetPart(start);
-        SheetPart endPart = splitSheetPart(end);
+        RangeAddressHelper.SheetPart startPart = RangeAddressHelper.splitSheetPart(start);
+        RangeAddressHelper.SheetPart endPart = RangeAddressHelper.splitSheetPart(end);
         String sheetName = startPart.sheetName != null ? startPart.sheetName : endPart.sheetName;
         if (sheetName == null) {
             options.getLogger().warning("Missing sheet name in chart range: " + rangeAddress);
             return null;
         }
-        sheetName = unquoteSheetName(sheetName);
+        sheetName = RangeAddressHelper.unquoteSheetName(sheetName);
 
-        String a1Start = sanitizeA1(startPart.cellRef);
-        String a1End = sanitizeA1(endPart.cellRef);
+        String a1Start = RangeAddressHelper.sanitizeA1(startPart.cellRef);
+        String a1End = RangeAddressHelper.sanitizeA1(endPart.cellRef);
         String a1Notation = rangeParts.length > 1 ? a1Start + ":" + a1End : a1Start;
         if (a1Start.isEmpty()) return null;
         return new ParsedRange(sheetName, a1Notation);
-    }
-
-    private SheetPart splitSheetPart(String part) {
-        if (part == null) return new SheetPart(null, "");
-        int dotIndex = part.lastIndexOf('.');
-        if (dotIndex < 0) {
-            return new SheetPart(null, part);
-        }
-        String sheetName = part.substring(0, dotIndex);
-        String cellRef = part.substring(dotIndex + 1);
-        return new SheetPart(sheetName, cellRef);
-    }
-
-    private String sanitizeA1(String cellRef) {
-        if (cellRef == null) return "";
-        return cellRef.replace("$", "");
-    }
-
-    private String unquoteSheetName(String sheetName) {
-        if (sheetName == null) return null;
-        String trimmed = sheetName.trim();
-        if (trimmed.length() >= 2 && trimmed.startsWith("'") && trimmed.endsWith("'")) {
-            String inner = trimmed.substring(1, trimmed.length() - 1);
-            return inner.replace("''", "'");
-        }
-        return trimmed;
     }
 
     private String extractObjectPath(String entryName) {
@@ -265,16 +231,6 @@ class ChartParser {
         ParsedRange(String sheetName, String a1Notation) {
             this.sheetName = sheetName;
             this.a1Notation = a1Notation;
-        }
-    }
-
-    private static class SheetPart {
-        final String sheetName;
-        final String cellRef;
-
-        SheetPart(String sheetName, String cellRef) {
-            this.sheetName = sheetName;
-            this.cellRef = cellRef;
         }
     }
 

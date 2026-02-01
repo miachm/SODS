@@ -22,17 +22,19 @@ public class ChartTest {
         assertEquals("Sheet1", chart.getSheet().getName());
         assertEquals(1, chart.getSheet().getCharts().size());
         assertEquals(chart, chart.getSheet().getCharts().get(0));
-        assertEquals(12, chart.getCategories().size());
-        assertEquals("January", chart.getCategories().get(0));
-        assertEquals("December", chart.getCategories().get(11));
+        Range categoriesRange = chart.getCategoriesRangeObject();
+        Object[][] categories = categoriesRange.getValues();
+        assertEquals(12, categories.length);
+        assertEquals("January", categories[0][0]);
+        assertEquals("December", categories[11][0]);
 
         assertEquals(1, chart.getSeries().size());
         ChartSeries series = chart.getSeries().get(0);
-        assertEquals(12, series.getValues().size());
-        assertEquals(452d, ((Number) series.getValues().get(0)).doubleValue());
-        assertEquals(1300d, ((Number) series.getValues().get(11)).doubleValue());
-
-        spread.save(new File("cosita.ods"));
+        Range valuesRange = series.getValuesRangeObject();
+        Object[][] values = valuesRange.getValues();
+        assertEquals(12, values.length);
+        assertEquals(452d, ((Number) values[0][0]).doubleValue());
+        assertEquals(1300d, ((Number) values[11][0]).doubleValue());
     }
 
     @Test
@@ -48,15 +50,19 @@ public class ChartTest {
         assertEquals("Sheet1", chart.getSheet().getName());
         assertEquals(1, chart.getSheet().getCharts().size());
         assertEquals(chart, chart.getSheet().getCharts().get(0));
-        assertEquals(12, chart.getCategories().size());
-        assertEquals("January", chart.getCategories().get(0));
-        assertEquals("December", chart.getCategories().get(11));
+        Range categoriesRange = chart.getCategoriesRangeObject();
+        Object[][] categories = categoriesRange.getValues();
+        assertEquals(12, categories.length);
+        assertEquals("January", categories[0][0]);
+        assertEquals("December", categories[11][0]);
 
         assertEquals(1, chart.getSeries().size());
         ChartSeries series = chart.getSeries().get(0);
-        assertEquals(12, series.getValues().size());
-        assertEquals(452d, ((Number) series.getValues().get(0)).doubleValue());
-        assertEquals(1300d, ((Number) series.getValues().get(11)).doubleValue());
-        spread.save(new File("coso.ods"));
+        Range valuesRange = series.getValuesRangeObject();
+        Object[][] values = valuesRange.getValues();
+        assertEquals(12, values.length);
+        assertEquals(452d, ((Number) values[0][0]).doubleValue());
+        assertEquals(1300d, ((Number) values[11][0]).doubleValue());
     }
+
 }

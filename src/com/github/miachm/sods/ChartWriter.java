@@ -302,16 +302,24 @@ class ChartWriter {
 
     private void writeLocalTable(XMLStreamWriter out, Chart chart) throws XMLStreamException {
         List<ChartSeries> seriesList = chart.getSeries();
-        ensureSeriesValues(chart, seriesList);
+        List<Object> categories = chart.getCategoriesRangeAddress() != null
+                ? resolveRangeValues(chart.getCategoriesRangeAddress())
+                : chart.getCategories();
         RangeAddress categoriesAddress = parseRangeAddressWithCoords(chart.getCategoriesRangeAddress());
         RangeAddress[] seriesAddresses = new RangeAddress[seriesList.size()];
+        List<List<Object>> seriesValuesList = new ArrayList<>();
         for (int i = 0; i < seriesList.size(); i++) {
-            seriesAddresses[i] = parseRangeAddressWithCoords(seriesList.get(i).getValuesRangeAddress());
+            ChartSeries series = seriesList.get(i);
+            seriesAddresses[i] = parseRangeAddressWithCoords(series.getValuesRangeAddress());
+            List<Object> values = series.getValuesRangeAddress() != null
+                    ? resolveRangeValues(series.getValuesRangeAddress())
+                    : series.getValues();
+            seriesValuesList.add(values);
         }
         int seriesCount = seriesList.size();
-        int rows = chart.getCategories().size();
+        int rows = categories.size();
         if (rows == 0) {
-            rows = maxSeriesValues(seriesList);
+            rows = maxSeriesValues(seriesValuesList);
         }
 
         out.writeStartElement(TABLE, "table");
@@ -341,11 +349,11 @@ class ChartWriter {
         out.writeStartElement(TABLE, "table-rows");
         for (int row = 0; row < rows; row++) {
             out.writeStartElement(TABLE, "table-row");
-            Object category = row < chart.getCategories().size() ? chart.getCategories().get(row) : null;
+            Object category = row < categories.size() ? categories.get(row) : null;
             writeTableCell(out, category, buildCellDesc(categoriesAddress, row, 0));
             for (int s = 0; s < seriesCount; s++) {
-                ChartSeries series = seriesList.get(s);
-                Object value = row < series.getValues().size() ? series.getValues().get(row) : null;
+                List<Object> values = seriesValuesList.get(s);
+                Object value = row < values.size() ? values.get(row) : null;
                 writeTableCell(out, value, buildCellDesc(seriesAddresses[s], row, 0));
             }
             out.writeEndElement();
@@ -355,35 +363,12 @@ class ChartWriter {
         out.writeEndElement();
     }
 
-    private int maxSeriesValues(List<ChartSeries> seriesList) {
+    private int maxSeriesValues(List<List<Object>> seriesValuesList) {
         int max = 0;
-        for (ChartSeries series : seriesList) {
-            max = Math.max(max, series.getValues().size());
+        for (List<Object> values : seriesValuesList) {
+            max = Math.max(max, values.size());
         }
         return max;
-    }
-
-    private void ensureSeriesValues(Chart chart, List<ChartSeries> seriesList) {
-        if (chart.getCategories().isEmpty() && chart.getCategoriesRangeAddress() != null) {
-            List<Object> categories = resolveRangeValues(chart.getCategoriesRangeAddress());
-            for (Object value : categories) {
-                chart.addCategory(value);
-            }
-        }
-        for (ChartSeries series : seriesList) {
-            if (series.getValues().isEmpty() && series.getValuesRangeAddress() != null) {
-                List<Object> values = resolveRangeValues(series.getValuesRangeAddress());
-                for (Object value : values) {
-                    series.addValue(value);
-                }
-            }
-            if (series.getLabels().isEmpty() && series.getLabelRangeAddress() != null) {
-                List<Object> labels = resolveRangeValues(series.getLabelRangeAddress());
-                for (Object value : labels) {
-                    series.addLabel(value);
-                }
-            }
-        }
     }
 
     private List<Object> resolveRangeValues(String rangeAddress) {
@@ -393,11 +378,11 @@ class ChartWriter {
         }
         ParsedRange parsed = parseRangeAddress(rangeAddress);
         if (parsed == null) {
-            return values;
+            throw buildRangeException(rangeAddress, null);
         }
         Sheet sheet = spread.getSheet(parsed.sheetName);
         if (sheet == null) {
-            return values;
+            throw buildRangeException(rangeAddress, null);
         }
         try {
             Range range = sheet.getRange(parsed.a1Notation);
@@ -407,12 +392,16 @@ class ChartWriter {
                     values.add(data[row][column]);
                 }
             }
-        } catch (RuntimeException ignored) {
+        } catch (RuntimeException ex) {
+            throw buildRangeException(rangeAddress, ex);
         }
         return values;
     }
 
     private ParsedRange parseRangeAddress(String rangeAddress) {
+        if (rangeAddress == null) {
+            return null;
+        }
         String trimmed = rangeAddress.trim();
         if (trimmed.isEmpty()) return null;
         String[] spaceParts = trimmed.split("\\s+");
@@ -422,43 +411,17 @@ class ChartWriter {
         String start = rangeParts[0];
         String end = rangeParts.length > 1 ? rangeParts[1] : rangeParts[0];
 
-        SheetPart startPart = splitSheetPart(start);
-        SheetPart endPart = splitSheetPart(end);
+        RangeAddressHelper.SheetPart startPart = RangeAddressHelper.splitSheetPart(start);
+        RangeAddressHelper.SheetPart endPart = RangeAddressHelper.splitSheetPart(end);
         String sheetName = startPart.sheetName != null ? startPart.sheetName : endPart.sheetName;
         if (sheetName == null) return null;
-        sheetName = unquoteSheetName(sheetName);
+        sheetName = RangeAddressHelper.unquoteSheetName(sheetName);
 
-        String a1Start = sanitizeA1(startPart.cellRef);
-        String a1End = sanitizeA1(endPart.cellRef);
+        String a1Start = RangeAddressHelper.sanitizeA1(startPart.cellRef);
+        String a1End = RangeAddressHelper.sanitizeA1(endPart.cellRef);
         String a1Notation = rangeParts.length > 1 ? a1Start + ":" + a1End : a1Start;
         if (a1Start.isEmpty()) return null;
         return new ParsedRange(sheetName, a1Notation);
-    }
-
-    private SheetPart splitSheetPart(String part) {
-        if (part == null) return new SheetPart(null, "");
-        int dotIndex = part.lastIndexOf('.');
-        if (dotIndex < 0) {
-            return new SheetPart(null, part);
-        }
-        String sheetName = part.substring(0, dotIndex);
-        String cellRef = part.substring(dotIndex + 1);
-        return new SheetPart(sheetName, cellRef);
-    }
-
-    private String sanitizeA1(String cellRef) {
-        if (cellRef == null) return "";
-        return cellRef.replace("$", "");
-    }
-
-    private String unquoteSheetName(String sheetName) {
-        if (sheetName == null) return null;
-        String trimmed = sheetName.trim();
-        if (trimmed.length() >= 2 && trimmed.startsWith("'") && trimmed.endsWith("'")) {
-            String inner = trimmed.substring(1, trimmed.length() - 1);
-            return inner.replace("''", "'");
-        }
-        return trimmed;
     }
 
     private static class ParsedRange {
@@ -471,23 +434,13 @@ class ChartWriter {
         }
     }
 
-    private static class SheetPart {
-        final String sheetName;
-        final String cellRef;
-
-        SheetPart(String sheetName, String cellRef) {
-            this.sheetName = sheetName;
-            this.cellRef = cellRef;
-        }
-    }
-
     private RangeAddress parseRangeAddressWithCoords(String rangeAddress) {
         if (rangeAddress == null) {
             return null;
         }
         ParsedRange parsed = parseRangeAddress(rangeAddress);
         if (parsed == null) {
-            return null;
+            throw buildRangeException(rangeAddress, null);
         }
         try {
             A1NotationCord cord = new A1NotationCord(parsed.a1Notation);
@@ -497,8 +450,16 @@ class ChartWriter {
             int columns = cord.getLastColumn() - initColumn + 1;
             return new RangeAddress(parsed.sheetName, initRow, initColumn, rows, columns);
         } catch (RuntimeException ex) {
-            return null;
+            throw buildRangeException(rangeAddress, ex);
         }
+    }
+
+    private IndexOutOfBoundsException buildRangeException(String rangeAddress, RuntimeException cause) {
+        IndexOutOfBoundsException ex = new IndexOutOfBoundsException("Invalid chart range: " + rangeAddress);
+        if (cause != null) {
+            ex.initCause(cause);
+        }
+        return ex;
     }
 
     private String buildCellDesc(RangeAddress address, int rowOffset, int columnOffset) {

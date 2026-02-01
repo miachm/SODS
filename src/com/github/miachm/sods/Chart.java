@@ -56,6 +56,10 @@ public class Chart {
         return categoriesRangeAddress;
     }
 
+    public Range getCategoriesRangeObject() {
+        return ChartRangeResolver.resolveRange(categoriesRangeAddress, sheet);
+    }
+
     public List<ChartSeries> getSeries() {
         return Collections.unmodifiableList(series);
     }
@@ -146,6 +150,7 @@ public class Chart {
 
     public void addSeries(ChartSeries series) {
         if (series != null) {
+            series.setChart(this);
             this.series.add(series);
         }
     }

@@ -11,10 +11,6 @@ class StylesParser {
     private Map<String, RowStyle> rowStyles = new HashMap<>();
     private Map<String, TableStyle> tableStyles = new HashMap<>();
 
-    public StylesParser() {
-        this(null);
-    }
-
     public StylesParser(OdsOptionParameters options) {
         this.options = options;
         cellStyles.put("Default", new Style());

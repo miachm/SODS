@@ -10,6 +10,7 @@ public class ChartSeries {
     private final List<Object> values = new ArrayList<>();
     private final List<Object> labels = new ArrayList<>();
     private final ChartStyle style = new ChartStyle();
+    private Chart chart;
 
     public String getValuesRangeAddress() {
         return valuesRangeAddress;
@@ -31,6 +32,11 @@ public class ChartSeries {
         return style;
     }
 
+    public Range getValuesRangeObject() {
+        Sheet chartSheet = chart == null ? null : chart.getSheet();
+        return ChartRangeResolver.resolveRange(valuesRangeAddress, chartSheet);
+    }
+
     public void setValuesRangeAddress(String valuesRangeAddress) {
         this.valuesRangeAddress = valuesRangeAddress;
     }
@@ -46,4 +52,9 @@ public class ChartSeries {
     public void addLabel(Object label) {
         labels.add(label);
     }
+
+    void setChart(Chart chart) {
+        this.chart = chart;
+    }
+
 }

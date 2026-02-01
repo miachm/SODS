@@ -80,9 +80,6 @@ class OdsReader {
         }
         uncompressor.close();
         spread.trimSheets();
-        if (options.isLoadGraphs()) {
-            chartParser.resolveChartData();
-        }
         options.getLogger().info("Spreadsheet loaded, " + spread.getNumSheets() + " sheet(s)");
 
         if (!mimetypeChecked) {
