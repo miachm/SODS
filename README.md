@@ -40,6 +40,10 @@ ODS means Open Document Spreadsheet. It's used in applications like Libreoffice 
 
 ![Libreoffice Calc](http://i.imgur.com/Mm779of.jpg)
 
+### Minimum JDK needed?
+
+8
+
 ### What is the motivation of this?
 I needed to generate ODS files in Java. I looked for libraries, but they are:
 
@@ -62,6 +66,8 @@ Right now you can:
     - Horizontal and vertical text alignment
     - Text wrapping
     - Conditional formatting
+- Reading and writing chart objects with series data (Bar, Line...)
+- Embedding images into sheets.
 - Apply hashed password protection
 - Writing changes back to a new or existing ODS file
 
