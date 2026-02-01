@@ -4,11 +4,14 @@ class SpreadsheetParser {
     private final StylesParser stylesParser;
     private final SpreadSheet spread;
     private final OdsOptionParameters options;
+    private final ChartObjectRegistry chartObjectRegistry;
 
-    public SpreadsheetParser(StylesParser stylesParser, SpreadSheet spread, OdsOptionParameters options) {
+    public SpreadsheetParser(StylesParser stylesParser, SpreadSheet spread, OdsOptionParameters options,
+                              ChartObjectRegistry chartObjectRegistry) {
         this.stylesParser = stylesParser;
         this.spread = spread;
         this.options = options;
+        this.chartObjectRegistry = chartObjectRegistry;
     }
 
     public void parseContent(XmlReaderInstance bodyInstance) {
@@ -24,7 +27,7 @@ class SpreadsheetParser {
                 if (shouldLoadSheet) {
                     options.getLogger().fine("Loading sheet " + currentSheetIndex + ": '" + name + "'");
                     Sheet sheet = new Sheet(name, 0, 0);
-                    SheetParser sheetParser = new SheetParser(sheet, stylesParser, spread, options);
+                    SheetParser sheetParser = new SheetParser(sheet, stylesParser, spread, options, chartObjectRegistry);
                     sheetParser.parseSheet(tableInstance);
                     spread.appendSheet(sheet);
                 } else {

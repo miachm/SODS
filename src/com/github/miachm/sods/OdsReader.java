@@ -16,23 +16,26 @@ class OdsReader {
     private final StylesParser stylesParser;
     private final SpreadsheetParser spreadsheetParser;
     private final OdsOptionParameters options;
+    private final ChartObjectRegistry chartObjectRegistry;
 
     private OdsReader(InputStream in, SpreadSheet spread, OdsOptionParameters options) {
         this.spread = spread;
         this.uncompressor = new Uncompressor(in);
         this.options = options;
+        this.chartObjectRegistry = new ChartObjectRegistry();
         this.stylesParser = new StylesParser(options);
-        this.spreadsheetParser = new SpreadsheetParser(stylesParser, spread, options);
-        this.chartParser = new ChartParser(stylesParser, spread, options);
+        this.spreadsheetParser = new SpreadsheetParser(stylesParser, spread, options, chartObjectRegistry);
+        this.chartParser = new ChartParser(stylesParser, spread, options, chartObjectRegistry);
     }
 
     private OdsReader(File file, SpreadSheet spread, OdsOptionParameters options) throws IOException {
         this.spread = spread;
         this.uncompressor = new Uncompressor(file);
         this.options = options;
+        this.chartObjectRegistry = new ChartObjectRegistry();
         this.stylesParser = new StylesParser(options);
-        this.spreadsheetParser = new SpreadsheetParser(stylesParser, spread, options);
-        this.chartParser = new ChartParser(stylesParser, spread, options);
+        this.spreadsheetParser = new SpreadsheetParser(stylesParser, spread, options, chartObjectRegistry);
+        this.chartParser = new ChartParser(stylesParser, spread, options, chartObjectRegistry);
     }
 
     static void load(InputStream in, SpreadSheet spread) throws IOException {

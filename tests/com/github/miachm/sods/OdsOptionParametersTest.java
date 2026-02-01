@@ -22,7 +22,7 @@ public class OdsOptionParametersTest {
         OdsOptionParameters options = new OdsOptionParameters();
         options.setLoadGraphs(false);
         SpreadSheet spread = new SpreadSheet(new File("resources/bargraph.ods"), options);
-        assertTrue(spread.getCharts().isEmpty());
+        assertTrue(spread.getSheet(0).getCharts().isEmpty());
         Sheet sheet = spread.getSheet(0);
         assertTrue(sheet.getCharts().isEmpty());
     }

@@ -24,10 +24,6 @@ public class SpreadSheet implements Cloneable {
 
     private final List<Sheet> sheets = new ArrayList<Sheet>();
     private final Map<String, FileEntry> extraFiles = new HashMap<>();
-    private final List<Chart> charts = new ArrayList<Chart>();
-    private final Map<String, Sheet> chartObjectSheets = new HashMap<>();
-    private final Map<String, List<Chart>> pendingCharts = new HashMap<>();
-    private final Map<String, ChartFrame> chartObjectFrames = new HashMap<>();
     private final Map<String, List<SheetImage>> pendingImages = new HashMap<>();
     private int imageCounter = 1;
 
@@ -120,10 +116,6 @@ public class SpreadSheet implements Cloneable {
      */
     public void clear(){
         sheets.clear();
-        charts.clear();
-        chartObjectSheets.clear();
-        pendingCharts.clear();
-        chartObjectFrames.clear();
         pendingImages.clear();
     }
 
@@ -166,21 +158,6 @@ public class SpreadSheet implements Cloneable {
     public List<Sheet> getSheets()
     {
         return Collections.unmodifiableList(sheets);
-    }
-
-    /**
-     * Return all the charts of the book in a list.
-     *
-     * @return An unmodifiable charts list.
-     */
-    public List<Chart> getCharts() {
-        return Collections.unmodifiableList(charts);
-    }
-
-    void addChart(Chart chart) {
-        if (chart != null) {
-            charts.add(chart);
-        }
     }
 
     Collection<FileEntry> getExtraFiles() {
@@ -280,84 +257,6 @@ public class SpreadSheet implements Cloneable {
         if (lower.endsWith(".bmp")) return "image/bmp";
         if (lower.endsWith(".svg")) return "image/svg+xml";
         return null;
-    }
-
-    void registerChartObject(String objectPath, Sheet sheet) {
-        registerChartObject(objectPath, sheet, null);
-    }
-
-    void registerChartObject(String objectPath, Sheet sheet, ChartFrame frame) {
-        if (objectPath != null && sheet != null) {
-            chartObjectSheets.put(objectPath, sheet);
-            if (frame != null) {
-                chartObjectFrames.put(objectPath, frame);
-            }
-            List<Chart> pending = pendingCharts.remove(objectPath);
-            if (pending != null) {
-                for (Chart chart : pending) {
-                    if (chart != null && chart.getSheet() == null) {
-                        applyFrame(chart, chartObjectFrames.get(objectPath));
-                        sheet.addChart(chart);
-                    }
-                }
-            }
-        }
-    }
-
-    void addChart(Chart chart, String objectPath) {
-        if (chart == null) {
-            return;
-        }
-        addChart(chart);
-        if (objectPath == null) {
-            return;
-        }
-        applyFrame(chart, chartObjectFrames.get(objectPath));
-        Sheet sheet = chartObjectSheets.get(objectPath);
-        if (sheet != null) {
-            if (chart.getSheet() == null) {
-                sheet.addChart(chart);
-            }
-            return;
-        }
-        pendingCharts.computeIfAbsent(objectPath, key -> new ArrayList<>()).add(chart);
-    }
-
-    private void applyFrame(Chart chart, ChartFrame frame) {
-        if (chart == null || frame == null) {
-            return;
-        }
-        if (frame.x != null) chart.setX(frame.x);
-        if (frame.y != null) chart.setY(frame.y);
-        if (frame.width != null) chart.setWidth(frame.width);
-        if (frame.height != null) chart.setHeight(frame.height);
-    }
-
-    Sheet getChartSheet(String objectPath) {
-        if (objectPath == null) {
-            return null;
-        }
-        return chartObjectSheets.get(objectPath);
-    }
-
-    static class ChartFrame {
-        final String x;
-        final String y;
-        final String width;
-        final String height;
-
-        ChartFrame(String x, String y, String width, String height) {
-            this.x = normalizeValue(x);
-            this.y = normalizeValue(y);
-            this.width = normalizeValue(width);
-            this.height = normalizeValue(height);
-        }
-
-        private static String normalizeValue(String value) {
-            if (value == null) return null;
-            String trimmed = value.trim();
-            return trimmed.isEmpty() ? null : trimmed;
-        }
     }
 
     /**

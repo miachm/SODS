@@ -4,11 +4,14 @@ class ChartParser {
     private final StylesParser stylesParser;
     private final SpreadSheet spread;
     private final OdsOptionParameters options;
+    private final ChartObjectRegistry chartObjectRegistry;
 
-    public ChartParser(StylesParser stylesParser, SpreadSheet spread, OdsOptionParameters options) {
+    public ChartParser(StylesParser stylesParser, SpreadSheet spread, OdsOptionParameters options,
+                       ChartObjectRegistry chartObjectRegistry) {
         this.stylesParser = stylesParser;
         this.spread = spread;
         this.options = options;
+        this.chartObjectRegistry = chartObjectRegistry;
     }
 
     public void parseContent(XmlReaderInstance chartInstance, String entryName) {
@@ -24,7 +27,7 @@ class ChartParser {
                 if (normalizedType != null) {
                     Chart chart = parseChart(instance, normalizedType);
                     if (chart != null) {
-                        spread.addChart(chart, objectPath);
+                        chartObjectRegistry.addChart(chart, objectPath);
                     }
                 } else {
                     options.getLogger().warning("Unsupported chart type: " + type);
@@ -34,21 +37,23 @@ class ChartParser {
     }
 
     public void resolveChartData() {
-        for (Chart chart : spread.getCharts()) {
-            if (chart.getCategories().isEmpty() && chart.getCategoriesRangeAddress() != null) {
-                appendRangeValues(chart.getCategoriesRangeAddress(), chart::addCategory);
-            }
-            boolean hasChartData = !chart.getData().isEmpty();
-            for (ChartSeries series : chart.getSeries()) {
-                if (series.getValues().isEmpty() && series.getValuesRangeAddress() != null) {
-                    appendRangeValues(series.getValuesRangeAddress(), series::addValue);
-                    if (!hasChartData) {
-                        appendRangeValues(series.getValuesRangeAddress(),
-                                value -> chart.addData(value == null ? null : String.valueOf(value)));
-                    }
+        for (Sheet sheet : spread.getSheets()) {
+            for (Chart chart : sheet.getCharts()) {
+                if (chart.getCategories().isEmpty() && chart.getCategoriesRangeAddress() != null) {
+                    appendRangeValues(chart.getCategoriesRangeAddress(), chart::addCategory);
                 }
-                if (series.getLabels().isEmpty() && series.getLabelRangeAddress() != null) {
-                    appendRangeValues(series.getLabelRangeAddress(), series::addLabel);
+                boolean hasChartData = !chart.getData().isEmpty();
+                for (ChartSeries series : chart.getSeries()) {
+                    if (series.getValues().isEmpty() && series.getValuesRangeAddress() != null) {
+                        appendRangeValues(series.getValuesRangeAddress(), series::addValue);
+                        if (!hasChartData) {
+                            appendRangeValues(series.getValuesRangeAddress(),
+                                    value -> chart.addData(value == null ? null : String.valueOf(value)));
+                        }
+                    }
+                    if (series.getLabels().isEmpty() && series.getLabelRangeAddress() != null) {
+                        appendRangeValues(series.getLabelRangeAddress(), series::addLabel);
+                    }
                 }
             }
         }

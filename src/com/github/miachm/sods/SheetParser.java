@@ -10,15 +10,18 @@ class SheetParser {
     private final StylesParser stylesParser;
     private final SpreadSheet spread;
     private final OdsOptionParameters options;
+    private final ChartObjectRegistry chartObjectRegistry;
     private final Map<Integer, Style> columnDefaultStyles = new HashMap<>();
     private final Map<Integer, Style> rowDefaultStyles = new HashMap<>();
     private final Set<Pair<Vector, Vector>> groupCells = new HashSet<>();
 
-    public SheetParser(Sheet sheet, StylesParser stylesParser, SpreadSheet spread, OdsOptionParameters options) {
+    public SheetParser(Sheet sheet, StylesParser stylesParser, SpreadSheet spread, OdsOptionParameters options,
+                       ChartObjectRegistry chartObjectRegistry) {
         this.sheet = sheet;
         this.stylesParser = stylesParser;
         this.spread = spread;
         this.options = options;
+        this.chartObjectRegistry = chartObjectRegistry;
     }
 
     public void parseSheet(XmlReaderInstance reader) {
@@ -118,7 +121,7 @@ class SheetParser {
 
     private void parseDrawFrame(XmlReaderInstance frameInstance, Integer anchorRow, Integer anchorColumn) {
         if (frameInstance == null || spread == null) return;
-        SpreadSheet.ChartFrame frame = buildChartFrame(frameInstance);
+        ChartObjectRegistry.ChartFrame frame = buildChartFrame(frameInstance);
         String frameName = frameInstance.getAttribValue("draw:name");
         while (frameInstance.hasNext()) {
             XmlReaderInstance child = frameInstance.nextElement("draw:object", "draw:object-ole", "draw:image");
@@ -161,14 +164,14 @@ class SheetParser {
                 if (href != null) {
                     String objectPath = normalizeObjectPath(href);
                     if (objectPath != null) {
-                        spread.registerChartObject(objectPath, sheet, frame);
+                        chartObjectRegistry.registerChartObject(objectPath, sheet, frame);
                     }
                 }
             }
         }
     }
 
-    private SpreadSheet.ChartFrame buildChartFrame(XmlReaderInstance frameInstance) {
+    private ChartObjectRegistry.ChartFrame buildChartFrame(XmlReaderInstance frameInstance) {
         if (frameInstance == null) return null;
         String x = frameInstance.getAttribValue("svg:x");
         String y = frameInstance.getAttribValue("svg:y");
@@ -177,7 +180,7 @@ class SheetParser {
         if (isBlank(x) && isBlank(y) && isBlank(width) && isBlank(height)) {
             return null;
         }
-        return new SpreadSheet.ChartFrame(x, y, width, height);
+        return new ChartObjectRegistry.ChartFrame(x, y, width, height);
     }
 
     private boolean isBlank(String value) {

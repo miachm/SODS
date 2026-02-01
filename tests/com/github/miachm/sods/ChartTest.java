@@ -12,7 +12,7 @@ public class ChartTest {
     @Test
     public void testReadBarChart() throws Exception {
         SpreadSheet spread = new SpreadSheet(new File("resources/bargraph.ods"));
-        List<Chart> charts = spread.getCharts();
+        List<Chart> charts = spread.getSheet(0).getCharts();
 
         assertFalse(charts.isEmpty());
         Chart chart = charts.get(0);
@@ -40,7 +40,7 @@ public class ChartTest {
     @Test
     public void testReadLineChart() throws Exception {
         SpreadSheet spread = new SpreadSheet(new File("resources/linechart.ods"));
-        List<Chart> charts = spread.getCharts();
+        List<Chart> charts = spread.getSheet(0).getCharts();
 
         assertFalse(charts.isEmpty());
         Chart chart = charts.get(0);
@@ -68,7 +68,7 @@ public class ChartTest {
     @Test
     public void testLiveChartRanges() throws Exception {
         SpreadSheet spread = new SpreadSheet(new File("resources/bargraph.ods"));
-        Chart chart = spread.getCharts().get(0);
+        Chart chart = spread.getSheet(0).getCharts().get(0);
         ChartSeries series = chart.getSeries().get(0);
         Range valuesRange = series.getValuesRangeObject();
 
@@ -80,7 +80,7 @@ public class ChartTest {
         spread.save(out);
 
         SpreadSheet reloaded = new SpreadSheet(out);
-        Chart reloadedChart = reloaded.getCharts().get(0);
+        Chart reloadedChart = reloaded.getSheet(0).getCharts().get(0);
         ChartSeries reloadedSeries = reloadedChart.getSeries().get(0);
         Range reloadedValues = reloadedSeries.getValuesRangeObject();
         Object[][] values = reloadedValues.getValues();
