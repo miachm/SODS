@@ -33,7 +33,7 @@ jobs:
         run: |
           rm -rf docs
           mkdir -p docs
-          cp -R target/site/apidocs/. docs/
+          cp -R target/reports/apidocs/. docs/
 
       - name: Commit and push if changed
         run: |
