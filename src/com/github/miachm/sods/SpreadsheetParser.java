@@ -18,7 +18,8 @@ class SpreadsheetParser {
     }
 
     public void parseContent(XmlReaderInstance bodyInstance) {
-        options.getLogger().fine("Parsing spreadsheet content");
+        options.getLogger().info("Parsing spreadsheet content");
+        options.getLogger().fine("Sheet filter: " + options.getSheetNumbers());
         int currentSheetIndex = 0;
         while (bodyInstance.hasNext()) {
             XmlReaderInstance tableInstance = bodyInstance.nextElement("table:table");
@@ -28,18 +29,18 @@ class SpreadsheetParser {
                                         options.getSheetNumbers().contains(currentSheetIndex);
 
                 if (shouldLoadSheet) {
-                    options.getLogger().fine("Loading sheet " + currentSheetIndex + ": '" + name + "'");
+                    options.getLogger().info("Loading sheet " + currentSheetIndex + ": '" + name + "'");
                     Sheet sheet = new Sheet(name, 0, 0);
                     SheetParser sheetParser = new SheetParser(sheet, stylesParser, spread, options,
                             chartObjectRegistry, imageObjectRegistry);
                     sheetParser.parseSheet(tableInstance);
                     spread.appendSheet(sheet);
                 } else {
-                    options.getLogger().fine("Skipping sheet " + currentSheetIndex + ": '" + name + "'");
+                    options.getLogger().warning("Skipping sheet " + currentSheetIndex + ": '" + name + "'");
                 }
                 currentSheetIndex++;
             }
         }
-        options.getLogger().fine("Parsed " + currentSheetIndex + " sheet(s)");
+        options.getLogger().info("Parsed " + currentSheetIndex + " sheet(s)");
     }
 }

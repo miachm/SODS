@@ -15,8 +15,16 @@ class ChartParser {
     }
 
     public void parseContent(XmlReaderInstance chartInstance, String entryName) {
-        if (chartInstance == null) return;
+        if (chartInstance == null) {
+            options.getLogger().warning("Skipping chart content: empty chart instance.");
+            return;
+        }
+        options.getLogger().info("Parsing chart content from entry: " + entryName);
         String objectPath = extractObjectPath(entryName);
+        if (objectPath == null) {
+            options.getLogger().warning("Skipping chart content with unknown object path: " + entryName);
+            return;
+        }
         while (chartInstance.hasNext()) {
             XmlReaderInstance instance = chartInstance.nextElement("chart:chart");
             if (instance == null) break;
@@ -28,6 +36,7 @@ class ChartParser {
                     Chart chart = parseChart(instance, normalizedType);
                     if (chart != null) {
                         chartObjectRegistry.addChart(chart, objectPath);
+                        options.getLogger().info("Chart parsed: type=" + normalizedType);
                     }
                 } else {
                     options.getLogger().warning("Unsupported chart type: " + type);
@@ -177,6 +186,10 @@ class ChartParser {
     }
 
     private Range resolveRange(String rangeAddress) {
+        if (rangeAddress == null || rangeAddress.trim().isEmpty()) {
+            options.getLogger().warning("Skipping chart range: empty address.");
+            return null;
+        }
         ParsedRange parsed = parseRangeAddress(rangeAddress);
         if (parsed == null) return null;
         Sheet sheet = spread.getSheet(parsed.sheetName);

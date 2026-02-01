@@ -27,6 +27,7 @@ class SheetParser {
     }
 
     public void parseSheet(XmlReaderInstance reader) {
+        logger().info("Parsing sheet: '" + sheet.getName() + "'");
         String tableStyleName = reader.getAttribValue("table:style-name");
         if (tableStyleName != null) setTableStyles(tableStyleName);
 
@@ -60,7 +61,10 @@ class SheetParser {
                 if (numRowsStr != null) {
                     try {
                         numRows = Integer.parseInt(numRowsStr);
-                        if (numRows > BUGGED_COUNT) continue;
+                        if (numRows > BUGGED_COUNT) {
+                            logger().warning("Skipping row group with repeated count " + numRows + " (likely corrupt).");
+                            continue;
+                        }
                     } catch (NumberFormatException ignored) {}
                 }
 
@@ -99,7 +103,10 @@ class SheetParser {
         String columnsRepeated = instance.getAttribValue("table:number-columns-repeated");
         if (columnsRepeated != null) {
             numColumns = Integer.parseInt(columnsRepeated);
-            if (numColumns > BUGGED_COUNT) return;
+            if (numColumns > BUGGED_COUNT) {
+                logger().warning("Skipping column group with repeated count " + numColumns + " (likely corrupt).");
+                return;
+            }
         }
 
         int index = sheet.getMaxColumns();
@@ -130,6 +137,7 @@ class SheetParser {
             if (child == null) break;
             if ("draw:image".equals(child.getTag())) {
                 if (options != null && !options.isLoadImages()) {
+                    logger().warning("Skipping image (load images disabled).");
                     continue;
                 }
                 String href = child.getAttribValue("xlink:href");
@@ -139,6 +147,8 @@ class SheetParser {
                     options.getLogger().warning("ImagePath is null. Checking if the image is inline");
                     if (hasInlineBinaryData(child)) {
                         options.getLogger().warning("Skipping inline image with office:binary-data (unsupported).");
+                    } else {
+                        options.getLogger().warning("Skipping image with empty or invalid href.");
                     }
                     continue;
                 }
@@ -163,6 +173,7 @@ class SheetParser {
                 }
             } else {
                 if (options != null && !options.isLoadGraphs()) {
+                    logger().info("Skipping chart object (load graphs disabled).");
                     continue;
                 }
                 String href = child.getAttribValue("xlink:href");
@@ -170,6 +181,8 @@ class SheetParser {
                     String objectPath = normalizeObjectPath(href);
                     if (objectPath != null) {
                         chartObjectRegistry.registerChartObject(objectPath, sheet, frame);
+                    } else {
+                        logger().warning("Skipping chart object with empty or invalid href.");
                     }
                 }
             }
@@ -253,7 +266,10 @@ class SheetParser {
             String raw = instance.getAttribValue("table:number-columns-repeated");
             if (raw != null) {
                 numberColumnsRepeated = Integer.parseInt(raw);
-                if (numberColumnsRepeated > BUGGED_COUNT) continue;
+                if (numberColumnsRepeated > BUGGED_COUNT) {
+                    logger().warning("Skipping cell group with repeated columns " + numberColumnsRepeated + " (likely corrupt).");
+                    continue;
+                }
             }
 
             if (positionY + numberColumnsRepeated > sheet.getMaxColumns()) {

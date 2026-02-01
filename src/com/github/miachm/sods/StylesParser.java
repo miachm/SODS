@@ -17,33 +17,52 @@ class StylesParser {
     }
 
     public void parseStyles(XmlReaderInstance reader) {
-        if (reader == null) return;
+        if (reader == null) {
+            logger().fine("No styles section found.");
+            return;
+        }
+        logger().info("Parsing styles");
+        int cellCount = 0;
+        int columnCount = 0;
+        int rowCount = 0;
+        int tableCount = 0;
         while (reader.hasNext()) {
             XmlReaderInstance instance = reader.nextElement("style:style");
             if (instance == null) return;
             String name = instance.getAttribValue("style:name");
             String family = instance.getAttribValue("style:family");
-            if (name != null && family != null) {
-                switch (family) {
-                    case "table-cell":
-                        Style style = readCellStyleEntry(instance);
-                        cellStyles.put(name, style);
-                        break;
-                    case "table-column":
-                        ColumnStyle columnStyle = readColumnStyleEntry(instance);
-                        columnStyles.put(name, columnStyle);
-                        break;
-                    case "table-row":
-                        RowStyle rowStyle = readRowStyleEntry(instance);
-                        rowStyles.put(name, rowStyle);
-                        break;
-                    case "table":
-                        TableStyle tableStyle = readTableStyleEntry(instance);
-                        tableStyles.put(name, tableStyle);
-                        break;
-                }
+            if (name == null || family == null) {
+                logger().warning("Skipping style with missing name or family.");
+                continue;
+            }
+            switch (family) {
+                case "table-cell":
+                    Style style = readCellStyleEntry(instance);
+                    cellStyles.put(name, style);
+                    cellCount++;
+                    break;
+                case "table-column":
+                    ColumnStyle columnStyle = readColumnStyleEntry(instance);
+                    columnStyles.put(name, columnStyle);
+                    columnCount++;
+                    break;
+                case "table-row":
+                    RowStyle rowStyle = readRowStyleEntry(instance);
+                    rowStyles.put(name, rowStyle);
+                    rowCount++;
+                    break;
+                case "table":
+                    TableStyle tableStyle = readTableStyleEntry(instance);
+                    tableStyles.put(name, tableStyle);
+                    tableCount++;
+                    break;
+                default:
+                    logger().warning("Skipping unsupported style family: " + family);
+                    break;
             }
         }
+        logger().info("Styles loaded: cell=" + cellCount + ", column=" + columnCount
+                + ", row=" + rowCount + ", table=" + tableCount);
     }
 
     private Style readCellStyleEntry(XmlReaderInstance reader) {
