@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 public class SpreadSheet implements Cloneable {
 
     private final List<Sheet> sheets = new ArrayList<Sheet>();
-    // No image registry at model level; handled by IO layer.
 
     /**
      * Create an empty spreadsheet
