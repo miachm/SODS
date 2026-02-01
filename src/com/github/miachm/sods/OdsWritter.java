@@ -37,6 +37,7 @@ class OdsWritter {
     }
 
     private void save() throws IOException {
+        prepareImages();
         writeMymeType();
         writeManifest();
         try {
@@ -80,6 +81,7 @@ class OdsWritter {
             out.writeEndElement();
 
             chartWriter.appendManifestEntries(out);
+            appendExtraFileEntries(out);
 
             out.writeEndElement();
             out.writeEndDocument();
@@ -136,5 +138,27 @@ class OdsWritter {
     private void writeExtraFiles() throws IOException {
         for (FileEntry entry : spread.getExtraFiles())
             this.out.addEntry(entry.data, entry.path);
+    }
+
+    private void prepareImages() {
+        for (Sheet sheet : spread.getSheets()) {
+            for (SheetImage image : sheet.getImages()) {
+                spread.registerImage(image);
+            }
+        }
+    }
+
+    private void appendExtraFileEntries(XMLStreamWriter out) throws XMLStreamException {
+        for (FileEntry entry : spread.getExtraFiles()) {
+            if (entry == null || entry.path == null) continue;
+            out.writeStartElement(MANIFEST, "file-entry");
+            out.writeAttribute(MANIFEST, "full-path", entry.path);
+            if (entry.mimetype != null) {
+                out.writeAttribute(MANIFEST, "media-type", entry.mimetype);
+            } else {
+                out.writeAttribute(MANIFEST, "media-type", "");
+            }
+            out.writeEndElement();
+        }
     }
 }

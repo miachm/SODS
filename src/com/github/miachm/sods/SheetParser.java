@@ -44,7 +44,7 @@ class SheetParser {
             if (instance.getTag().equals("table:table-column")) {
                 parseColumnProperties(instance, style);
             } else if (instance.getTag().equals("draw:frame")) {
-                parseDrawFrame(instance);
+                parseDrawFrame(instance, null, null);
             } else if (instance.getTag().equals("table:table-row")) {
                 if (style != null) rowDefaultStyles.put(rowCount, style);
 
@@ -114,17 +114,40 @@ class SheetParser {
         }
     }
 
-    private void parseDrawFrame(XmlReaderInstance frameInstance) {
+    private void parseDrawFrame(XmlReaderInstance frameInstance, Integer anchorRow, Integer anchorColumn) {
         if (frameInstance == null || spread == null) return;
         SpreadSheet.ChartFrame frame = buildChartFrame(frameInstance);
+        String frameName = frameInstance.getAttribValue("draw:name");
         while (frameInstance.hasNext()) {
-            XmlReaderInstance child = frameInstance.nextElement("draw:object", "draw:object-ole");
+            XmlReaderInstance child = frameInstance.nextElement("draw:object", "draw:object-ole", "draw:image");
             if (child == null) break;
-            String href = child.getAttribValue("xlink:href");
-            if (href != null) {
-                String objectPath = normalizeObjectPath(href);
-                if (objectPath != null) {
-                    spread.registerChartObject(objectPath, sheet, frame);
+            if ("draw:image".equals(child.getTag())) {
+                String href = child.getAttribValue("xlink:href");
+                String mimeType = child.getAttribValue("draw:mime-type");
+                String imagePath = normalizeObjectPath(href);
+                if (imagePath != null) {
+                    if (anchorRow != null && anchorColumn != null) {
+                        sheet.getCell(anchorRow, anchorColumn);
+                    }
+                    SheetImage image = new SheetImage(imagePath, mimeType, null);
+                    image.setName(frameName);
+                    if (frame != null) {
+                        image.setX(frame.x);
+                        image.setY(frame.y);
+                        image.setWidth(frame.width);
+                        image.setHeight(frame.height);
+                    }
+                    image.setAnchorRow(anchorRow);
+                    image.setAnchorColumn(anchorColumn);
+                    sheet.addImage(image);
+                }
+            } else {
+                String href = child.getAttribValue("xlink:href");
+                if (href != null) {
+                    String objectPath = normalizeObjectPath(href);
+                    if (objectPath != null) {
+                        spread.registerChartObject(objectPath, sheet, frame);
+                    }
                 }
             }
         }
@@ -215,19 +238,23 @@ class SheetParser {
             if (style == null) style = rowDefaultStyles.get(sheet.getMaxRows() - 1);
             if (style != null && !style.isDefault()) range.setStyle(style);
 
-            readCellText(instance, range);
+            readCellContent(instance, range, positionX, positionY);
             column += numberColumnsRepeated;
         }
     }
 
-    private void readCellText(XmlReaderInstance cellReader, Range range) {
+    private void readCellContent(XmlReaderInstance cellReader, Range range, int row, int column) {
         StringBuffer s = new StringBuffer();
         boolean firstTextElement = true;
 
         XmlReaderInstance textElement;
-        while ((textElement = cellReader.nextElement("text:p", "text:h", "office:annotation")) != null) {
+        while ((textElement = cellReader.nextElement("text:p", "text:h", "office:annotation", "draw:frame")) != null) {
             if (textElement.getTag().equals("office:annotation")) {
                 range.setAnnotation(getOfficeAnnotation(textElement));
+                continue;
+            }
+            if (textElement.getTag().equals("draw:frame")) {
+                parseDrawFrame(textElement, row, column);
                 continue;
             }
 

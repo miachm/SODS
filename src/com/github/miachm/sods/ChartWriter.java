@@ -64,7 +64,13 @@ class ChartWriter {
             return;
         }
         out.writeStartElement(TABLE, "shapes");
-        int zIndex = 0;
+        writeDrawFramesContent(out, sheet, 0);
+        out.writeEndElement();
+    }
+
+    int writeDrawFramesContent(XMLStreamWriter out, Sheet sheet, int startZIndex) throws XMLStreamException {
+        List<ChartEntry> sheetCharts = getChartEntriesForSheet(sheet);
+        int zIndex = startZIndex;
         for (ChartEntry entry : sheetCharts) {
             Chart chart = entry.chart;
             out.writeStartElement(DRAW, "frame");
@@ -87,7 +93,11 @@ class ChartWriter {
 
             out.writeEndElement();
         }
-        out.writeEndElement();
+        return zIndex;
+    }
+
+    boolean hasCharts(Sheet sheet) {
+        return !getChartEntriesForSheet(sheet).isEmpty();
     }
 
     private void initChartEntries() {

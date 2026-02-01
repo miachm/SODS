@@ -2,6 +2,10 @@ package com.github.miachm.sods;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.github.miachm.sods.OpenDocumentNamespaces.*;
 
@@ -36,7 +40,7 @@ class SheetWriter {
                 out.writeAttribute(TABLE, "protection-key-digest-algorithm", sheet.getHashedAlgorithm());
             }
 
-            chartWriter.writeDrawFrames(out, sheet);
+            writeShapes(out, sheet);
             writeColumnsStyles(out, sheet);
             writeRows(out, sheet);
 
@@ -75,18 +79,104 @@ class SheetWriter {
     }
 
     private void writeRows(XMLStreamWriter out, Sheet sheet) throws XMLStreamException {
+        Map<Long, List<SheetImage>> anchoredImages = buildAnchoredImageMap(sheet);
+        int rowIndex = 0;
         for (Row row : sheet.rows) {
-            out.writeStartElement(TABLE, "table-row");
-            if (row.num_repeated > 1)
-                out.writeAttribute(TABLE, "number-rows-repeated", ""+row.num_repeated);
-            writeRowStyles(out, row);
-
-            for (Cell cell :  row.cells) {
-                writeCell(out, cell);
+            int repeatRows = Math.max(1, row.num_repeated);
+            if (repeatRows > 1 && hasImagesInRowSpan(anchoredImages, rowIndex, repeatRows)) {
+                for (int i = 0; i < repeatRows; i++) {
+                    writeRow(out, row, 1, rowIndex + i, anchoredImages);
+                }
+            } else {
+                writeRow(out, row, repeatRows, rowIndex, anchoredImages);
             }
+            rowIndex += repeatRows;
+        }
+    }
+
+    private void writeRow(XMLStreamWriter out, Row row, int repeatRows, int rowIndex,
+                          Map<Long, List<SheetImage>> anchoredImages) throws XMLStreamException {
+        out.writeStartElement(TABLE, "table-row");
+        if (repeatRows > 1) {
+            out.writeAttribute(TABLE, "number-rows-repeated", "" + repeatRows);
+        }
+        writeRowStyles(out, row);
+
+        int columnIndex = 0;
+        for (Cell cell : row.cells) {
+            int repeatColumns = Math.max(1, cell.num_repeated);
+            if (repeatColumns > 1 && hasImagesInColumnSpan(anchoredImages, rowIndex, columnIndex, repeatColumns)) {
+                for (int i = 0; i < repeatColumns; i++) {
+                    writeCell(out, cell, anchoredImages, rowIndex, columnIndex + i, 1);
+                }
+            } else {
+                writeCell(out, cell, anchoredImages, rowIndex, columnIndex, repeatColumns);
+            }
+            columnIndex += repeatColumns;
+        }
+
+        out.writeEndElement();
+    }
+
+    private void writeShapes(XMLStreamWriter out, Sheet sheet) throws XMLStreamException {
+        List<SheetImage> images = sheet.getImages();
+        List<SheetImage> unanchoredImages = filterUnanchoredImages(images);
+        boolean hasImages = !unanchoredImages.isEmpty();
+        boolean hasCharts = chartWriter.hasCharts(sheet);
+        if (!hasImages && !hasCharts) {
+            return;
+        }
+        out.writeStartElement(TABLE, "shapes");
+        int zIndex = 0;
+        if (hasCharts) {
+            zIndex = chartWriter.writeDrawFramesContent(out, sheet, zIndex);
+        }
+        if (hasImages) {
+            writeImageFrames(out, unanchoredImages, zIndex);
+        }
+        out.writeEndElement();
+    }
+
+    private void writeImageFrames(XMLStreamWriter out, List<SheetImage> images, int startZIndex) throws XMLStreamException {
+        int zIndex = startZIndex;
+        for (SheetImage image : images) {
+            if (image == null) continue;
+            spread.registerImage(image);
+            String path = image.getPath();
+            if (path == null) continue;
+            out.writeStartElement(DRAW, "frame");
+            out.writeAttribute(DRAW, "z-index", String.valueOf(zIndex++));
+            if (image.getName() != null) {
+                out.writeAttribute(DRAW, "name", image.getName());
+            }
+            out.writeAttribute(SVG, "width", normalizeSize(image.getWidth(), "5cm"));
+            out.writeAttribute(SVG, "height", normalizeSize(image.getHeight(), "5cm"));
+            out.writeAttribute(SVG, "x", normalizeSize(image.getX(), "0cm"));
+            out.writeAttribute(SVG, "y", normalizeSize(image.getY(), "0cm"));
+
+            out.writeStartElement(DRAW, "image");
+            out.writeAttribute(XLINK, "href", path);
+            out.writeAttribute(XLINK, "type", "simple");
+            out.writeAttribute(XLINK, "show", "embed");
+            out.writeAttribute(XLINK, "actuate", "onLoad");
+            if (image.getMimeType() != null) {
+                out.writeAttribute(DRAW, "mime-type", image.getMimeType());
+            }
+            out.writeEndElement();
 
             out.writeEndElement();
         }
+    }
+
+    private String normalizeSize(String size, String fallback) {
+        if (size == null || size.trim().isEmpty()) {
+            return fallback;
+        }
+        String trimmed = size.trim();
+        if (trimmed.endsWith("cm") || trimmed.endsWith("mm") || trimmed.endsWith("in") || trimmed.endsWith("pt")) {
+            return trimmed;
+        }
+        return trimmed + "cm";
     }
 
     private void writeRowStyles(XMLStreamWriter out, Row row) throws XMLStreamException {
@@ -96,7 +186,8 @@ class SheetWriter {
         writeRowHeight(out, row);
     }
 
-    private void writeCell(XMLStreamWriter out, Cell cell) throws XMLStreamException {
+    private void writeCell(XMLStreamWriter out, Cell cell, Map<Long, List<SheetImage>> anchoredImages,
+                           int rowIndex, int columnIndex, int repeatColumns) throws XMLStreamException {
         String formula = cell.getFormula();
         Style style = cell.getStyle();
 
@@ -109,8 +200,8 @@ class SheetWriter {
             }
         }
         out.writeStartElement(TABLE, "table-cell");
-        if (cell.num_repeated > 1)
-            out.writeAttribute(TABLE, "number-columns-repeated", ""+ cell.num_repeated);
+        if (repeatColumns > 1)
+            out.writeAttribute(TABLE, "number-columns-repeated", ""+ repeatColumns);
         if (group != null) {
             if (group.getLength().getY() > 1)
                 out.writeAttribute(TABLE, "number-columns-spanned", "" + group.getLength().getY());
@@ -123,6 +214,7 @@ class SheetWriter {
 
         styleWriter.setCellStyle(out, style);
         writeValue(out, cell);
+        writeCellImages(out, anchoredImages, rowIndex, columnIndex);
         out.writeEndElement();
     }
 
@@ -198,5 +290,108 @@ class SheetWriter {
             if (name != null)
                 out.writeAttribute(TABLE, "style-name", name);
         }
+    }
+
+    private Map<Long, List<SheetImage>> buildAnchoredImageMap(Sheet sheet) {
+        Map<Long, List<SheetImage>> map = new HashMap<>();
+        List<SheetImage> images = sheet.getImages();
+        if (images == null) {
+            return map;
+        }
+        for (SheetImage image : images) {
+            if (image == null) continue;
+            Integer row = image.getAnchorRow();
+            Integer column = image.getAnchorColumn();
+            if (row == null || column == null) {
+                continue;
+            }
+            long key = anchorKey(row, column);
+            List<SheetImage> list = map.computeIfAbsent(key, k -> new ArrayList<>());
+            list.add(image);
+        }
+        return map;
+    }
+
+    private void writeCellImages(XMLStreamWriter out, Map<Long, List<SheetImage>> anchoredImages,
+                                 int rowIndex, int columnIndex) throws XMLStreamException {
+        if (anchoredImages == null || anchoredImages.isEmpty()) {
+            return;
+        }
+        List<SheetImage> images = anchoredImages.get(anchorKey(rowIndex, columnIndex));
+        if (images == null || images.isEmpty()) {
+            return;
+        }
+        for (SheetImage image : images) {
+            if (image == null) continue;
+            spread.registerImage(image);
+            String path = image.getPath();
+            if (path == null) continue;
+            out.writeStartElement(DRAW, "frame");
+            if (image.getName() != null) {
+                out.writeAttribute(DRAW, "name", image.getName());
+            }
+            out.writeAttribute(SVG, "width", normalizeSize(image.getWidth(), "5cm"));
+            out.writeAttribute(SVG, "height", normalizeSize(image.getHeight(), "5cm"));
+            out.writeAttribute(SVG, "x", normalizeSize(image.getX(), "0cm"));
+            out.writeAttribute(SVG, "y", normalizeSize(image.getY(), "0cm"));
+
+            out.writeStartElement(DRAW, "image");
+            out.writeAttribute(XLINK, "href", path);
+            out.writeAttribute(XLINK, "type", "simple");
+            out.writeAttribute(XLINK, "show", "embed");
+            out.writeAttribute(XLINK, "actuate", "onLoad");
+            if (image.getMimeType() != null) {
+                out.writeAttribute(DRAW, "mime-type", image.getMimeType());
+            }
+            out.writeEndElement();
+
+            out.writeEndElement();
+        }
+    }
+
+    private long anchorKey(int row, int column) {
+        return (((long) row) << 32) | (column & 0xffffffffL);
+    }
+
+    private boolean hasImagesInColumnSpan(Map<Long, List<SheetImage>> anchoredImages, int row,
+                                          int columnStart, int columns) {
+        if (anchoredImages == null || anchoredImages.isEmpty()) {
+            return false;
+        }
+        for (int i = 0; i < columns; i++) {
+            if (anchoredImages.containsKey(anchorKey(row, columnStart + i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasImagesInRowSpan(Map<Long, List<SheetImage>> anchoredImages, int rowStart, int rows) {
+        if (anchoredImages == null || anchoredImages.isEmpty()) {
+            return false;
+        }
+        for (int i = 0; i < rows; i++) {
+            int row = rowStart + i;
+            for (Long key : anchoredImages.keySet()) {
+                if ((key >> 32) == row) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private List<SheetImage> filterUnanchoredImages(List<SheetImage> images) {
+        if (images == null || images.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<SheetImage> unanchored = new ArrayList<>();
+        for (SheetImage image : images) {
+            if (image == null) continue;
+            if (image.getAnchorRow() == null || image.getAnchorColumn() == null) {
+                unanchored.add(image);
+            }
+        }
+        return unanchored;
     }
 }

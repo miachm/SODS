@@ -1,5 +1,6 @@
 package com.github.miachm.sods;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,6 +66,11 @@ class OdsReader {
                 checkMimeType();
                 mimetypeChecked = true;
                 options.getLogger().fine("Mimetype verified");
+            } else if (entry.startsWith("Pictures/")) {
+                byte[] data = readEntryData(uncompressor.getInputStream());
+                if (data != null) {
+                    spread.registerFile(entry, guessImageMimeType(entry), data);
+                }
             }
             entry = uncompressor.nextFile();
         }
@@ -116,5 +122,28 @@ class OdsReader {
         }
 
         reader.close();
+    }
+
+    private byte[] readEntryData(InputStream in) throws IOException {
+        if (in == null) return null;
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        byte[] buffer = new byte[4096];
+        int read;
+        while ((read = in.read(buffer)) >= 0) {
+            if (read == 0) continue;
+            output.write(buffer, 0, read);
+        }
+        return output.toByteArray();
+    }
+
+    private String guessImageMimeType(String path) {
+        if (path == null) return null;
+        String lower = path.toLowerCase(Locale.US);
+        if (lower.endsWith(".png")) return "image/png";
+        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
+        if (lower.endsWith(".gif")) return "image/gif";
+        if (lower.endsWith(".bmp")) return "image/bmp";
+        if (lower.endsWith(".svg")) return "image/svg+xml";
+        return null;
     }
 }
