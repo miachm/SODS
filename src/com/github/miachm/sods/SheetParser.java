@@ -324,7 +324,7 @@ class SheetParser {
                     try {
                         if (content != null) annotation.setLastModified(LocalDateTime.parse(content));
                     } catch (DateTimeParseException e) {
-                        System.err.println("DATE INVALID IN OFFICE ANNOTATION");
+                        logger().warning("Invalid date in office annotation.");
                     }
                 }
             } else if (instance.getTag().equals("text:p")) {
@@ -345,9 +345,13 @@ class SheetParser {
             try {
                 num = Integer.parseInt(attrib);
             } catch (NumberFormatException e) {
-                System.err.println("Invalid number of characters: " + attrib);
+                logger().warning("Invalid number of characters: " + attrib);
             }
         }
         return num;
+    }
+
+    private java.util.logging.Logger logger() {
+        return options == null ? java.util.logging.Logger.getLogger("ODS_Reader") : options.getLogger();
     }
 }

@@ -13,7 +13,7 @@ class OdsReader {
     private final XmlReader reader = new XmlReaderEventImpl();
     private final ChartParser chartParser;
     private final SpreadSheet spread;
-    private final StylesParser stylesParser = new StylesParser();
+    private final StylesParser stylesParser;
     private final SpreadsheetParser spreadsheetParser;
     private final OdsOptionParameters options;
 
@@ -21,6 +21,7 @@ class OdsReader {
         this.spread = spread;
         this.uncompressor = new Uncompressor(in);
         this.options = options;
+        this.stylesParser = new StylesParser(options);
         this.spreadsheetParser = new SpreadsheetParser(stylesParser, spread, options);
         this.chartParser = new ChartParser(stylesParser, spread, options);
     }
@@ -29,6 +30,7 @@ class OdsReader {
         this.spread = spread;
         this.uncompressor = new Uncompressor(file);
         this.options = options;
+        this.stylesParser = new StylesParser(options);
         this.spreadsheetParser = new SpreadsheetParser(stylesParser, spread, options);
         this.chartParser = new ChartParser(stylesParser, spread, options);
     }
