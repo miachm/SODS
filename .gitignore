@@ -31,3 +31,10 @@ nb-configuration.xml
 # MacOS
 #------------------------------------------------
 .DS_Store
+
+# Local artifacts
+#------------------------------------------------
+*.zip
+/*.ods
+/resources/**/
+nul
