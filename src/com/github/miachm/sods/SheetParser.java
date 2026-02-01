@@ -9,14 +9,16 @@ class SheetParser {
     private final Sheet sheet;
     private final StylesParser stylesParser;
     private final SpreadSheet spread;
+    private final OdsOptionParameters options;
     private final Map<Integer, Style> columnDefaultStyles = new HashMap<>();
     private final Map<Integer, Style> rowDefaultStyles = new HashMap<>();
     private final Set<Pair<Vector, Vector>> groupCells = new HashSet<>();
 
-    public SheetParser(Sheet sheet, StylesParser stylesParser, SpreadSheet spread) {
+    public SheetParser(Sheet sheet, StylesParser stylesParser, SpreadSheet spread, OdsOptionParameters options) {
         this.sheet = sheet;
         this.stylesParser = stylesParser;
         this.spread = spread;
+        this.options = options;
     }
 
     public void parseSheet(XmlReaderInstance reader) {
@@ -122,6 +124,9 @@ class SheetParser {
             XmlReaderInstance child = frameInstance.nextElement("draw:object", "draw:object-ole", "draw:image");
             if (child == null) break;
             if ("draw:image".equals(child.getTag())) {
+                if (options != null && !options.isLoadImages()) {
+                    continue;
+                }
                 String href = child.getAttribValue("xlink:href");
                 String mimeType = child.getAttribValue("draw:mime-type");
                 String imagePath = normalizeObjectPath(href);
@@ -142,6 +147,9 @@ class SheetParser {
                     sheet.addImage(image);
                 }
             } else {
+                if (options != null && !options.isLoadGraphs()) {
+                    continue;
+                }
                 String href = child.getAttribValue("xlink:href");
                 if (href != null) {
                     String objectPath = normalizeObjectPath(href);

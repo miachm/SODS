@@ -67,16 +67,20 @@ class OdsReader {
                 mimetypeChecked = true;
                 options.getLogger().fine("Mimetype verified");
             } else if (entry.startsWith("Pictures/")) {
-                byte[] data = readEntryData(uncompressor.getInputStream());
-                if (data != null) {
-                    spread.registerFile(entry, guessImageMimeType(entry), data);
+                if (options.isLoadImages()) {
+                    byte[] data = readEntryData(uncompressor.getInputStream());
+                    if (data != null) {
+                        spread.registerFile(entry, guessImageMimeType(entry), data);
+                    }
                 }
             }
             entry = uncompressor.nextFile();
         }
         uncompressor.close();
         spread.trimSheets();
-        chartParser.resolveChartData();
+        if (options.isLoadGraphs()) {
+            chartParser.resolveChartData();
+        }
         options.getLogger().info("Spreadsheet loaded, " + spread.getNumSheets() + " sheet(s)");
 
         if (!mimetypeChecked) {
@@ -114,7 +118,9 @@ class OdsReader {
             XmlReaderInstance spreadsheetInstance = contentInstance.nextElement("office:spreadsheet", "office:chart");
             if (spreadsheetInstance != null) {
                 if (spreadsheetInstance.getTag().equals("office:chart")) {
-                    chartParser.parseContent(spreadsheetInstance, entryName);
+                    if (options.isLoadGraphs()) {
+                        chartParser.parseContent(spreadsheetInstance, entryName);
+                    }
                 } else {
                     spreadsheetParser.parseContent(contentInstance);
                 }

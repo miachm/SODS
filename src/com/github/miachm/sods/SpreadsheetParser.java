@@ -24,7 +24,7 @@ class SpreadsheetParser {
                 if (shouldLoadSheet) {
                     options.getLogger().fine("Loading sheet " + currentSheetIndex + ": '" + name + "'");
                     Sheet sheet = new Sheet(name, 0, 0);
-                    SheetParser sheetParser = new SheetParser(sheet, stylesParser, spread);
+                    SheetParser sheetParser = new SheetParser(sheet, stylesParser, spread, options);
                     sheetParser.parseSheet(tableInstance);
                     spread.appendSheet(sheet);
                 } else {
