@@ -65,4 +65,27 @@ public class ChartTest {
         assertEquals(1300d, ((Number) values[11][0]).doubleValue());
     }
 
+    @Test
+    public void testLiveChartRanges() throws Exception {
+        SpreadSheet spread = new SpreadSheet(new File("resources/bargraph.ods"));
+        Chart chart = spread.getCharts().get(0);
+        ChartSeries series = chart.getSeries().get(0);
+        Range valuesRange = series.getValuesRangeObject();
+
+        valuesRange.getCell(0, 0).setValue(999d);
+        valuesRange.getCell(11, 0).setValue(1111d);
+
+        File out = File.createTempFile("sods-live-chart", ".ods");
+        out.deleteOnExit();
+        spread.save(out);
+
+        SpreadSheet reloaded = new SpreadSheet(out);
+        Chart reloadedChart = reloaded.getCharts().get(0);
+        ChartSeries reloadedSeries = reloadedChart.getSeries().get(0);
+        Range reloadedValues = reloadedSeries.getValuesRangeObject();
+        Object[][] values = reloadedValues.getValues();
+
+        assertEquals(999d, ((Number) values[0][0]).doubleValue());
+        assertEquals(1111d, ((Number) values[11][0]).doubleValue());
+    }
 }
