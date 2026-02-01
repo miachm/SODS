@@ -900,7 +900,10 @@ class ChartWriter {
         if (type == null) {
             return false;
         }
-        return "line".equalsIgnoreCase(type) || "chart:line".equalsIgnoreCase(type);
+        return "line".equalsIgnoreCase(type)
+                || "chart:line".equalsIgnoreCase(type)
+                || "area".equalsIgnoreCase(type)
+                || "chart:area".equalsIgnoreCase(type);
     }
 
     private boolean hasLineCustomAxes(Chart chart) {

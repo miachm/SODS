@@ -130,6 +130,13 @@ class SheetParser {
                 String href = child.getAttribValue("xlink:href");
                 String mimeType = child.getAttribValue("draw:mime-type");
                 String imagePath = normalizeObjectPath(href);
+                if (imagePath == null) {
+                    options.getLogger().warning("ImagePath is null. Checking if the image is inline");
+                    if (hasInlineBinaryData(child)) {
+                        options.getLogger().warning("Skipping inline image with office:binary-data (unsupported).");
+                    }
+                    continue;
+                }
                 if (imagePath != null) {
                     if (anchorRow != null && anchorColumn != null) {
                         sheet.getCell(anchorRow, anchorColumn);
@@ -188,6 +195,16 @@ class SheetParser {
             trimmed = trimmed.substring(0, trimmed.length() - 1);
         }
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private boolean hasInlineBinaryData(XmlReaderInstance imageInstance) {
+        if (imageInstance == null) return false;
+        while (imageInstance.hasNext()) {
+            XmlReaderInstance binary = imageInstance.nextElement("office:binary-data");
+            if (binary == null) break;
+            return true;
+        }
+        return false;
     }
 
     private void processCells(XmlReaderInstance reader, int numberRowsRepeated) {
