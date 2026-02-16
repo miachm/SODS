@@ -1,6 +1,7 @@
 package com.github.miachm.sods;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -107,8 +108,6 @@ public class SpreadSheet implements Cloneable {
      * Remove all sheets of the book. This only remove the link, the sheets objects are not modified in any way.
      */
     public void clear(){
-        for (Sheet sheet : sheets) {
-        }
         sheets.clear();
     }
 
@@ -119,9 +118,7 @@ public class SpreadSheet implements Cloneable {
      * @throws IndexOutOfBoundsException if the index is out of range
      */
     public void deleteSheet(int pos) {
-        Sheet removed = sheets.remove(pos);
-        if (removed != null) {
-        }
+        sheets.remove(pos);
     }
 
     /**
@@ -150,10 +147,7 @@ public class SpreadSheet implements Cloneable {
      * @see #deleteSheet(String)
      */
     public boolean deleteSheet(Sheet sheet){
-        boolean removed = sheets.remove(sheet);
-        if (removed) {
-        }
-        return removed;
+        return sheets.remove(sheet);
     }
 
     /**
@@ -213,9 +207,7 @@ public class SpreadSheet implements Cloneable {
     {
         if (sheet == null)
             throw new NullPointerException();
-        Sheet old = sheets.set(pos,sheet);
-        if (old != null) {
-        }
+        sheets.set(pos,sheet);
     }
 
     /**
@@ -227,7 +219,7 @@ public class SpreadSheet implements Cloneable {
      * @throws IOException In case of an io error.
      */
     public void save(File out) throws IOException {
-        save(new FileOutputStream(out));
+        save(Files.newOutputStream(out.toPath()));
     }
 
     /**
