@@ -46,12 +46,6 @@ class ChartRangeResolver {
         if (chartSheet != null && sheetName.equals(chartSheet.getName())) {
             return chartSheet;
         }
-        if (chartSheet != null) {
-            SpreadSheet parent = SheetRegistry.lookup(chartSheet);
-            if (parent != null) {
-                return parent.getSheet(sheetName);
-            }
-        }
         return null;
     }
 

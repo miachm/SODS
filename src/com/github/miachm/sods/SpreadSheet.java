@@ -101,7 +101,6 @@ public class SpreadSheet implements Cloneable {
             throw new NullPointerException();
 
         sheets.add(pos,sheet);
-        SheetRegistry.register(this, sheet);
     }
 
     /**
@@ -109,7 +108,6 @@ public class SpreadSheet implements Cloneable {
      */
     public void clear(){
         for (Sheet sheet : sheets) {
-            SheetRegistry.unregister(sheet);
         }
         sheets.clear();
     }
@@ -123,7 +121,6 @@ public class SpreadSheet implements Cloneable {
     public void deleteSheet(int pos) {
         Sheet removed = sheets.remove(pos);
         if (removed != null) {
-            SheetRegistry.unregister(removed);
         }
     }
 
@@ -140,7 +137,6 @@ public class SpreadSheet implements Cloneable {
             Sheet sheet = sheets.get(i);
             if (sheet.getName().equals(name)) {
                 sheets.remove(i);
-                SheetRegistry.unregister(sheet);
                 removed = true;
             }
         }
@@ -156,7 +152,6 @@ public class SpreadSheet implements Cloneable {
     public boolean deleteSheet(Sheet sheet){
         boolean removed = sheets.remove(sheet);
         if (removed) {
-            SheetRegistry.unregister(sheet);
         }
         return removed;
     }
@@ -220,9 +215,7 @@ public class SpreadSheet implements Cloneable {
             throw new NullPointerException();
         Sheet old = sheets.set(pos,sheet);
         if (old != null) {
-            SheetRegistry.unregister(old);
         }
-        SheetRegistry.register(this, sheet);
     }
 
     /**
