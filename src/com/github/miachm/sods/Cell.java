@@ -72,10 +72,10 @@ class Cell extends TableField {
         this.value = value;
         if (value instanceof LocalDate) {
             if (style.getDataStyle() == null) {
-                style.setDataStyle(Style.ISO_DATE_DATA_STYLE);
+                getStyle().setDataStyle(Style.ISO_DATE_DATA_STYLE);
             }
         } else if (Style.ISO_DATE_DATA_STYLE.equals(style.getDataStyle())) {
-            style.setDataStyle(null);
+            getStyle().setDataStyle(null);
         }
     }
 
