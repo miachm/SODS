@@ -14,18 +14,18 @@ A simple Java library for reading and writing ODS (OpenDocument Spreadsheet) fil
 <dependency>
     <groupId>com.github.miachm.sods</groupId>
     <artifactId>SODS</artifactId>
-    <version>1.8.2</version>
+    <version>1.8.3</version>
 </dependency>
 ```
 ### Gradle Kotlin DSL
 ```kotlin
-implementation("com.github.miachm.sods:SODS:1.8.2")
+implementation("com.github.miachm.sods:SODS:1.8.3")
 ```
 ### Gradle Groovy DSL
 ```groovy
-implementation 'com.github.miachm.sods:SODS:1.8.2'
+implementation 'com.github.miachm.sods:SODS:1.8.3'
 ```
-### [Other Dependency Management](https://search.maven.org/artifact/com.github.miachm.sods/SODS/1.8.2/jar)
+### [Other Dependency Management](https://search.maven.org/artifact/com.github.miachm.sods/SODS/1.8.3/jar)
 
 ## Docs
 You can access the javadocs [here](https://miachm.github.io/SODS/)
