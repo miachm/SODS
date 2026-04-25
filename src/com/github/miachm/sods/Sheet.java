@@ -21,6 +21,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
 
     List<Column> columns = new ArrayList<>();
     List<Row> rows = new ArrayList<>();
+    private final CellStore cellStore;
     private String name;
     private int numColumns = 0;
     private int numRows = 0;
@@ -61,6 +62,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         if (name == null)
             throw new NullPointerException("The name of the sheet can't be null");
 
+        this.cellStore = new LegacyRleCellStore(this);
         this.name = name;
         appendColumns(columns);
         appendRows(rows);
@@ -491,6 +493,14 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         return images;
     }
 
+    List<Row> getRowsInternal() {
+        return rows;
+    }
+
+    List<Column> getColumnsInternal() {
+        return columns;
+    }
+
     private String formatSize(double mm) {
         double cm = mm / 10.0;
         return String.format(java.util.Locale.US, "%.3fcm", cm);
@@ -622,6 +632,10 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         return getIndexDelete(fields, index).first;
     }
 
+    CellStore getCellStore() {
+        return cellStore;
+    }
+
     Cell getCell(int row,int column){
         Row item;
         if (row == numRows-1) {
@@ -631,6 +645,378 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
             item = getFieldForEditing(rows, Row::new, row);
         }
         return getFieldForEditing(item.cells, Cell::new, column);
+    }
+
+    void setRangeValueUniform(int rowStart, int numRows, int colStart, int numCols, Object value) {
+        cellStore.iterateUniformWrite(rowStart, numRows, colStart, numCols, (cell, row, col) -> cell.setValue(value));
+    }
+
+    void setRangeFormulaUniform(int rowStart, int numRows, int colStart, int numCols, String formula) {
+        cellStore.iterateUniformWrite(rowStart, numRows, colStart, numCols, (cell, row, col) -> cell.setFormula(formula));
+    }
+
+    void setRangeStyleUniform(int rowStart, int numRows, int colStart, int numCols, Style style) {
+        cellStore.iterateUniformWrite(rowStart, numRows, colStart, numCols, (cell, row, col) -> cell.setStyle(style));
+    }
+
+    /**
+     * Iterates over a rectangular cell range by walking the RLE structure sequentially,
+     * without mutating it. This is O(stored_rows + stored_cols) rather than the
+     * O(numRows * numCols * stored_rows) cost of calling getCell() per coordinate.
+     *
+     * Cells that are absent from storage (e.g. trailing empty rows/columns) are skipped;
+     * the consumer is never called for them, so callers that pre-initialise their output
+     * array with a default value (null, "") will see the correct result automatically.
+     */
+    void iterateCellsSequentially(int rowStart, int numRows, int colStart, int numCols, RangeIterator consumer) {
+        final int rowEnd = rowStart + numRows;
+        final int colEnd = colStart + numCols;
+        int logicalRow = 0;
+
+        for (Row row : rows) {
+            if (logicalRow >= rowEnd) break;
+            final int rowBlockEnd = logicalRow + row.num_repeated;
+
+            if (rowBlockEnd > rowStart) {
+                final int rStart = Math.max(logicalRow, rowStart);
+                final int rEnd   = Math.min(rowBlockEnd, rowEnd);
+
+                for (int r = rStart; r < rEnd; r++) {
+                    int logicalCol = 0;
+                    for (Cell cell : row.cells) {
+                        if (logicalCol >= colEnd) break;
+                        final int colBlockEnd = logicalCol + cell.num_repeated;
+
+                        if (colBlockEnd > colStart) {
+                            final int cStart = Math.max(logicalCol, colStart);
+                            final int cEnd   = Math.min(colBlockEnd, colEnd);
+
+                            Cell actualCell = cell;
+                            GroupCell groupCell = cell.getGroup();
+                            if (groupCell != null) actualCell = groupCell.getCell();
+
+                            for (int c = cStart; c < cEnd; c++) {
+                                consumer.call(actualCell, r - rowStart, c - colStart);
+                            }
+                        }
+                        logicalCol = colBlockEnd;
+                    }
+                    // columns beyond stored cells are implicitly empty — skipped
+                }
+            }
+            logicalRow = rowBlockEnd;
+        }
+    }
+
+    /**
+     * Applies a mutation once per <em>physical</em> {@link Cell} RLE block that intersects the
+     * range (not once per logical row/column), when the range fully covers that block. Partial
+     * overlaps delegate to {@link #iterateCellsForWriting} in a second pass so the row list is
+     * not mutated while iterating it.
+     */
+    void iterateCellsForUniformWriting(int rowStart, int numRows, int colStart, int numCols, RangeIterator consumer) {
+        if (numRows <= 0 || numCols <= 0) {
+            return;
+        }
+        if (handleUniformWriteFastPaths(rowStart, numRows, colStart, numCols, consumer)) {
+            return;
+        }
+        final int rowEnd = rowStart + numRows;
+        final int colEnd = colStart + numCols;
+        List<int[]> partialRects = new ArrayList<>();
+
+        collectUniformWriteRects(rowStart, rowEnd, colStart, colEnd, consumer, partialRects);
+        applyUniformWriteRects(rowStart, colStart, consumer, partialRects);
+    }
+
+    /**
+     * Visits each logical cell in a rectangle for mutation, advancing through the row/column
+     * RLE lists with a cursor. This avoids {@link #getCell(int, int)} which calls
+     * {@link #getIndexDelete(List, int)} from scratch for every coordinate; after repeated
+     * splits that becomes O(n²) for n rows.
+     */
+    void iterateCellsForWriting(int rowStart, int numRows, int colStart, int numCols, RangeIterator consumer) {
+        if (numRows <= 0 || numCols <= 0) {
+            return;
+        }
+        final int rowEnd = rowStart + numRows;
+        RowCursor cursor = alignRowCursor(rowStart);
+
+        for (int r = rowStart; r < rowEnd; r++) {
+            Row rowObj = acquireWritableRowAt(r, cursor);
+            iterateRowCellsForWriting(rowObj, r - rowStart, colStart, numCols, consumer);
+            cursor.index++;
+            cursor.begin = r + 1;
+        }
+    }
+
+    private void iterateRowCellsForWriting(Row row, int relRow, int colStart, int numCols, RangeIterator consumer) {
+        final int colEnd = colStart + numCols;
+        List<Cell> cells = row.cells;
+        ColCursor cursor = new ColCursor();
+        for (int c = colStart; c < colEnd; c++) {
+            Cell cellEntry = acquireWritableCellAt(cells, colEnd, c, cursor);
+            if (cellEntry.num_repeated > 1) {
+                splitField(cells, cursor.index, 1);
+                cellEntry = cells.get(cursor.index);
+            }
+
+            Cell actual = cellEntry.getGroup() != null ? cellEntry.getGroup().getCell() : cellEntry;
+            consumer.call(actual, relRow, c - colStart);
+            cursor.index++;
+            cursor.begin = c + 1;
+        }
+    }
+
+    private boolean handleUniformWriteFastPaths(int rowStart, int numRows, int colStart, int numCols, RangeIterator consumer) {
+        if (numRows == 1 && numCols == 1) {
+            Cell cell = getCell(rowStart, colStart);
+            consumer.call(cell.getGroup() != null ? cell.getGroup().getCell() : cell, 0, 0);
+            return true;
+        }
+        if (numRows == 1 && rowStart == this.numRows - 1) {
+            int lastIdx = rows.size() - 1;
+            Row lastRow = rows.get(lastIdx);
+            if (lastRow.num_repeated > 1) {
+                splitField(rows, lastIdx, lastRow.num_repeated - 1);
+                lastIdx++;
+                lastRow = rows.get(lastIdx);
+            }
+            iterateRowCellsForWriting(lastRow, 0, colStart, numCols, consumer);
+            return true;
+        }
+        return false;
+    }
+
+    private void collectUniformWriteRects(int rowStart, int rowEnd, int colStart, int colEnd,
+                                          RangeIterator consumer, List<int[]> partialRects) {
+        int logicalRow = 0;
+        int rIdx = 0;
+        while (rIdx < rows.size() && logicalRow < rowEnd) {
+            Row row = rows.get(rIdx);
+            int rowWidth = row.num_repeated;
+            if (rowWidth <= 0) {
+                rows.remove(rIdx);
+                continue;
+            }
+            int rowBlockEnd = logicalRow + rowWidth;
+            processUniformRowBlock(row, logicalRow, rowBlockEnd, rowStart, rowEnd, colStart, colEnd, consumer, partialRects);
+            logicalRow = rowBlockEnd;
+            rIdx++;
+        }
+    }
+
+    private void processUniformRowBlock(Row row, int logicalRow, int rowBlockEnd, int rowStart, int rowEnd,
+                                        int colStart, int colEnd, RangeIterator consumer, List<int[]> partialRects) {
+        if (rowBlockEnd <= rowStart) {
+            return;
+        }
+        int rStart = Math.max(logicalRow, rowStart);
+        int rEnd = Math.min(rowBlockEnd, rowEnd);
+        if (rStart >= rEnd) {
+            return;
+        }
+        int logicalCol = processUniformCellsInRow(row, logicalRow, rowBlockEnd, rStart, rEnd, colStart, colEnd, rowStart, consumer, partialRects);
+        if (logicalCol < colEnd) {
+            int cStart = Math.max(logicalCol, colStart);
+            if (cStart < colEnd) {
+                partialRects.add(new int[] { rStart, rEnd, cStart, colEnd });
+            }
+        }
+    }
+
+    private int processUniformCellsInRow(Row row, int logicalRow, int rowBlockEnd, int rStart, int rEnd, int colStart,
+                                         int colEnd, int rowStart, RangeIterator consumer, List<int[]> partialRects) {
+        int logicalCol = 0;
+        for (int cIdx = 0; cIdx < row.cells.size(); cIdx++) {
+            Cell cell = row.cells.get(cIdx);
+            int colWidth = cell.num_repeated;
+            if (colWidth <= 0) {
+                row.cells.remove(cIdx--);
+                continue;
+            }
+            int colBlockEnd = logicalCol + colWidth;
+            if (logicalCol >= colEnd) {
+                break;
+            }
+            addUniformCellOrRect(cell, logicalRow, rowBlockEnd, logicalCol, colBlockEnd, rStart, rEnd, colStart, colEnd, rowStart, consumer, partialRects);
+            logicalCol = colBlockEnd;
+        }
+        return logicalCol;
+    }
+
+    private void addUniformCellOrRect(Cell cell, int logicalRow, int rowBlockEnd, int logicalCol, int colBlockEnd, int rStart,
+                                      int rEnd, int colStart, int colEnd, int rowStart, RangeIterator consumer, List<int[]> partialRects) {
+        if (colBlockEnd <= colStart) {
+            return;
+        }
+        int cStart = Math.max(logicalCol, colStart);
+        int cEnd = Math.min(colBlockEnd, colEnd);
+        if (cStart >= cEnd) {
+            return;
+        }
+        Cell actualCell = cell.getGroup() != null ? cell.getGroup().getCell() : cell;
+        boolean fullRowRun = rStart == logicalRow && rEnd == rowBlockEnd;
+        boolean fullColRun = cStart == logicalCol && cEnd == colBlockEnd;
+        if (fullRowRun && fullColRun) {
+            consumer.call(actualCell, rStart - rowStart, cStart - colStart);
+        } else {
+            partialRects.add(new int[] { rStart, rEnd, cStart, cEnd });
+        }
+    }
+
+    private void applyUniformWriteRects(int rowStart, int colStart, RangeIterator consumer, List<int[]> partialRects) {
+        for (int[] rect : partialRects) {
+            int r0 = rect[0];
+            int r1 = rect[1];
+            int c0 = rect[2];
+            int c1 = rect[3];
+            iterateCellsForWriting(r0, r1 - r0, c0, c1 - c0,
+                    (cell, rr, cc) -> consumer.call(cell, rr + (r0 - rowStart), cc + (c0 - colStart)));
+        }
+    }
+
+    private RowCursor alignRowCursor(int rowStart) {
+        RowCursor cursor = new RowCursor();
+        while (cursor.index < rows.size()) {
+            int width = rows.get(cursor.index).num_repeated;
+            if (width <= 0) {
+                rows.remove(cursor.index);
+                continue;
+            }
+            if (cursor.begin + width > rowStart) {
+                break;
+            }
+            cursor.begin += width;
+            cursor.index++;
+        }
+        if (cursor.index < rows.size() && cursor.begin < rowStart) {
+            splitField(rows, cursor.index, rowStart - cursor.begin);
+            cursor.index++;
+            cursor.begin = rowStart;
+        }
+        return cursor;
+    }
+
+    private Row acquireWritableRowAt(int targetRow, RowCursor cursor) {
+        while (cursor.index < rows.size()) {
+            int width = rows.get(cursor.index).num_repeated;
+            if (width <= 0) {
+                rows.remove(cursor.index);
+                continue;
+            }
+            if (cursor.begin + width > targetRow) {
+                break;
+            }
+            cursor.begin += width;
+            cursor.index++;
+        }
+        if (cursor.index >= rows.size()) {
+            Row row = new Row();
+            row.num_repeated = 1;
+            rows.add(row);
+            cursor.index = rows.size() - 1;
+            cursor.begin = targetRow;
+            return row;
+        }
+        if (cursor.begin < targetRow) {
+            splitField(rows, cursor.index, targetRow - cursor.begin);
+            cursor.index++;
+            cursor.begin = targetRow;
+        }
+        Row rowObj = rows.get(cursor.index);
+        if (rowObj.num_repeated > 1) {
+            splitField(rows, cursor.index, 1);
+            rowObj = rows.get(cursor.index);
+        }
+        return rowObj;
+    }
+
+    private Cell acquireWritableCellAt(List<Cell> cells, int colEnd, int targetCol, ColCursor cursor) {
+        while (cursor.index < cells.size()) {
+            int width = cells.get(cursor.index).num_repeated;
+            if (width <= 0) {
+                cells.remove(cursor.index);
+                continue;
+            }
+            if (cursor.begin + width > targetCol) {
+                break;
+            }
+            cursor.begin += width;
+            cursor.index++;
+        }
+        if (cursor.index >= cells.size()) {
+            if (cursor.begin < targetCol) {
+                Cell pad = new Cell();
+                pad.num_repeated = targetCol - cursor.begin;
+                cells.add(pad);
+                cursor.begin = targetCol;
+            }
+            Cell tail = new Cell();
+            tail.num_repeated = colEnd - targetCol;
+            cells.add(tail);
+            cursor.index = cells.size() - 1;
+            return tail;
+        }
+        if (cursor.begin < targetCol) {
+            splitField(cells, cursor.index, targetCol - cursor.begin);
+            cursor.index++;
+            cursor.begin = targetCol;
+        }
+        return cells.get(cursor.index);
+    }
+
+    private static final class RowCursor {
+        private int index;
+        private int begin;
+    }
+
+    private static final class ColCursor {
+        private int index;
+        private int begin;
+    }
+
+    /**
+     * Splits fields[idx] into two entries: [0, splitPoint) and [splitPoint, num_repeated).
+     */
+    private <T extends TableField> void splitField(List<T> fields, int idx, int splitPoint) {
+        T entry = fields.get(idx);
+        T tail = (T) entry.clone();
+        tail.num_repeated = entry.num_repeated - splitPoint;
+        entry.num_repeated = splitPoint;
+        fields.add(idx + 1, tail);
+    }
+
+    /**
+     * Transitional cell-store adapter: keeps current RLE storage internals while
+     * allowing parser/range paths to depend on a storage abstraction.
+     */
+    private static final class LegacyRleCellStore implements CellStore {
+        private final Sheet sheet;
+
+        private LegacyRleCellStore(Sheet sheet) {
+            this.sheet = sheet;
+        }
+
+        @Override
+        public Cell getCell(int row, int column) {
+            return sheet.getCell(row, column);
+        }
+
+        @Override
+        public void iterateReadOnly(int rowStart, int numRows, int colStart, int numCols, RangeIterator consumer) {
+            sheet.iterateCellsSequentially(rowStart, numRows, colStart, numCols, consumer);
+        }
+
+        @Override
+        public void iterateUniformWrite(int rowStart, int numRows, int colStart, int numCols, RangeIterator consumer) {
+            sheet.iterateCellsForUniformWriting(rowStart, numRows, colStart, numCols, consumer);
+        }
+
+        @Override
+        public void iterateWrite(int rowStart, int numRows, int colStart, int numCols, RangeIterator consumer) {
+            sheet.iterateCellsForWriting(rowStart, numRows, colStart, numCols, consumer);
+        }
     }
 
     /**

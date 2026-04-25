@@ -64,7 +64,7 @@ class StyleWriter {
         writeDataFormatStyles(out);
 
         for (Sheet sheet : spread.getSheets()) {
-            for (Row row : sheet.rows) {
+            for (Row row : sheet.getRowsInternal()) {
                 for (Cell cell : row.cells) {
                     Style style = cell.getStyle();
 
@@ -79,7 +79,7 @@ class StyleWriter {
                 }
             }
 
-            for (Column column : sheet.columns) {
+            for (Column column : sheet.getColumnsInternal()) {
                 Double width = column.column_style.getWidth();
                 if (width != null) {
                     writeColumnStyle(out, width);

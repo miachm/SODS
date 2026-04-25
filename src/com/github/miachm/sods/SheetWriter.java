@@ -52,7 +52,7 @@ class SheetWriter {
     }
 
     private void writeColumnsStyles(XMLStreamWriter out, Sheet sheet) throws XMLStreamException {
-        for (Column column : sheet.columns){
+        for (Column column : sheet.getColumnsInternal()){
             out.writeStartElement(TABLE, "table-column");
             if (column.num_repeated > 1)
                 out.writeAttribute(TABLE, "number-columns-repeated", "" + column.num_repeated);
@@ -81,7 +81,7 @@ class SheetWriter {
     private void writeRows(XMLStreamWriter out, Sheet sheet) throws XMLStreamException {
         Map<Long, List<SheetImage>> anchoredImages = buildAnchoredImageMap(sheet);
         int rowIndex = 0;
-        for (Row row : sheet.rows) {
+        for (Row row : sheet.getRowsInternal()) {
             int repeatRows = Math.max(1, row.num_repeated);
             if (repeatRows > 1 && hasImagesInRowSpan(anchoredImages, rowIndex, repeatRows)) {
                 for (int i = 0; i < repeatRows; i++) {

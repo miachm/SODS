@@ -48,7 +48,7 @@ public class Range {
      */
 
     public void clear(){
-        iterateRange((cell,row,column) -> cell.clear());
+        iterateRangeUniform((cell,row,column) -> cell.clear());
     }
 
     /**
@@ -128,7 +128,7 @@ public class Range {
     public String[][] getFormulas(){
         String[][] formulas = new String[getNumRows()][getNumColumns()];
 
-        iterateRange((cell,row,column) -> formulas[row][column] = cell.getFormula());
+        iterateRangeReadOnly((cell,row,column) -> formulas[row][column] = cell.getFormula());
 
         return formulas;
     }
@@ -159,7 +159,7 @@ public class Range {
      */
     public Range[] getMergedCells() {
         Set<GroupCell> groupCells = new TreeSet<>();
-        iterateRange((cell, row, column) -> {
+        iterateRangeReadOnly((cell, row, column) -> {
             if (cell.getGroup() != null)
                 groupCells.add(cell.getGroup());
         });
@@ -237,7 +237,7 @@ public class Range {
      */
     public Object[][] getValues(){
         Object[][] values = new Object[getNumRows()][getNumColumns()];
-        iterateRange((cell,row,column) -> values[row][column] = cell.getValue());
+        iterateRangeReadOnly((cell,row,column) -> values[row][column] = cell.getValue());
         return values;
     }
 
@@ -259,7 +259,7 @@ public class Range {
      */
     public Style[][] getStyles() {
         Style[][] arr = new Style[getNumRows()][getNumColumns()];
-        iterateRange((cell, row, column) ->  arr[row][column] = cell.getStyleCopy());
+        iterateRangeReadOnly((cell, row, column) ->  arr[row][column] = cell.getStyleCopy());
         return arr;
     }
 
@@ -283,7 +283,7 @@ public class Range {
     public OfficeAnnotation[][] getAnnotations()
     {
         OfficeAnnotation[][] arr = new OfficeAnnotation[getNumRows()][getNumColumns()];
-        iterateRange((cell, row, column) ->  arr[row][column] = cell.getAnnotation());
+        iterateRangeReadOnly((cell, row, column) ->  arr[row][column] = cell.getAnnotation());
         return arr;
     }
 
@@ -307,7 +307,7 @@ public class Range {
      *
      */
     public void setValue(Object o){
-        iterateRange((cell,row,column) -> cell.setValue(o));
+        iterateRangeUniform((cell,row,column) -> cell.setValue(o));
     }
 
     /**
@@ -326,7 +326,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setValues, the number of the arguments doesn't fit ("
                     + o.length + " against " + getNumValues() + ")");
 
-        iterateRange((cell,row,column) -> cell.setValue(o[row*getNumColumns()+column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.setValue(o[row*getNumColumns()+column]));
     }
 
     /**
@@ -345,7 +345,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setValues, the number of columns doesn't fit ("
                     + o[0].length + " against " + getNumColumns() + ")");
 
-        iterateRange((cell,row,column) -> cell.setValue(o[row][column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.setValue(o[row][column]));
     }
 
     /**
@@ -354,7 +354,7 @@ public class Range {
      * @param bold Boolean which indicates if the font has bold style or not
      */
     public void setFontBold(boolean bold) {
-        iterateRange((cell,row,column) -> cell.getStyle().setBold(bold));
+        iterateRangeUniform((cell,row,column) -> cell.getStyle().setBold(bold));
     }
 
     /**
@@ -373,7 +373,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setFontBold, the number of the arguments doesn't fit ("
                     + bold.length + " against " + getNumValues() + ")");
 
-        iterateRange((cell,row,column) -> cell.getStyle().setBold(bold[row*getNumColumns()+column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.getStyle().setBold(bold[row*getNumColumns()+column]));
     }
 
     /**
@@ -392,7 +392,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setFontBolds, the number of columns doesn't fit ("
                     + bold[0].length + " against " + getNumColumns() + ")");
 
-        iterateRange((cell,row,column) -> cell.getStyle().setBold(bold[row][column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.getStyle().setBold(bold[row][column]));
     }
 
     /**
@@ -402,7 +402,7 @@ public class Range {
      */
     public void setFontItalic(boolean italic)
     {
-        iterateRange((cell, row, column) -> cell.getStyle().setItalic(italic));
+        iterateRangeUniform((cell, row, column) -> cell.getStyle().setItalic(italic));
     }
 
     /**
@@ -421,7 +421,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setFontItalic, the number of the arguments doesn't fit ("
                     + italic.length + " against " + getNumValues() + ")");
 
-        iterateRange((cell,row,column) -> cell.getStyle().setItalic(italic[row*getNumColumns()+column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.getStyle().setItalic(italic[row*getNumColumns()+column]));
     }
 
     /**
@@ -441,7 +441,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setFontItalics, the number of columns doesn't fit ("
                     + italic[0].length + " against " + getNumColumns() + ")");
 
-        iterateRange((cell,row,column) -> cell.getStyle().setItalic(italic[row][column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.getStyle().setItalic(italic[row][column]));
     }
 
     /**
@@ -451,7 +451,7 @@ public class Range {
      */
     public void setFontUnderline(boolean underline)
     {
-        iterateRange((cell, row, column) -> cell.getStyle().setUnderline(underline));
+        iterateRangeUniform((cell, row, column) -> cell.getStyle().setUnderline(underline));
     }
 
     /**
@@ -471,7 +471,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setFontUnderlines, the number of the arguments doesn't fit ("
                     + underline.length + " against " + getNumValues() + ")");
 
-        iterateRange((cell,row,column) -> cell.getStyle().setUnderline(underline[row*getNumColumns()+column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.getStyle().setUnderline(underline[row*getNumColumns()+column]));
     }
 
     /**
@@ -491,7 +491,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setFontUnderlines, the number of columns doesn't fit ("
                     + underline[0].length + " against " + getNumColumns() + ")");
 
-        iterateRange((cell,row,column) -> cell.getStyle().setUnderline(underline[row][column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.getStyle().setUnderline(underline[row][column]));
     }
 
     /**
@@ -501,7 +501,7 @@ public class Range {
      */
     public void setFontLineThrough(boolean lineThrough)
     {
-        iterateRange((cell, row, column) -> cell.getStyle().setLineThrough(lineThrough));
+        iterateRangeUniform((cell, row, column) -> cell.getStyle().setLineThrough(lineThrough));
     }
 
     /**
@@ -521,7 +521,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setFontLineThroughs, the number of the arguments doesn't fit ("
                     + lineThrough.length + " against " + getNumValues() + ")");
 
-        iterateRange((cell,row,column) -> cell.getStyle().setLineThrough(lineThrough[row*getNumColumns()+column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.getStyle().setLineThrough(lineThrough[row*getNumColumns()+column]));
     }
 
     /**
@@ -541,7 +541,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setFontLineThroughs, the number of columns doesn't fit ("
                     + lineThrough[0].length + " against " + getNumColumns() + ")");
 
-        iterateRange((cell,row,column) -> cell.getStyle().setLineThrough(lineThrough[row][column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.getStyle().setLineThrough(lineThrough[row][column]));
     }
 
     /**
@@ -551,7 +551,7 @@ public class Range {
      */
     public void setFontColor(Color color)
     {
-        iterateRange((cell, row, column) -> cell.getStyle().setFontColor(color));
+        iterateRangeUniform((cell, row, column) -> cell.getStyle().setFontColor(color));
     }
 
     /**
@@ -574,7 +574,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setFontColors, the number of the arguments doesn't fit ("
                     + color.length + " against " + getNumValues() + ")");
 
-        iterateRange((cell,row,column) -> cell.getStyle().setFontColor(color[row*getNumColumns()+column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.getStyle().setFontColor(color[row*getNumColumns()+column]));
     }
 
     /**
@@ -594,7 +594,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setFontColors, the number of columns doesn't fit ("
                     + color[0].length + " against " + getNumColumns() + ")");
 
-        iterateRange((cell,row,column) -> cell.getStyle().setFontColor(color[row][column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.getStyle().setFontColor(color[row][column]));
     }
 
     /**
@@ -604,7 +604,7 @@ public class Range {
      */
     public void setBackgroundColor(Color color)
     {
-        iterateRange((cell, row, column) -> cell.getStyle().setBackgroundColor(color));
+        iterateRangeUniform((cell, row, column) -> cell.getStyle().setBackgroundColor(color));
     }
 
     /**
@@ -627,7 +627,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setBackgroundColors, the number of the arguments doesn't fit ("
                     + color.length + " against " + getNumValues() + ")");
 
-        iterateRange((cell,row,column) -> cell.getStyle().setBackgroundColor(color[row*getNumColumns()+column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.getStyle().setBackgroundColor(color[row*getNumColumns()+column]));
     }
 
     /**
@@ -647,7 +647,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setBackgroundColors, the number of columns doesn't fit ("
                     + color[0].length + " against " + getNumColumns() + ")");
 
-        iterateRange((cell,row,column) -> cell.getStyle().setBackgroundColor(color[row][column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.getStyle().setBackgroundColor(color[row][column]));
     }
 
     /**
@@ -658,7 +658,7 @@ public class Range {
      */
     public void setFontSize(int fontSize)
     {
-        iterateRange((cell, row, column) -> cell.getStyle().setFontSize(fontSize));
+        iterateRangeUniform((cell, row, column) -> cell.getStyle().setFontSize(fontSize));
     }
 
     /**
@@ -678,7 +678,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setFontSizes, the number of the arguments doesn't fit ("
                     + fontSizes.length + " against " + getNumValues() + ")");
 
-        iterateRange((cell,row,column) -> cell.getStyle().setFontSize(fontSizes[row*getNumColumns()+column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.getStyle().setFontSize(fontSizes[row*getNumColumns()+column]));
     }
 
     /**
@@ -698,26 +698,26 @@ public class Range {
             throw new IllegalArgumentException("Error in setFontSizes, the number of columns doesn't fit ("
                     + fontSizes[0].length + " against " + getNumColumns() + ")");
 
-        iterateRange((cell,row,column) -> cell.getStyle().setFontSize(fontSizes[row][column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.getStyle().setFontSize(fontSizes[row][column]));
     }
 
-    private void iterateRange(RangeIterator e){
-        for (int i = 0;i < numrows;i++){
-            for (int j = 0;j < numcolumns;j++) {
-                Cell cell = sheet.getCell(row_init+i,column_init+j);
-                GroupCell groupCell = cell.getGroup();
-                if (groupCell != null)
-                    cell = groupCell.getCell();
-                e.call(cell,i,j);
-            }
-        }
+    private void iterateRangeUniform(RangeIterator e) {
+        sheet.getCellStore().iterateUniformWrite(row_init, numrows, column_init, numcolumns, e);
+    }
+
+    private void iterateRangeEachLogicalCell(RangeIterator e) {
+        sheet.getCellStore().iterateWrite(row_init, numrows, column_init, numcolumns, e);
+    }
+
+    private void iterateRangeReadOnly(RangeIterator e){
+        sheet.getCellStore().iterateReadOnly(row_init, numrows, column_init, numcolumns, e);
     }
 
     private String valuesToString(){
         StringBuilder builder = new StringBuilder();
 
         MutableInteger lastRow = new MutableInteger();
-        iterateRange((cell, i, j) -> {
+        iterateRangeReadOnly((cell, i, j) -> {
             if (lastRow.number != i) {
                 builder.append("\n");
                 lastRow.number = i;
@@ -738,7 +738,7 @@ public class Range {
      */
     public void setFormula(String formula)
     {
-        iterateRange((cell,row,column) -> cell.setFormula(formula));
+        iterateRangeUniform((cell,row,column) -> cell.setFormula(formula));
     }
 
     /**
@@ -754,7 +754,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setFormulas, the number of the arguments doesn't fit ("
                     + formula.length + " against " + getNumValues() + ")");
 
-        iterateRange((cell,row,column) -> cell.setFormula(formula[row*getNumColumns()+column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.setFormula(formula[row*getNumColumns()+column]));
     }
 
     /**
@@ -775,7 +775,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setFormulas, the number of columns doesn't fit ("
                     + formula[0].length + " against " + getNumColumns() + ")");
 
-        iterateRange((cell,row,column) -> cell.setFormula(formula[row][column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.setFormula(formula[row][column]));
     }
 
     @Override
@@ -798,7 +798,7 @@ public class Range {
      */
     public void setStyle(Style style)
     {
-        iterateRange((cell, row, column) -> cell.setStyle(style));
+        iterateRangeUniform((cell, row, column) -> cell.setStyle(style));
     }
 
     /**
@@ -812,7 +812,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setStyles, the number of the arguments doesn't fit ("
                     + style.length + " against " + getNumValues() + ")");
 
-        iterateRange((cell,row,column) -> cell.setStyle(style[row*getNumColumns()+column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.setStyle(style[row*getNumColumns()+column]));
     }
 
     /**
@@ -832,7 +832,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setStyles, the number of columns doesn't fit ("
                     + style[0].length + " against " + getNumColumns() + ")");
 
-        iterateRange((cell,row,column) -> cell.setStyle(style[row][column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.setStyle(style[row][column]));
     }
 
     /**
@@ -843,7 +843,7 @@ public class Range {
      */
     public void setAnnotation(OfficeAnnotation annotation)
     {
-        iterateRange((cell, row, column) -> cell.setAnnotation(annotation));
+        iterateRangeUniform((cell, row, column) -> cell.setAnnotation(annotation));
     }
 
     /**
@@ -858,7 +858,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setAnnotations, the number of the arguments doesn't fit ("
                     + annotations.length + " against " + getNumValues() + ")");
 
-        iterateRange((cell,row,column) -> cell.setAnnotation(annotations[row*getNumColumns()+column]));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.setAnnotation(annotations[row*getNumColumns()+column]));
     }
 
     /**
@@ -878,7 +878,7 @@ public class Range {
             throw new IllegalArgumentException("Error in setAnnotations, the number of columns doesn't fit ("
                     + annotations[0].length + " against " + getNumColumns() + ")");
 
-        iterateRange((cell, row, column) -> cell.setAnnotation(annotations[row][column]));
+        iterateRangeEachLogicalCell((cell, row, column) -> cell.setAnnotation(annotations[row][column]));
     }
 
     /**
@@ -898,7 +898,7 @@ public class Range {
         Vector length = new Vector(getNumRows(), getNumColumns());
         Cell firstCell = sheet.getCell(row_init,column_init);
         GroupCell groupCell = new GroupCell(cord, length, firstCell);
-        iterateRange((cell,row,column) -> cell.setGroup(groupCell));
+        iterateRangeEachLogicalCell((cell,row,column) -> cell.setGroup(groupCell));
     }
 
     private boolean rowInRange(int row)

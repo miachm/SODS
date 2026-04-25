@@ -992,4 +992,59 @@ public class RangeTest {
         assertEquals(arr[1][1], null);
         assertEquals(arr[1][2], annotation);
     }
+
+    @Test
+    public void testSetFormulaUniformFillsMissingTailCellsInSingleRow() throws Exception {
+        Sheet sheet = new Sheet("A", 3, 3);
+
+        // Materialize only the first column in the first row.
+        sheet.getRange(0, 0).setValue("seed");
+
+        // Apply a uniform write over a row that still has implicit tail cells.
+        Range firstRow = sheet.getRange(0, 0, 1, 3);
+        firstRow.setFormula("=A1");
+
+        String[][] formulas = firstRow.getFormulas();
+        assertEquals(formulas[0][0], "=A1");
+        assertEquals(formulas[0][1], "=A1");
+        assertEquals(formulas[0][2], "=A1");
+    }
+
+    @Test
+    public void testSetStyleUniformAcrossSplitRepeatedRows() throws Exception {
+        Sheet sheet = new Sheet("A", 4, 2);
+
+        // Split row runs and materialize one logical cell.
+        sheet.getRange(1, 0).setValue("x");
+
+        Style style = new Style();
+        style.setUnderline(true);
+        style.setFontSize(11);
+
+        // Uniform write across rows that include both split and repeated segments.
+        Range block = sheet.getRange(1, 0, 3, 2);
+        block.setStyle(style);
+
+        Style[][] styles = block.getStyles();
+        for (int i = 0; i < styles.length; i++) {
+            for (int j = 0; j < styles[i].length; j++) {
+                assertEquals(styles[i][j], style);
+            }
+        }
+    }
+
+    @Test
+    public void testSetValueUniformOnLastRowFastPath() throws Exception {
+        Sheet sheet = new Sheet("A", 3, 4);
+        Range lastRow = sheet.getRange(2, 0, 1, 4);
+        lastRow.setValue(7);
+
+        Object[][] values = sheet.getDataRange().getValues();
+        assertNull(values[0][0]);
+        assertNull(values[1][3]);
+        assertEquals(values[2][0], 7);
+        assertEquals(values[2][1], 7);
+        assertEquals(values[2][2], 7);
+        assertEquals(values[2][3], 7);
+    }
 }

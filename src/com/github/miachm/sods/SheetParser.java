@@ -276,17 +276,20 @@ class SheetParser {
                 sheet.appendColumns(positionY + numberColumnsRepeated - sheet.getMaxColumns());
             }
 
-            Range range = sheet.getRange(positionX, positionY, numberRowsRepeated, numberColumnsRepeated);
-
             String formula = instance.getAttribValue("table:formula");
-            if (formula != null) range.setFormula(formula);
-            range.setValue(value);
+            if (formula != null) {
+                sheet.setRangeFormulaUniform(positionX, numberRowsRepeated, positionY, numberColumnsRepeated, formula);
+            }
+            sheet.setRangeValueUniform(positionX, numberRowsRepeated, positionY, numberColumnsRepeated, value);
 
             Style style = stylesParser.getCellStyle(instance.getAttribValue("table:style-name"));
             if (style == null) style = columnDefaultStyles.get(column);
             if (style == null) style = rowDefaultStyles.get(sheet.getMaxRows() - 1);
-            if (style != null && !style.isDefault()) range.setStyle(style);
+            if (style != null && !style.isDefault()) {
+                sheet.setRangeStyleUniform(positionX, numberRowsRepeated, positionY, numberColumnsRepeated, style);
+            }
 
+            Range range = sheet.getRange(positionX, positionY, numberRowsRepeated, numberColumnsRepeated);
             readCellContent(instance, range, positionX, positionY);
             column += numberColumnsRepeated;
         }
