@@ -712,7 +712,6 @@ public class Range {
     private void iterateRangeReadOnly(RangeIterator e){
         sheet.getCellStore().iterateReadOnly(row_init, numrows, column_init, numcolumns, e);
     }
-
     private String valuesToString(){
         StringBuilder builder = new StringBuilder();
 
@@ -951,5 +950,13 @@ public class Range {
     public boolean isPartOfMerge()
     {
         return getMergedCells().length > 0;
+    }
+
+    /**
+     * Iterates over the cells in this range, in row-major order and execute a lambda for each cell.
+     * @param consumer The consumer to be called for each cell.
+     */
+    public void forEach(LogicalCellConsumer consumer) {
+        new CellIterator(sheet, row_init, column_init, row_init + numrows, column_init + numcolumns).foreachRemaining(consumer);
     }
 }

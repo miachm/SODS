@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 public class RangeTest {
     @Test
