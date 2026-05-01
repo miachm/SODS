@@ -792,8 +792,7 @@ public class Range {
     /**
      * Set a format style for all the cells of the range
      *
-     * @param style The style to apply. Cells will receive a clone of this object.
-     * @throws IllegalArgumentException if the style is null
+     * @param style The style to apply. Cells will receive a clone of this object. Style means default format style.
      */
     public void setStyle(Style style)
     {
@@ -803,8 +802,8 @@ public class Range {
     /**
      * Set a set of format styles to the range. The array must have the same size of the entire range itself.
      *
-     * @param style The style array, it must the same size of the range itself.
-     * @throws IllegalArgumentException if the number of values is not equals to the size of range or a style is null
+     * @param style The style array, it must the same size of the range itself. Style means default format style.
+     * @throws IllegalArgumentException if the number of values is not equals to the size of range
      */
     public void setStyles(Style... style){
         if (style.length != getNumValues())
@@ -817,8 +816,8 @@ public class Range {
     /**
      * Set a set of styles to the range. The array must have the same size of the entire range itself
      *
-     * @param style The style 2D-array, it must have the same size of the range itself
-     * @throws IllegalArgumentException if the number of values is not equals to the size of range or a style is null
+     * @param style The style 2D-array, it must have the same size of the range itself. Style means default format style.
+     * @throws IllegalArgumentException if the number of values is not equals to the size of range
      */
     public void setStyles(Style style[][])
     {

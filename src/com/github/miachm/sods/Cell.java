@@ -43,8 +43,10 @@ class Cell extends TableField {
 
     void setStyle(Style style)
     {
-        if (style == null)
-            throw new IllegalArgumentException("Style can not be null");
+        if (style == null) {
+            this.style = Style.default_style;
+            return;
+        }
         try {
             this.style = (Style) style.clone();
         } catch (CloneNotSupportedException e) {
