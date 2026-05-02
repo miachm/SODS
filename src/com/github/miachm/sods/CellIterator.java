@@ -22,14 +22,6 @@ class CellIterator {
     private Cell currentCell;
     private boolean currentPrepared;
 
-    CellIterator(Sheet sheet) {
-        this(sheet, 0, 0, sheet.getMaxRows(), sheet.getMaxColumns());
-    }
-
-    CellIterator(Sheet sheet, int rowIndex, int columnIndex) {
-        this(sheet, rowIndex, columnIndex, sheet.getMaxRows(), sheet.getMaxColumns());
-    }
-
     CellIterator(Sheet sheet, int rowIndex, int columnIndex, int endRowExclusive, int endColumnExclusive) {
         if (sheet == null) {
             throw new NullPointerException("Sheet can not be null");
