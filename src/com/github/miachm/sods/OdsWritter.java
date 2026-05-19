@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 import static com.github.miachm.sods.OpenDocumentNamespaces.*;
 
@@ -47,6 +48,7 @@ class OdsWritter {
             styleWriter.writeSettingsStyleFile(out);
             chartWriter.writeCharts(out);
             writeExtraFiles();
+            writeMacros();
         } catch (XMLStreamException e) {
             throw new GenerateOdsException(e);
         }
@@ -84,6 +86,7 @@ class OdsWritter {
 
             chartWriter.appendManifestEntries(out);
             appendExtraFileEntries(out);
+            appendMacroManifestEntries(out);
 
             out.writeEndElement();
             out.writeEndDocument();
@@ -140,6 +143,31 @@ class OdsWritter {
     private void writeExtraFiles() throws IOException {
         for (FileEntry entry : imageObjectRegistry.getFiles())
             this.out.addEntry(entry.data, entry.path);
+    }
+
+    private void writeMacros() throws IOException {
+        if (!spread.getMacroRegistry().hasMacros()) return;
+        for (FileEntry entry : spread.getMacroRegistry().buildZipEntries()) {
+            this.out.addEntry(entry.data, entry.path);
+        }
+    }
+
+    private void appendMacroManifestEntries(XMLStreamWriter out) throws XMLStreamException {
+        if (!spread.getMacroRegistry().hasMacros()) return;
+        List<FileEntry> entries;
+        try {
+            entries = spread.getMacroRegistry().buildZipEntries();
+        } catch (IOException e) {
+            throw new GenerateOdsException(e);
+        }
+        for (FileEntry entry : entries) {
+            if (entry == null || entry.path == null) continue;
+            out.writeStartElement(MANIFEST, "file-entry");
+            out.writeAttribute(MANIFEST, "full-path", entry.path);
+            out.writeAttribute(MANIFEST, "media-type",
+                    entry.mimetype != null ? entry.mimetype : "");
+            out.writeEndElement();
+        }
     }
 
     private void prepareImages() {

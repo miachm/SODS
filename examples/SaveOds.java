@@ -1,3 +1,4 @@
+import com.github.miachm.sods.Macro;
 import com.github.miachm.sods.Sheet;
 import com.github.miachm.sods.SpreadSheet;
 
@@ -27,6 +28,7 @@ public class SaveOds {
 
             SpreadSheet spread = new SpreadSheet();
             spread.appendSheet(sheet);
+            spread.addMacro(new Macro("Module1", "Sub Main\nEnd Sub"));
             spread.save(new File("Out.ods"));
         } catch (IOException e){
             e.printStackTrace();

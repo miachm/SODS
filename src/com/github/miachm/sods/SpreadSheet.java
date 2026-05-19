@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 public class SpreadSheet implements Cloneable {
 
     private final List<Sheet> sheets = new ArrayList<Sheet>();
+    private final MacroRegistry macroRegistry = new MacroRegistry();
 
     /**
      * Create an empty spreadsheet
@@ -209,6 +210,59 @@ public class SpreadSheet implements Cloneable {
             throw new NullPointerException();
         sheets.set(pos,sheet);
     }
+
+    // -------------------------------------------------------------------------
+    // Macro API
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns an unmodifiable list of all macros stored in this spreadsheet.
+     *
+     * @return unmodifiable list of {@link Macro} objects, never null.
+     */
+    public List<Macro> getMacros() {
+        return macroRegistry.getMacros();
+    }
+
+    /**
+     * Adds a macro to this spreadsheet. If a macro with the same name already
+     * exists it will be replaced.
+     *
+     * @param macro the macro to add; must not be null.
+     * @throws NullPointerException if {@code macro} is null.
+     */
+    public void addMacro(Macro macro) {
+        macroRegistry.addMacro(macro);
+    }
+
+    /**
+     * Removes the macro with the given name.
+     *
+     * @param name the module name to remove.
+     * @return {@code true} if a macro was removed, {@code false} otherwise.
+     */
+    public boolean removeMacro(String name) {
+        return macroRegistry.removeMacro(name);
+    }
+
+    /**
+     * Replaces all macros with the provided list.
+     *
+     * @param macros list of macros; must not be null and must not contain null elements.
+     * @throws NullPointerException if {@code macros} or any element is null.
+     */
+    public void setMacros(List<Macro> macros) {
+        macroRegistry.setMacros(macros);
+    }
+
+    /** Package-private accessor used by {@code OdsReader} and {@code OdsWritter}. */
+    MacroRegistry getMacroRegistry() {
+        return macroRegistry;
+    }
+
+    // -------------------------------------------------------------------------
+    // Persistence
+    // -------------------------------------------------------------------------
 
     /**
      * Save this SpreadSheet in a ODS file.

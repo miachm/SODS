@@ -72,12 +72,21 @@ class OdsReader {
         options.getLogger().fine("Load options - styles=" + options.isLoadStyles()
                 + ", images=" + options.isLoadImages()
                 + ", graphs=" + options.isLoadGraphs()
+                + ", macros=" + options.isLoadMacros()
                 + ", sheetNumbers=" + options.getSheetNumbers());
         boolean mimetypeChecked = false;
         String entry = uncompressor.nextFile();
         while (entry != null) {
             options.getLogger().config("Parsing entry: " + entry);
-            if (entry.endsWith(".xml")) {
+            if (entry.startsWith("Basic/")) {
+                if (options.isLoadMacros()) {
+                    options.getLogger().finer("Loading macro entry: " + entry);
+                    spread.getMacroRegistry().readEntry(entry, uncompressor.getInputStream());
+                } else {
+                    options.getLogger().warning("Skipping macro entry (load macros disabled): " + entry);
+                    readEntryData(uncompressor.getInputStream());
+                }
+            } else if (entry.endsWith(".xml")) {
                 options.getLogger().info("Parsing XML entry: " + entry);
                 processContent(entry);
             } else if (entry.equals("mimetype")) {

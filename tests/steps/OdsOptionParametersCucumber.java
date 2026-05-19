@@ -6,6 +6,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Arrays;
@@ -36,6 +37,13 @@ public class OdsOptionParametersCucumber {
         OdsOptionParameters options = new OdsOptionParameters();
         options.setLoadStyles(false);
         World.spread = new SpreadSheet(new FileInputStream(new File("resources/" + resourceName + ".ods")), options);
+    }
+
+    @When("^load a spreadsheet from memory with load_macros false$")
+    public void load_a_spreadsheet_from_memory_with_load_macros_false() throws Throwable {
+        OdsOptionParameters options = new OdsOptionParameters();
+        options.setLoadMacros(false);
+        World.spread = new SpreadSheet(new ByteArrayInputStream(World.buffer), options);
     }
 
     @When("^I load a spreadsheet from the resource \"([^\"]*)\"$")

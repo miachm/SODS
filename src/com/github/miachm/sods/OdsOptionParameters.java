@@ -12,6 +12,7 @@ public class OdsOptionParameters {
     private boolean load_styles = true;
     private boolean load_images = true;
     private boolean load_graphs = true;
+    private boolean load_macros = true;
     private List<Integer> sheetNumbers;
     private Logger logger;
 
@@ -66,6 +67,21 @@ public class OdsOptionParameters {
 
     public void setLoadGraphs(boolean load_graphs) {
         this.load_graphs = load_graphs;
+    }
+
+    /**
+     * If it should load Basic macros or not.
+     * When {@code false}, all {@code Basic/} entries inside the ODS ZIP are
+     * skipped and the resulting {@link SpreadSheet} will have no macros.
+     *
+     * @return {@code true} if macros should be loaded (the default)
+     */
+    public boolean isLoadMacros() {
+        return load_macros;
+    }
+
+    public void setLoadMacros(boolean load_macros) {
+        this.load_macros = load_macros;
     }
 
     /**
