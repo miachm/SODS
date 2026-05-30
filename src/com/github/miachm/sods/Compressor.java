@@ -30,14 +30,27 @@ class Compressor implements Closeable {
     void addEntry(byte[] data,String name, boolean store) throws IOException {
         ZipEntry zipEntry = new ZipEntry(name);
         if (store) {
-            CRC32 checksum = new CRC32();
-            checksum.update(data);
-            zipEntry.setCrc(checksum.getValue());
-            zipEntry.setSize(data.length);
-            zipEntry.setMethod(ZipEntry.STORED);
+            applyStored(zipEntry, data);
         }
         out.putNextEntry(zipEntry);
         out.write(data);
         out.closeEntry();
+    }
+
+    void addStoredEntry(byte[] data, String name) throws IOException {
+        ZipEntry zipEntry = new ZipEntry(name);
+        applyStored(zipEntry, data);
+        out.putNextEntry(zipEntry);
+        out.write(data);
+        out.closeEntry();
+    }
+
+    private static void applyStored(ZipEntry zipEntry, byte[] data) {
+        CRC32 checksum = new CRC32();
+        checksum.update(data);
+        zipEntry.setCrc(checksum.getValue());
+        zipEntry.setSize(data.length);
+        zipEntry.setCompressedSize(data.length);
+        zipEntry.setMethod(ZipEntry.STORED);
     }
 }

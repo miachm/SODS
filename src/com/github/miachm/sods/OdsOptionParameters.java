@@ -14,6 +14,7 @@ public class OdsOptionParameters {
     private boolean load_graphs = true;
     private boolean load_macros = true;
     private List<Integer> sheetNumbers;
+    private String password;
     private Logger logger;
 
     public OdsOptionParameters() {
@@ -98,5 +99,22 @@ public class OdsOptionParameters {
      */
     public void setSheetNumbers(List<Integer> sheetNumbers) {
         this.sheetNumbers = sheetNumbers;
+    }
+
+    /**
+     * Password for opening an encrypted ODF package (document-level encryption).
+     * Required when the file was saved with a document password; ignored for unencrypted files.
+     *
+     * @param password the password, or {@code null} if not encrypted
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    /**
+     * @return the password used to decrypt the package, or {@code null}
+     */
+    public String getPassword() {
+        return password;
     }
 }

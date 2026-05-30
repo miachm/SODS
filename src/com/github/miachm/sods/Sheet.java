@@ -1484,8 +1484,8 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
-     * Sets a password for a sheet. SODS will ignore this setting but other consumers will ask for a password to the user
-     * in order to access this sheet
+     * Sets a password for a sheet (only the sheet, not the document!). SODS will ignore this setting but other consumers will ask for a password to the user
+     * in order to access this specific sheet. In contrast with the global Spreadsheet method, this doesn't encrypt anything.
      * @param key the password. Sets the password to null to disable the password protection
      * @throws IllegalArgumentException if the password parameter is empty
      * @throws NoSuchAlgorithmException if your java installation doesn't have SHA-256 hash encryption

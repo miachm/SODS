@@ -20,41 +20,34 @@ class ChartWriter {
         initChartEntries();
     }
 
-    void appendManifestEntries(XMLStreamWriter out) throws XMLStreamException {
+    interface ManifestFileEntryWriter {
+        void write(XMLStreamWriter out, String path, String mediaType) throws XMLStreamException;
+    }
+
+    interface PackageEntryWriter {
+        void write(byte[] data, String path) throws IOException;
+    }
+
+    void appendManifestEntries(XMLStreamWriter out, ManifestFileEntryWriter writer) throws XMLStreamException {
         for (ChartEntry entry : chartEntries) {
             String objectName = entry.objectName;
-            out.writeStartElement(MANIFEST, "file-entry");
-            out.writeAttribute(MANIFEST, "full-path", objectName + "/meta.xml");
-            out.writeAttribute(MANIFEST, "media-type", "text/xml");
-            out.writeEndElement();
-
-            out.writeStartElement(MANIFEST, "file-entry");
-            out.writeAttribute(MANIFEST, "full-path", objectName + "/styles.xml");
-            out.writeAttribute(MANIFEST, "media-type", "text/xml");
-            out.writeEndElement();
-
-            out.writeStartElement(MANIFEST, "file-entry");
-            out.writeAttribute(MANIFEST, "full-path", objectName + "/content.xml");
-            out.writeAttribute(MANIFEST, "media-type", "text/xml");
-            out.writeEndElement();
-
-            out.writeStartElement(MANIFEST, "file-entry");
-            out.writeAttribute(MANIFEST, "full-path", objectName + "/");
-            out.writeAttribute(MANIFEST, "media-type", "application/vnd.oasis.opendocument.chart");
-            out.writeEndElement();
+            writer.write(out, objectName + "/meta.xml", "text/xml");
+            writer.write(out, objectName + "/styles.xml", "text/xml");
+            writer.write(out, objectName + "/content.xml", "text/xml");
+            writer.write(out, objectName + "/", "application/vnd.oasis.opendocument.chart");
         }
     }
 
-    void writeCharts(Compressor out) throws IOException, XMLStreamException {
+    void writeCharts(PackageEntryWriter writer) throws IOException, XMLStreamException {
         for (ChartEntry entry : chartEntries) {
             byte[] content = writeChartContent(entry);
-            out.addEntry(content, entry.objectName + "/content.xml");
+            writer.write(content, entry.objectName + "/content.xml");
 
             byte[] styles = writeChartStyles();
-            out.addEntry(styles, entry.objectName + "/styles.xml");
+            writer.write(styles, entry.objectName + "/styles.xml");
 
             byte[] meta = writeChartMeta();
-            out.addEntry(meta, entry.objectName + "/meta.xml");
+            writer.write(meta, entry.objectName + "/meta.xml");
         }
     }
 

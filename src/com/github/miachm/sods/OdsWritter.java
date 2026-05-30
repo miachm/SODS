@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.github.miachm.sods.OpenDocumentNamespaces.*;
 
@@ -24,10 +26,14 @@ class OdsWritter {
     private final SheetWriter sheetWriter;
     private final ImageObjectRegistry imageObjectRegistry;
     private final String MIMETYPE= "application/vnd.oasis.opendocument.spreadsheet";
+    private final String documentPassword;
+    private final Map<String, OdfEncryptionMetadata> encryptionByPath = new HashMap<>();
+    private List<FileEntry> macroEntries;
 
-    private OdsWritter(OutputStream o, SpreadSheet spread) {
+    private OdsWritter(OutputStream o, SpreadSheet spread, String documentPassword) {
         this.spread = spread;
         this.out = new Compressor(o);
+        this.documentPassword = documentPassword;
         spread.trimSheets();
         this.styleWriter = new StyleWriter(spread);
         this.chartWriter = new ChartWriter(spread);
@@ -36,22 +42,26 @@ class OdsWritter {
     }
 
     public static void save(OutputStream out, SpreadSheet spread) throws IOException {
-        new OdsWritter(out, spread).save();
+        save(out, spread, spread.getDocumentPassword());
+    }
+
+    public static void save(OutputStream out, SpreadSheet spread, String documentPassword) throws IOException {
+        new OdsWritter(out, spread, documentPassword).save();
     }
 
     private void save() throws IOException {
         prepareImages();
         writeMymeType();
-        writeManifest();
         try {
             writeSpreadsheet();
-            styleWriter.writeSettingsStyleFile(out);
-            chartWriter.writeCharts(out);
+            styleWriter.writeSettingsStyleFile(this::addPackageEntry);
+            chartWriter.writeCharts(this::addPackageEntry);
             writeExtraFiles();
             writeMacros();
         } catch (XMLStreamException e) {
             throw new GenerateOdsException(e);
         }
+        writeManifest();
         out.flush();
         out.close();
     }
@@ -74,17 +84,10 @@ class OdsWritter {
             out.writeAttribute(MANIFEST, "media-type", MIMETYPE);
             out.writeEndElement();
 
-            out.writeStartElement(MANIFEST, "file-entry");
-            out.writeAttribute(MANIFEST, "full-path", "content.xml");
-            out.writeAttribute(MANIFEST, "media-type", "text/xml");
-            out.writeEndElement();
+            writeManifestFileEntry(out, "content.xml", "text/xml");
+            writeManifestFileEntry(out, "styles.xml", "text/xml");
 
-            out.writeStartElement(MANIFEST, "file-entry");
-            out.writeAttribute(MANIFEST, "full-path", "styles.xml");
-            out.writeAttribute(MANIFEST, "media-type", "text/xml");
-            out.writeEndElement();
-
-            chartWriter.appendManifestEntries(out);
+            chartWriter.appendManifestEntries(out, this::writeManifestFileEntry);
             appendExtraFileEntries(out);
             appendMacroManifestEntries(out);
 
@@ -104,7 +107,7 @@ class OdsWritter {
         out.addEntry(MIMETYPE.getBytes(),"mimetype",true);
     }
 
-    private void writeSpreadsheet() throws UnsupportedEncodingException, XMLStreamException {
+    private void writeSpreadsheet() throws IOException, XMLStreamException {
         ByteArrayOutputStream output = new ByteArrayOutputStream(10*1024);
         XMLStreamWriter out = XMLOutputFactory.newInstance().createXMLStreamWriter(
                 new OutputStreamWriter(output, "utf-8"));
@@ -133,40 +136,51 @@ class OdsWritter {
         out.writeEndDocument();
         out.close();
 
-        try {
-            this.out.addEntry(output.toByteArray(),"content.xml");
-        } catch (IOException e) {
-            throw new GenerateOdsException(e);
-        }
+        addPackageEntry(output.toByteArray(), "content.xml");
     }
 
     private void writeExtraFiles() throws IOException {
         for (FileEntry entry : imageObjectRegistry.getFiles())
-            this.out.addEntry(entry.data, entry.path);
+            addPackageEntry(entry.data, entry.path);
     }
 
     private void writeMacros() throws IOException {
         if (!spread.getMacroRegistry().hasMacros()) return;
-        for (FileEntry entry : spread.getMacroRegistry().buildZipEntries()) {
-            this.out.addEntry(entry.data, entry.path);
+        macroEntries = spread.getMacroRegistry().buildZipEntries();
+        for (FileEntry entry : macroEntries) {
+            addPackageEntry(entry.data, entry.path);
         }
     }
 
-    private void appendMacroManifestEntries(XMLStreamWriter out) throws XMLStreamException {
-        if (!spread.getMacroRegistry().hasMacros()) return;
-        List<FileEntry> entries;
-        try {
-            entries = spread.getMacroRegistry().buildZipEntries();
-        } catch (IOException e) {
-            throw new GenerateOdsException(e);
+    private void addPackageEntry(byte[] data, String path) throws IOException {
+        if (OdfEncryption.shouldEncryptEntry(path, documentPassword)) {
+            OdfEncryption.EncryptResult result = OdfEncryption.encrypt(data, documentPassword);
+            encryptionByPath.put(path, result.metadata);
+            out.addStoredEntry(result.ciphertext, path);
+        } else {
+            out.addEntry(data, path);
         }
-        for (FileEntry entry : entries) {
+    }
+
+    private void writeManifestFileEntry(XMLStreamWriter out, String path, String mediaType)
+            throws XMLStreamException {
+        OdfEncryptionMetadata meta = encryptionByPath.get(path);
+        out.writeStartElement(MANIFEST, "file-entry");
+        out.writeAttribute(MANIFEST, "full-path", path);
+        out.writeAttribute(MANIFEST, "media-type", mediaType);
+        if (meta != null) {
+            out.writeAttribute(MANIFEST, "size", String.valueOf(meta.originalSize));
+            ManifestWriter.writeEncryptionData(out, meta);
+        }
+        out.writeEndElement();
+    }
+
+    private void appendMacroManifestEntries(XMLStreamWriter out) throws XMLStreamException {
+        if (macroEntries == null) return;
+        for (FileEntry entry : macroEntries) {
             if (entry == null || entry.path == null) continue;
-            out.writeStartElement(MANIFEST, "file-entry");
-            out.writeAttribute(MANIFEST, "full-path", entry.path);
-            out.writeAttribute(MANIFEST, "media-type",
+            writeManifestFileEntry(out, entry.path,
                     entry.mimetype != null ? entry.mimetype : "");
-            out.writeEndElement();
         }
     }
 
@@ -181,14 +195,8 @@ class OdsWritter {
     private void appendExtraFileEntries(XMLStreamWriter out) throws XMLStreamException {
         for (FileEntry entry : imageObjectRegistry.getFiles()) {
             if (entry == null || entry.path == null) continue;
-            out.writeStartElement(MANIFEST, "file-entry");
-            out.writeAttribute(MANIFEST, "full-path", entry.path);
-            if (entry.mimetype != null) {
-                out.writeAttribute(MANIFEST, "media-type", entry.mimetype);
-            } else {
-                out.writeAttribute(MANIFEST, "media-type", "");
-            }
-            out.writeEndElement();
+            writeManifestFileEntry(out, entry.path,
+                    entry.mimetype != null ? entry.mimetype : "");
         }
     }
 }

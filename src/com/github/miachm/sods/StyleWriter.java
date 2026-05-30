@@ -22,18 +22,19 @@ class StyleWriter {
         this.spread = spread;
     }
 
-    void writeSettingsStyleFile(Compressor out) throws UnsupportedEncodingException, XMLStreamException {
+    void writeSettingsStyleFile(ChartWriter.PackageEntryWriter entryWriter)
+            throws UnsupportedEncodingException, XMLStreamException {
         ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
-        XMLStreamWriter writer = javax.xml.stream.XMLOutputFactory.newInstance().createXMLStreamWriter(
+        XMLStreamWriter xmlWriter = javax.xml.stream.XMLOutputFactory.newInstance().createXMLStreamWriter(
                 new OutputStreamWriter(output, "utf-8"));
-        writer.writeStartDocument("UTF-8", "1.0");
-        writer.setPrefix("office", OFFICE);
-        writer.writeStartElement(OFFICE, "document-styles");
-        writer.writeNamespace("office", OFFICE);
-        writer.writeNamespace("style", STYLE);
-        writer.writeNamespace("fo", FONT);
-        writer.writeAttribute(OFFICE, "version", "1.2");
-        writer.writeStartElement(OFFICE, "styles");
+        xmlWriter.writeStartDocument("UTF-8", "1.0");
+        xmlWriter.setPrefix("office", OFFICE);
+        xmlWriter.writeStartElement(OFFICE, "document-styles");
+        xmlWriter.writeNamespace("office", OFFICE);
+        xmlWriter.writeNamespace("style", STYLE);
+        xmlWriter.writeNamespace("fo", FONT);
+        xmlWriter.writeAttribute(OFFICE, "version", "1.2");
+        xmlWriter.writeStartElement(OFFICE, "styles");
         // Write conditional formatting target styles as common styles
         for (Style style : stylesUsed.keySet()) {
             if (!style.getConditions().isEmpty()) {
@@ -41,18 +42,18 @@ class StyleWriter {
                     Style targetStyle = format.getStyleApplied();
                     String targetKey = stylesUsed.get(targetStyle);
                     if (targetKey != null) {
-                        writeCellStyle(writer, targetStyle, targetKey);
+                        writeCellStyle(xmlWriter, targetStyle, targetKey);
                     }
                 }
             }
         }
-        writer.writeEndElement();
-        writer.writeEndElement();
-        writer.writeEndDocument();
-        writer.close();
+        xmlWriter.writeEndElement();
+        xmlWriter.writeEndElement();
+        xmlWriter.writeEndDocument();
+        xmlWriter.close();
 
         try {
-            out.addEntry(output.toByteArray(), "styles.xml");
+            entryWriter.write(output.toByteArray(), "styles.xml");
         } catch (IOException e) {
             throw new GenerateOdsException(e);
         }

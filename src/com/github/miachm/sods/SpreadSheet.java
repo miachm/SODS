@@ -21,6 +21,7 @@ public class SpreadSheet implements Cloneable {
 
     private final List<Sheet> sheets = new ArrayList<Sheet>();
     private final MacroRegistry macroRegistry = new MacroRegistry();
+    private String documentPassword;
 
     /**
      * Create an empty spreadsheet
@@ -58,6 +59,9 @@ public class SpreadSheet implements Cloneable {
      * @see #SpreadSheet(InputStream)
      */
     public SpreadSheet(File file, OdsOptionParameters options) throws IOException {
+        if (options == null) {
+            throw new NullPointerException("OdsOptionParameters cannot be null");
+        }
         OdsReader.load(file, this, options);
     }
 
@@ -261,6 +265,33 @@ public class SpreadSheet implements Cloneable {
     }
 
     // -------------------------------------------------------------------------
+    // Document password (ODF package encryption)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Sets the password used to encrypt the ODS file when {@link #save(File)} or
+     * {@link #save(OutputStream)} is called. This is document-level encryption (the whole file
+     * is unreadable without the password in LibreOffice and other ODF consumers), not the same
+     * as {@link Sheet#setPassword(String)} which only protects individual sheets.
+     *
+     * @param password the password, or {@code null} to save without encryption
+     * @throws IllegalArgumentException if the password is empty
+     */
+    public void setDocumentPassword(String password) {
+        if (password != null && password.isEmpty()) {
+            throw new IllegalArgumentException("Password is empty");
+        }
+        this.documentPassword = password;
+    }
+
+    /**
+     * @return the document password set for saving, or {@code null} if the file will not be encrypted
+     */
+    public String getDocumentPassword() {
+        return documentPassword;
+    }
+
+    // -------------------------------------------------------------------------
     // Persistence
     // -------------------------------------------------------------------------
 
@@ -284,7 +315,7 @@ public class SpreadSheet implements Cloneable {
      * @throws IOException In case of an io error.
      */
     public void save(OutputStream out) throws IOException {
-        OdsWritter.save(out,this);
+        OdsWritter.save(out, this, documentPassword);
     }
 
     /**
