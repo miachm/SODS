@@ -155,6 +155,7 @@
             <configuration>
               <source>8</source>
               <failOnError>false</failOnError>
+              <nooverview>true</nooverview>
             </configuration>
             <executions>
               <execution>
