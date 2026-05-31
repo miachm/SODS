@@ -48,6 +48,8 @@ public class LogicalCell {
     /**
      * Returns the mutable style of this cell.
      * Changes are applied directly to the cell.
+     *
+     * @return Return the style in the Cell
      */
     public Style getStyle() {
         try {
