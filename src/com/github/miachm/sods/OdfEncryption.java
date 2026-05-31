@@ -14,8 +14,6 @@ import java.io.ByteArrayOutputStream;
 import java.security.SecureRandom;
 import java.util.Base64;
 
-import org.bouncycastle.crypto.generators.Argon2BytesGenerator;
-import org.bouncycastle.crypto.params.Argon2Parameters;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -167,16 +165,7 @@ class OdfEncryption {
     }
 
     private static byte[] argon2id(byte[] startKey, byte[] salt, int iterations, int memory, int lanes, int keyBytes) {
-        Argon2Parameters.Builder builder = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)
-                .withSalt(salt)
-                .withIterations(iterations)
-                .withMemoryAsKB(memory)
-                .withParallelism(lanes);
-        Argon2BytesGenerator generator = new Argon2BytesGenerator();
-        generator.init(builder.build());
-        byte[] result = new byte[keyBytes];
-        generator.generateBytes(startKey, result);
-        return result;
+        return Kdf.argon2id(startKey, salt, iterations, memory, lanes, keyBytes);
     }
 
     private static SecretKeySpec deriveKey(byte[] startKey, byte[] salt, int iterations, int keyBytes, boolean aes)
