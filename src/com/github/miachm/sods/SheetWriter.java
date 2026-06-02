@@ -218,52 +218,70 @@ class SheetWriter {
     }
 
     private void writeValue(XMLStreamWriter out, Cell cell) throws XMLStreamException {
-        Object v = cell.getValue();
-        if (v != null) {
-            OfficeValueType valueType = OfficeValueType.ofJavaType(v.getClass());
-            /*
-                This fixes issue #65.
-                LibreOffice only writes the "string-value" attribute for formulaic cells. Writing it for non-formulaic
-                cells makes LibreOffice discard newlines when opening the sheet.
-             */
-            if (valueType != OfficeValueType.STRING || cell.getFormula() != null) {
-                valueType.write(v, out);
-            }
-            else if (valueType == OfficeValueType.STRING) {
-                out.writeAttribute(OFFICE, "value-type", "string");
-            }
+        if (!cell.hasLinkedValues()) {
+            Object v = cell.getValue();
+            if (v != null) {
+                OfficeValueType valueType = OfficeValueType.ofJavaType(v.getClass());
+                /*
+                    This fixes issue #65.
+                    LibreOffice only writes the "string-value" attribute for formulaic cells. Writing it for non-formulaic
+                    cells makes LibreOffice discard newlines when opening the sheet.
+                 */
+                if (valueType != OfficeValueType.STRING || cell.getFormula() != null) {
+                    valueType.write(v, out);
+                }
+                else if (valueType == OfficeValueType.STRING) {
+                    out.writeAttribute(OFFICE, "value-type", "string");
+                }
 
-            out.writeStartElement(TEXT, "p");
-            String text = v.toString();
+                out.writeStartElement(TEXT, "p");
+                String text = v.toString();
 
-            for (int i = 0; i < text.length(); i++) {
-                if (text.charAt(i) == ' ') {
-                    out.writeStartElement(TEXT, "s");
-                    int cnt = 0;
-                    while (i+cnt < text.length() && text.charAt(i + cnt) == ' ') {
-                        cnt++;
+                for (int i = 0; i < text.length(); i++) {
+                    if (text.charAt(i) == ' ') {
+                        out.writeStartElement(TEXT, "s");
+                        int cnt = 0;
+                        while (i+cnt < text.length() && text.charAt(i + cnt) == ' ') {
+                            cnt++;
+                        }
+                        if (cnt > 1)
+                            out.writeAttribute(TEXT, "c", "" + cnt);
+                        i += cnt - 1 ;
+                        out.writeEndElement();
                     }
-                    if (cnt > 1)
-                        out.writeAttribute(TEXT, "c", "" + cnt);
-                    i += cnt - 1 ;
+                    else if (text.charAt(i) == '\t') {
+                        out.writeEmptyElement(TEXT, "tab");
+                    }
+                    else if (text.charAt(i) == '\n') {
+                        out.writeEmptyElement(TEXT, "line-break");
+                    }
+                    else if (Character.isHighSurrogate(text.charAt(i)) && i + 1 < text.length() && Character.isLowSurrogate(text.charAt(i + 1))) {
+                        // write surrogate pair
+                        out.writeCharacters("" + text.charAt(i) + text.charAt(i + 1));
+                        i++;
+                    }
+                    else
+                        out.writeCharacters("" + text.charAt(i));
+                }
+
+                out.writeEndElement();
+            }
+        }
+        else {
+            List<LinkedValue> links = cell.getLinkedValues();
+            if (links != null && !links.isEmpty()) {
+                OfficeValueType.ofJavaType(String.class).write("", out);
+
+                for (LinkedValue link : links) {
+                    out.writeStartElement(TEXT, "p");
+                    out.writeStartElement(TEXT, "a");
+                    out.writeAttribute(XLINK, "href", link.getHref());
+                    out.writeAttribute(XLINK, "type", "simple");
+                    out.writeCharacters(link.getText());
+                    out.writeEndElement();
                     out.writeEndElement();
                 }
-                else if (text.charAt(i) == '\t') {
-                    out.writeEmptyElement(TEXT, "tab");
-                }
-                else if (text.charAt(i) == '\n') {
-                    out.writeEmptyElement(TEXT, "line-break");
-                }
-                else if (Character.isHighSurrogate(text.charAt(i)) && i + 1 < text.length() && Character.isLowSurrogate(text.charAt(i + 1))) {
-                    // write surrogate pair
-                    out.writeCharacters("" + text.charAt(i) + text.charAt(i + 1));
-                    i++;
-                }
-                else
-                    out.writeCharacters("" + text.charAt(i));
             }
-
-            out.writeEndElement();
         }
         OfficeAnnotation annotation = cell.getAnnotation();
         if (annotation != null) {
