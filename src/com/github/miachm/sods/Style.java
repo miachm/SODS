@@ -18,6 +18,7 @@ public final class Style implements Cloneable {
     private Color fontColor;
     private Color backgroundColor;
     private int fontSize = -1;
+    private String fontFamily = null;
     private Borders borders = null;
     private boolean wrap = false;
     private TEXT_ALIGMENT horizontal_alignment = null;
@@ -239,8 +240,30 @@ public final class Style implements Cloneable {
     }
 	
     /**
+     * Returns the font family name, or null if none is set.
+     *
+     * @return The font family name, e.g. "Arial", or null
+     */
+    public String getFontFamily() {
+        return fontFamily;
+    }
+
+    /**
+     * Sets the font family for the cell text.
+     * Pass null to remove the font family override.
+     *
+     * @param fontFamily The font family name, e.g. "Arial", "Times New Roman", or null to clear
+     * @throws IllegalArgumentException if the font family name is empty
+     */
+    public void setFontFamily(String fontFamily) {
+        if (fontFamily != null && fontFamily.isEmpty())
+            throw new IllegalArgumentException("Font family name cannot be empty");
+        this.fontFamily = fontFamily;
+    }
+
+    /**
      * Returns the borders properties.
-     * 
+     *
      * @return Borders properties
      */
 	public Borders getBorders() {
@@ -393,6 +416,7 @@ public final class Style implements Cloneable {
         if (!Objects.equals(backgroundColor, style.backgroundColor))
             return false;
         if (!Objects.equals(dataStyle, style.dataStyle)) return false;
+        if (!Objects.equals(fontFamily, style.fontFamily)) return false;
         if (horizontal_alignment != style.horizontal_alignment)
             return false;
         if (!conditionalFormats.equals(style.conditionalFormats))
@@ -413,6 +437,7 @@ public final class Style implements Cloneable {
         result = 31 * result + (borders != null ? borders.hashCode() : 0);
         result = 31 * result + (wrap ? 1 : 0);
         result = 31 * result + (dataStyle != null ? dataStyle.hashCode() : 0);
+        result = 31 * result + (fontFamily != null ? fontFamily.hashCode() : 0);
         result = 31 * result + conditionalFormats.hashCode();
         result = 31 * result + (horizontal_alignment != null ? horizontal_alignment.hashCode() : 0);
         result = 31 * result + (vertical_alignment != null ? vertical_alignment.hashCode() : 0);
@@ -478,6 +503,10 @@ public final class Style implements Cloneable {
 
         if (dataStyle != null) {
             result.put("data-style", dataStyle);
+        }
+
+        if (fontFamily != null) {
+            result.put("font-family", fontFamily);
         }
 
         return result;

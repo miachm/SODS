@@ -229,6 +229,9 @@ class StyleWriter {
         if (style.getFontColor() != null)
             out.writeAttribute(FONT, "color", style.getFontColor().toString());
 
+        if (style.getFontFamily() != null)
+            out.writeAttribute(FONT, "font-family", style.getFontFamily());
+
         out.writeEndElement();
 
         if(style.getTextAligment() != null) {

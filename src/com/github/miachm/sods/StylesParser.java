@@ -131,6 +131,11 @@ class StylesParser {
                             logger().warning("Invalid font size: " + fontsize);
                         }
                     }
+
+                    String fontFamily = instance.getAttribValue("fo:font-family");
+                    if (fontFamily != null && !fontFamily.isEmpty()) {
+                        style.setFontFamily(fontFamily);
+                    }
                     break;
 
                 case "style:table-cell-properties":
