@@ -168,6 +168,12 @@ class OdsReader {
             return;
         }
 
+        if ("settings.xml".equals(entryName)) {
+            new SettingsParser(spread).parseSettings(instance);
+            reader.close();
+            return;
+        }
+
         if (options.isLoadStyles()) {
             options.getLogger().finer("Loading styles from: " + entryName);
             XmlReaderInstance stylesInstance = instance.nextElement("office:automatic-styles", "office:styles");

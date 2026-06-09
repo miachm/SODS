@@ -29,6 +29,8 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     private String hashed_password = null;
     private String hash_algorithm = null;
     private Color tabColor = null;
+    private int frozenRows = 0;
+    private int frozenColumns = 0;
     private final List<Chart> charts = new ArrayList<>();
     private final List<SheetImage> images = new ArrayList<>();
 
@@ -1409,6 +1411,50 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
+     * Returns the number of frozen rows at the top of this sheet (0 = no freeze).
+     *
+     * @return Number of frozen rows
+     */
+    public int getFrozenRows() {
+        return frozenRows;
+    }
+
+    /**
+     * Freezes the top N rows so they remain visible when scrolling.
+     * Pass 0 to remove the row freeze.
+     *
+     * @param rows Number of rows to freeze. Must be &gt;= 0.
+     * @throws IllegalArgumentException if rows is negative
+     */
+    public void freezeRows(int rows) {
+        if (rows < 0)
+            throw new IllegalArgumentException("Number of frozen rows cannot be negative");
+        this.frozenRows = rows;
+    }
+
+    /**
+     * Returns the number of frozen columns at the left of this sheet (0 = no freeze).
+     *
+     * @return Number of frozen columns
+     */
+    public int getFrozenColumns() {
+        return frozenColumns;
+    }
+
+    /**
+     * Freezes the left N columns so they remain visible when scrolling.
+     * Pass 0 to remove the column freeze.
+     *
+     * @param columns Number of columns to freeze. Must be &gt;= 0.
+     * @throws IllegalArgumentException if columns is negative
+     */
+    public void freezeColumns(int columns) {
+        if (columns < 0)
+            throw new IllegalArgumentException("Number of frozen columns cannot be negative");
+        this.frozenColumns = columns;
+    }
+
+    /**
      * Gets the default cell style of a specific column.
      * The default style is used as a fallback whenever a cell in the column doesn't specify its own style.
      * It's safe to manipulate the returned style object since it is a copy of the original one.
@@ -1568,6 +1614,8 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         if (numRows != sheet.numRows) return false;
         if (isHidden != sheet.isHidden) return false;
         if (tabColor == null ? sheet.tabColor != null : !tabColor.equals(sheet.tabColor)) return false;
+        if (frozenRows != sheet.frozenRows) return false;
+        if (frozenColumns != sheet.frozenColumns) return false;
 
         trim();
         sheet.trim();
@@ -1585,6 +1633,8 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         result = 31 * result + numRows;
         result = 31 * result + (isHidden ? 1 : 0);
         result = 31 * result + (tabColor != null ? tabColor.hashCode() : 0);
+        result = 31 * result + frozenRows;
+        result = 31 * result + frozenColumns;
         return result;
     }
 

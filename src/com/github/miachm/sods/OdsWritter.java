@@ -49,6 +49,8 @@ class OdsWritter {
         new OdsWritter(out, spread, documentPassword).save();
     }
 
+    private boolean wroteSettings = false;
+
     private void save() throws IOException {
         prepareImages();
         writeMymeType();
@@ -58,6 +60,10 @@ class OdsWritter {
             chartWriter.writeCharts(this::addPackageEntry);
             writeExtraFiles();
             writeMacros();
+            if (SettingsWriter.hasSettings(spread)) {
+                SettingsWriter.writeSettings(spread, this::addPackageEntry);
+                wroteSettings = true;
+            }
         } catch (XMLStreamException e) {
             throw new GenerateOdsException(e);
         }
@@ -86,6 +92,7 @@ class OdsWritter {
 
             writeManifestFileEntry(out, "content.xml", "text/xml");
             writeManifestFileEntry(out, "styles.xml", "text/xml");
+            if (wroteSettings) writeManifestFileEntry(out, "settings.xml", "text/xml");
 
             chartWriter.appendManifestEntries(out, this::writeManifestFileEntry);
             appendExtraFileEntries(out);
