@@ -1,6 +1,8 @@
 package com.github.miachm.sods;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -26,9 +28,11 @@ class StylesParser {
         int columnCount = 0;
         int rowCount = 0;
         int tableCount = 0;
+        // Each entry: [ownerStyleName, applyStyleName, conditionString]
+        List<String[]> deferredMaps = new ArrayList<>();
         while (reader.hasNext()) {
             XmlReaderInstance instance = reader.nextElement("style:style");
-            if (instance == null) return;
+            if (instance == null) break;
             String name = instance.getAttribValue("style:name");
             String family = instance.getAttribValue("style:family");
             if (name == null || family == null) {
@@ -37,7 +41,7 @@ class StylesParser {
             }
             switch (family) {
                 case "table-cell":
-                    Style style = readCellStyleEntry(instance);
+                    Style style = readCellStyleEntry(instance, deferredMaps, name);
                     cellStyles.put(name, style);
                     cellCount++;
                     break;
@@ -61,11 +65,31 @@ class StylesParser {
                     break;
             }
         }
+        resolveConditionalFormats(deferredMaps);
         logger().info("Styles loaded: cell=" + cellCount + ", column=" + columnCount
                 + ", row=" + rowCount + ", table=" + tableCount);
     }
 
-    private Style readCellStyleEntry(XmlReaderInstance reader) {
+    private void resolveConditionalFormats(List<String[]> deferredMaps) {
+        for (String[] entry : deferredMaps) {
+            String ownerName = entry[0];
+            String applyName = entry[1];
+            String condition = entry[2];
+            Style ownerStyle = cellStyles.get(ownerName);
+            Style applyStyle = cellStyles.get(applyName);
+            if (ownerStyle == null) {
+                logger().warning("Cannot resolve conditional format: owner style '" + ownerName + "' not found.");
+                continue;
+            }
+            if (applyStyle == null) {
+                logger().warning("Cannot resolve conditional format: apply style '" + applyName + "' not found.");
+                continue;
+            }
+            ownerStyle.addCondition(new ConditionalFormat(applyStyle, condition));
+        }
+    }
+
+    private Style readCellStyleEntry(XmlReaderInstance reader, List<String[]> deferredMaps, String ownerName) {
         Style style = new Style();
         while (reader.hasNext()) {
             XmlReaderInstance instance = reader.nextElement("style:text-properties",
@@ -148,13 +172,7 @@ class StylesParser {
                     String key = instance.getAttribValue("style:apply-style-name");
                     String condition = instance.getAttribValue("style:condition");
                     if (key != null && condition != null) {
-                        Style other = cellStyles.get(key);
-                        if (other == null) {
-                            other = new Style();
-                            cellStyles.put(key, other);
-                        }
-                        ConditionalFormat conditionalFormat = new ConditionalFormat(other, condition);
-                        style.addCondition(conditionalFormat);
+                        deferredMaps.add(new String[]{ownerName, key, condition});
                     }
                     break;
             }

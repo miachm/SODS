@@ -188,4 +188,34 @@ public class ConditionalFormat implements Cloneable {
         }
         return new ConditionalFormat(apply, "cell-content-is-between("+init+","+end+")");
     }
+
+    /**
+     * Create a ConditionalFormat rule where the boolean condition is "value is not between X and Y".
+     * @param apply the style to be applied if the condition turns true
+     * @param init the lower bound (must be less than end)
+     * @param end the upper bound
+     * @return The conditionalFormat style
+     */
+    public static ConditionalFormat conditionWhenValueIsNotBetween(Style apply, double init, double end)
+    {
+        if (init >= end) {
+            throw new IllegalArgumentException("Value init " + init + " is greater than end " + end + " argument");
+        }
+        return new ConditionalFormat(apply, "cell-content-is-not-between("+init+","+end+")");
+    }
+
+    /**
+     * Create a ConditionalFormat rule where the condition is a custom boolean formula.
+     * The formula should evaluate to true/false, e.g. "=ISEVEN(A1)" or "=A1&gt;AVERAGE($A$1:$A$10)".
+     * Do not include the leading '=' — write the formula expression directly.
+     * @param apply the style to be applied if the formula evaluates to true
+     * @param formula the formula expression (without leading '=')
+     * @return The conditionalFormat style
+     */
+    public static ConditionalFormat conditionWhenFormulaIs(Style apply, String formula)
+    {
+        if (formula == null || formula.isEmpty())
+            throw new IllegalArgumentException("Formula cannot be null or empty");
+        return new ConditionalFormat(apply, "is-true-formula("+formula+")");
+    }
 }

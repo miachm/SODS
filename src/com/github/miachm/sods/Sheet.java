@@ -28,6 +28,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     private boolean isHidden = false;
     private String hashed_password = null;
     private String hash_algorithm = null;
+    private Color tabColor = null;
     private final List<Chart> charts = new ArrayList<>();
     private final List<SheetImage> images = new ArrayList<>();
 
@@ -1389,6 +1390,25 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
     }
 
     /**
+     * Returns the tab color of this sheet, or null if none is set.
+     *
+     * @return The tab color, or null
+     */
+    public Color getTabColor() {
+        return tabColor;
+    }
+
+    /**
+     * Sets the tab color displayed on the sheet tab at the bottom of the spreadsheet.
+     * Pass null to remove the tab color.
+     *
+     * @param tabColor The color to apply to the tab, or null to clear it
+     */
+    public void setTabColor(Color tabColor) {
+        this.tabColor = tabColor;
+    }
+
+    /**
      * Gets the default cell style of a specific column.
      * The default style is used as a fallback whenever a cell in the column doesn't specify its own style.
      * It's safe to manipulate the returned style object since it is a copy of the original one.
@@ -1547,6 +1567,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         if (numColumns != sheet.numColumns) return false;
         if (numRows != sheet.numRows) return false;
         if (isHidden != sheet.isHidden) return false;
+        if (tabColor == null ? sheet.tabColor != null : !tabColor.equals(sheet.tabColor)) return false;
 
         trim();
         sheet.trim();
@@ -1563,6 +1584,7 @@ public class Sheet implements Cloneable,Comparable<Sheet> {
         result = 31 * result + numColumns;
         result = 31 * result + numRows;
         result = 31 * result + (isHidden ? 1 : 0);
+        result = 31 * result + (tabColor != null ? tabColor.hashCode() : 0);
         return result;
     }
 

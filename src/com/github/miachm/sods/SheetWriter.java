@@ -27,6 +27,9 @@ class SheetWriter {
         for (Sheet sheet : spread.getSheets()) {
             out.writeStartElement(TABLE, "table");
             out.writeAttribute(TABLE, "name", sheet.getName());
+            if (sheet.getTabColor() != null) {
+                out.writeAttribute(TABLE, "tab-color", sheet.getTabColor().toString());
+            }
             if (sheet.isHidden()) {
                 TableStyle tableStyle = new TableStyle();
                 tableStyle.setHidden(true);

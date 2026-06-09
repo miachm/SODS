@@ -39,6 +39,15 @@ class SheetParser {
             sheet.setRawPassword(protectedKey, algorithm);
         }
 
+        String tabColorStr = reader.getAttribValue("table:tab-color");
+        if (tabColorStr != null && !tabColorStr.isEmpty()) {
+            try {
+                sheet.setTabColor(new Color(tabColorStr));
+            } catch (Exception e) {
+                logger().warning("Invalid tab color value: " + tabColorStr);
+            }
+        }
+
         int rowCount = 0;
         groupCells.clear();
 
