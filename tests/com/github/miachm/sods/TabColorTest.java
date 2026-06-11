@@ -4,6 +4,7 @@ import org.testng.annotations.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 
 import static org.testng.AssertJUnit.*;
@@ -82,5 +83,13 @@ public class TabColorTest {
         assertEquals(new Color(255, 0, 0), loaded.getSheet(0).getTabColor());
         assertNull(loaded.getSheet(1).getTabColor());
         assertEquals(new Color(0, 255, 0), loaded.getSheet(2).getTabColor());
+    }
+
+    @Test
+    public void testLoadingTabColor() throws IOException {
+        SpreadSheet spread = new SpreadSheet(new File("resources/tabcolour.ods"));
+        assertEquals(spread.getSheet(0).getTabColor(), new Color(255,0,0));
+        assertEquals(spread.getSheet(1).getTabColor(), new Color("#77bc65"));
+        assertNull(spread.getSheet(2).getTabColor());
     }
 }

@@ -214,6 +214,12 @@ class StylesParser {
             if (instance == null) return style;
             String display = instance.getAttribValue("table:display");
             if (display != null) style.setHidden(display.equals("false"));
+            String tabColorStr = instance.getAttribValue("table:tab-color");
+            if (tabColorStr != null && !tabColorStr.isEmpty()) {
+                try {
+                    style.setTabColor(new Color(tabColorStr));
+                } catch (Exception ignored) {}
+            }
         }
         return style;
     }

@@ -103,7 +103,9 @@ class SheetParser {
 
     private void setTableStyles(String tableStyleName) {
         TableStyle style = stylesParser.getTableStyle(tableStyleName);
-        if (style != null && style.isHidden()) sheet.hideSheet();
+        if (style == null) return;
+        if (style.isHidden()) sheet.hideSheet();
+        if (style.getTabColor() != null) sheet.setTabColor(style.getTabColor());
     }
 
     private void parseColumnProperties(XmlReaderInstance instance, Style style) {
