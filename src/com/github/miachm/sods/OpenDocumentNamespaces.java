@@ -17,4 +17,5 @@ class OpenDocumentNamespaces {
     final static String LOEXT = "urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0";
     final static String DR3D = "urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0";
     final static String CONFIG = "urn:oasis:names:tc:opendocument:xmlns:config:1.0";
+    final static String OOO = "http://openoffice.org/2004/office";
 }
