@@ -133,6 +133,9 @@ class StylesParser {
                     }
 
                     String fontFamily = instance.getAttribValue("fo:font-family");
+                    if (fontFamily == null || fontFamily.isEmpty()) {
+                        fontFamily = instance.getAttribValue("style:font-name");
+                    }
                     if (fontFamily != null && !fontFamily.isEmpty()) {
                         style.setFontFamily(fontFamily);
                     }

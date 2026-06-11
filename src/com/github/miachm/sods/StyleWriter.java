@@ -59,6 +59,26 @@ class StyleWriter {
         }
     }
 
+    void writeFontFaceDecls(XMLStreamWriter out) throws XMLStreamException {
+        java.util.Set<String> fonts = new java.util.LinkedHashSet<>();
+        for (Sheet sheet : spread.getSheets()) {
+            for (Row row : sheet.getRowsInternal()) {
+                for (Cell cell : row.cells) {
+                    String ff = cell.getStyle().getFontFamily();
+                    if (ff != null) fonts.add(ff);
+                }
+            }
+        }
+        if (fonts.isEmpty()) return;
+        out.writeStartElement(OFFICE, "font-face-decls");
+        for (String font : fonts) {
+            out.writeEmptyElement(STYLE, "font-face");
+            out.writeAttribute(STYLE, "name", font);
+            out.writeAttribute(SVG, "font-family", font);
+        }
+        out.writeEndElement();
+    }
+
     void writeStyles(XMLStreamWriter out) throws XMLStreamException {
         out.writeStartElement(OFFICE, "automatic-styles");
 
@@ -92,7 +112,7 @@ class StyleWriter {
                 }
             }
 
-            if (sheet.isHidden()) {
+            if (sheet.isHidden() || sheet.getTabColor() != null) {
                 writeTableStyle(out, sheet);
             }
         }
@@ -230,7 +250,7 @@ class StyleWriter {
             out.writeAttribute(FONT, "color", style.getFontColor().toString());
 
         if (style.getFontFamily() != null)
-            out.writeAttribute(FONT, "font-family", style.getFontFamily());
+            out.writeAttribute(STYLE, "font-name", style.getFontFamily());
 
         out.writeEndElement();
 
@@ -294,6 +314,7 @@ class StyleWriter {
     private void writeTableStyle(XMLStreamWriter out, Sheet sheet) throws XMLStreamException {
         TableStyle tableStyle = new TableStyle();
         tableStyle.setHidden(sheet.isHidden());
+        tableStyle.setTabColor(sheet.getTabColor());
         if (!tableStyleStringMap.containsKey(tableStyle)) {
             String key = "tb" + tableStyleStringMap.size();
             out.writeStartElement(STYLE, "style");
@@ -301,6 +322,8 @@ class StyleWriter {
             out.writeAttribute(STYLE, "name", key);
             out.writeStartElement(STYLE, "table-properties");
             out.writeAttribute(TABLE, "display", tableStyle.isHidden() ? "false" : "true");
+            if (tableStyle.getTabColor() != null)
+                out.writeAttribute(TABLE, "tab-color", tableStyle.getTabColor().toString());
             out.writeEndElement();
             out.writeEndElement();
 

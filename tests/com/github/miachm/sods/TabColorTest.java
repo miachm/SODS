@@ -29,7 +29,7 @@ public class TabColorTest {
     }
 
     @Test
-    public void testSetAndGet() {
+    public void testSetAndGet() throws IOException {
         Sheet sheet = new Sheet("A");
         Color red = new Color(255, 0, 0);
         sheet.setTabColor(red);

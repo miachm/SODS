@@ -27,12 +27,10 @@ class SheetWriter {
         for (Sheet sheet : spread.getSheets()) {
             out.writeStartElement(TABLE, "table");
             out.writeAttribute(TABLE, "name", sheet.getName());
-            if (sheet.getTabColor() != null) {
-                out.writeAttribute(TABLE, "tab-color", sheet.getTabColor().toString());
-            }
-            if (sheet.isHidden()) {
+            if (sheet.isHidden() || sheet.getTabColor() != null) {
                 TableStyle tableStyle = new TableStyle();
-                tableStyle.setHidden(true);
+                tableStyle.setHidden(sheet.isHidden());
+                tableStyle.setTabColor(sheet.getTabColor());
                 String name = styleWriter.getTableStyleName(tableStyle);
                 if (name != null)
                     out.writeAttribute(TABLE, "style-name", name);

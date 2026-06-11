@@ -4,6 +4,7 @@ import org.testng.annotations.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 
 import static org.testng.AssertJUnit.*;
@@ -126,5 +127,15 @@ public class FontFamilyTest {
     public void testCssStylesAbsentWhenNull() {
         Style style = new Style();
         assertFalse(style.getCssStyles().containsKey("font-family"));
+    }
+
+    @Test
+    public void testLoadingFontFamily() throws IOException {
+        SpreadSheet spread = new SpreadSheet(new File("resources/fontfamily.ods"));
+        assertEquals(spread.getSheet(0).getCell(0,0).getStyle().getFontFamily(), "Calibri");
+        assertEquals(spread.getSheet(0).getCell(0,1).getStyle().getFontFamily(), null);
+        assertEquals(spread.getSheet(0).getCell(0,3).getStyle().getFontFamily(), "Elephant");
+        assertEquals(spread.getSheet(0).getCell(1,0).getStyle().getFontFamily(), "Arial");
+        assertEquals(spread.getSheet(0).getCell(1,3).getStyle().getFontFamily(), "Impact");
     }
 }

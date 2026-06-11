@@ -136,6 +136,7 @@ class OdsWritter {
 
         out.writeAttribute(OFFICE, "version", "1.2");
 
+        styleWriter.writeFontFaceDecls(out);
         styleWriter.writeStyles(out);
         sheetWriter.writeContent(out);
 
