@@ -293,9 +293,13 @@ class SheetWriter {
                 out.writeEndElement();
             }
             if (annotation.getMsg() != null) {
-                out.writeStartElement(TEXT, "p");
-                out.writeCharacters(annotation.getMsg());
-                out.writeEndElement();
+                String[] lines = annotation.getMsg().split("\n", -1);
+                for (String line : lines) {
+                    out.writeStartElement(TEXT, "p");
+                    if (!line.isEmpty())
+                        out.writeCharacters(line);
+                    out.writeEndElement();
+                }
             }
             out.writeEndElement();
         }
