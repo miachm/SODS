@@ -135,38 +135,41 @@ final class DataStylePattern {
 
     // What one letter run in a date/time pattern means, e.g. 'y' -> YEAR,
     // 's' -> SECOND. TEXT is literal/separator text, not a letter run.
-    enum FieldType {
+    enum DateTimeFieldType {
         YEAR, MONTH, DAY, ERA, DAY_OF_WEEK, WEEK_OF_YEAR, QUARTER,
         HOUR24, HOUR12, MINUTE, SECOND, FRACTION_SECOND, AMPM, TEXT
     }
 
-    // One tokenized run from a date/time pattern. "yyyy-MM-dd" tokenizes to
-    // [Field(YEAR,4), Field(TEXT,"-"), Field(MONTH,2), Field(TEXT,"-"),
-    // Field(DAY,2)].
-    static final class Field {
-        final FieldType type;      // e.g. YEAR
-        final int length;          // repeat count, e.g. "yyyy" -> 4
-        final int decimalPlaces;   // SECOND only: "ss.SSS" -> 3
-        final String text;         // TEXT only: the literal characters
+    // One tokenized run from a date/time pattern. "yyyy-MM-dd" tokenizes
+    // to [DateTimeField(YEAR,4), DateTimeField(TEXT,"-"),
+    // DateTimeField(MONTH,2), DateTimeField(TEXT,"-"),
+    // DateTimeField(DAY,2)].
+    static final class DateTimeField {
+        final DateTimeFieldType type;  // e.g. YEAR
+        final int length;              // repeat count, e.g. "yyyy" -> 4
+        final int decimalPlaces;       // SECOND only: "ss.SSS" -> 3
+        final String text;             // TEXT only: the literal characters
 
-        private Field(
-                FieldType type, int length, int decimalPlaces, String text) {
+        private DateTimeField(
+                DateTimeFieldType type, int length, int decimalPlaces,
+                String text) {
             this.type = type;
             this.length = length;
             this.decimalPlaces = decimalPlaces;
             this.text = text;
         }
 
-        static Field of(FieldType type, int length) {
-            return new Field(type, length, 0, null);
+        static DateTimeField of(DateTimeFieldType type, int length) {
+            return new DateTimeField(type, length, 0, null);
         }
 
-        static Field ofSecond(int length, int decimalPlaces) {
-            return new Field(FieldType.SECOND, length, decimalPlaces, null);
+        static DateTimeField ofSecond(int length, int decimalPlaces) {
+            return new DateTimeField(
+                    DateTimeFieldType.SECOND, length, decimalPlaces, null);
         }
 
-        static Field ofText(String text) {
-            return new Field(FieldType.TEXT, 0, 0, text);
+        static DateTimeField ofText(String text) {
+            return new DateTimeField(DateTimeFieldType.TEXT, 0, 0, text);
         }
     }
 
@@ -176,7 +179,7 @@ final class DataStylePattern {
     static final class NumberSpec {
         final String prefix;           // e.g. "$#,##0.00" -> "$"
         final String suffix;           // e.g. "0.00 kg" -> " kg"
-        final int minIntegerDigits;    // count of leading '0's
+        final int minIntegerDigits;    // count of '0's in the integer part
         final int decimalPlaces;       // count of '0'/'#' after '.'
         final boolean grouping;        // ',' present
         final boolean percentage;      // '%' present
@@ -217,11 +220,12 @@ final class DataStylePattern {
     static final String ALLOWED_BARE_LITERALS = " -:/.,T";
 
     final Kind kind;
-    final List<Field> dateTimeFields;
+    final List<DateTimeField> dateTimeFields;
     final NumberSpec numberSpec;
 
     private DataStylePattern(
-            Kind kind, List<Field> dateTimeFields, NumberSpec numberSpec) {
+            Kind kind, List<DateTimeField> dateTimeFields,
+            NumberSpec numberSpec) {
         this.kind = kind;
         this.dateTimeFields = dateTimeFields;
         this.numberSpec = numberSpec;
@@ -229,7 +233,7 @@ final class DataStylePattern {
 
     boolean hasDateFields() {
         if (dateTimeFields == null) return false;
-        for (Field field : dateTimeFields) {
+        for (DateTimeField field : dateTimeFields) {
             switch (field.type) {
                 case YEAR: case MONTH: case DAY:
                 case ERA: case DAY_OF_WEEK: case WEEK_OF_YEAR: case QUARTER:
@@ -361,31 +365,31 @@ final class DataStylePattern {
         return new Flat(text.toString(), literal);
     }
 
-    private static FieldType letterFieldType(char c) {
+    private static DateTimeFieldType letterFieldType(char c) {
         // Case-sensitive, matching DateTimeFormatter's own letters. See
         // class Javadoc for why Y/D/A are excluded, why Q/q are aliased,
         // and why only uppercase E is supported.
         switch (c) {
-            case 'y': return FieldType.YEAR;
-            case 'M': return FieldType.MONTH;
-            case 'd': return FieldType.DAY;
-            case 'G': return FieldType.ERA;
-            case 'E': return FieldType.DAY_OF_WEEK;
-            case 'w': return FieldType.WEEK_OF_YEAR;
-            case 'Q': case 'q': return FieldType.QUARTER;
-            case 'H': return FieldType.HOUR24;
-            case 'h': return FieldType.HOUR12;
-            case 'm': return FieldType.MINUTE;
-            case 's': return FieldType.SECOND;
-            case 'S': return FieldType.FRACTION_SECOND;
-            case 'a': return FieldType.AMPM;
+            case 'y': return DateTimeFieldType.YEAR;
+            case 'M': return DateTimeFieldType.MONTH;
+            case 'd': return DateTimeFieldType.DAY;
+            case 'G': return DateTimeFieldType.ERA;
+            case 'E': return DateTimeFieldType.DAY_OF_WEEK;
+            case 'w': return DateTimeFieldType.WEEK_OF_YEAR;
+            case 'Q': case 'q': return DateTimeFieldType.QUARTER;
+            case 'H': return DateTimeFieldType.HOUR24;
+            case 'h': return DateTimeFieldType.HOUR12;
+            case 'm': return DateTimeFieldType.MINUTE;
+            case 's': return DateTimeFieldType.SECOND;
+            case 'S': return DateTimeFieldType.FRACTION_SECOND;
+            case 'a': return DateTimeFieldType.AMPM;
             default: return null;
         }
     }
 
-    private static List<Field> parseDateTime(
+    private static List<DateTimeField> parseDateTime(
             Flat flat, String originalPattern) {
-        List<Field> fields = new ArrayList<>();
+        List<DateTimeField> fields = new ArrayList<>();
         String text = flat.text;
         int n = text.length();
         int i = 0;
@@ -397,26 +401,26 @@ final class DataStylePattern {
                     literalText.append(text.charAt(j));
                     j++;
                 }
-                fields.add(Field.ofText(literalText.toString()));
+                fields.add(DateTimeField.ofText(literalText.toString()));
                 i = j;
                 continue;
             }
 
             char c = text.charAt(i);
-            FieldType type = letterFieldType(c);
+            DateTimeFieldType type = letterFieldType(c);
             if (type != null) {
                 int j = i;
                 while (j < n && !flat.literal[j]
                         && letterFieldType(text.charAt(j)) == type) {
                     j++;
                 }
-                fields.add(Field.of(type, j - i));
+                fields.add(DateTimeField.of(type, j - i));
                 i = j;
                 continue;
             }
 
             if (ALLOWED_BARE_LITERALS.indexOf(c) >= 0) {
-                fields.add(Field.ofText(String.valueOf(c)));
+                fields.add(DateTimeField.ofText(String.valueOf(c)));
                 i++;
                 continue;
             }
@@ -435,12 +439,12 @@ final class DataStylePattern {
     }
 
     private static void validateNoStandaloneFractionSeconds(
-            List<Field> fields, String originalPattern) {
+            List<DateTimeField> fields, String originalPattern) {
         // mergeSecondsFraction folds a valid "s.S" run into one SECOND
         // field. Anything left over here wasn't preceded by a
         // whole-seconds field, which ODF has no way to render.
-        for (Field field : fields) {
-            if (field.type == FieldType.FRACTION_SECOND) {
+        for (DateTimeField field : fields) {
+            if (field.type == DateTimeFieldType.FRACTION_SECOND) {
                 throw new IllegalArgumentException(
                         "Data style pattern uses 'S' (fractional-second "
                                 + "digits) without an immediately "
@@ -454,17 +458,17 @@ final class DataStylePattern {
     }
 
     private static void validateHourAmPmConsistency(
-            List<Field> fields, String originalPattern) {
+            List<DateTimeField> fields, String originalPattern) {
         // ODF's number:hours has no 12h/24h attribute -- a sibling
         // number:am-pm element is what decides it. Enforce the pairing
         // 'h'/'H' promise instead of rendering inconsistently.
         boolean hasHour12 = false;
         boolean hasHour24 = false;
         boolean hasAmPm = false;
-        for (Field field : fields) {
-            if (field.type == FieldType.HOUR12) hasHour12 = true;
-            if (field.type == FieldType.HOUR24) hasHour24 = true;
-            if (field.type == FieldType.AMPM) hasAmPm = true;
+        for (DateTimeField field : fields) {
+            if (field.type == DateTimeFieldType.HOUR12) hasHour12 = true;
+            if (field.type == DateTimeFieldType.HOUR24) hasHour24 = true;
+            if (field.type == DateTimeFieldType.AMPM) hasAmPm = true;
         }
         if (hasHour12 && hasHour24) {
             throw new IllegalArgumentException(
@@ -491,16 +495,17 @@ final class DataStylePattern {
         }
     }
 
-    private static void mergeSecondsFraction(List<Field> fields) {
+    private static void mergeSecondsFraction(List<DateTimeField> fields) {
         for (int i = 0; i + 2 < fields.size(); i++) {
-            Field secondField = fields.get(i);
-            Field dotField = fields.get(i + 1);
-            Field fractionField = fields.get(i + 2);
-            if (secondField.type == FieldType.SECOND
-                    && dotField.type == FieldType.TEXT
+            DateTimeField secondField = fields.get(i);
+            DateTimeField dotField = fields.get(i + 1);
+            DateTimeField fractionField = fields.get(i + 2);
+            if (secondField.type == DateTimeFieldType.SECOND
+                    && dotField.type == DateTimeFieldType.TEXT
                     && ".".equals(dotField.text)
-                    && fractionField.type == FieldType.FRACTION_SECOND) {
-                Field merged = Field.ofSecond(
+                    && fractionField.type
+                            == DateTimeFieldType.FRACTION_SECOND) {
+                DateTimeField merged = DateTimeField.ofSecond(
                         secondField.length, fractionField.length);
                 fields.set(i, merged);
                 fields.remove(i + 2);
@@ -509,13 +514,13 @@ final class DataStylePattern {
         }
     }
 
-    private static void mergeAdjacentText(List<Field> fields) {
+    private static void mergeAdjacentText(List<DateTimeField> fields) {
         for (int i = 0; i < fields.size() - 1; ) {
-            Field current = fields.get(i);
-            Field next = fields.get(i + 1);
-            if (current.type == FieldType.TEXT
-                    && next.type == FieldType.TEXT) {
-                fields.set(i, Field.ofText(current.text + next.text));
+            DateTimeField current = fields.get(i);
+            DateTimeField next = fields.get(i + 1);
+            if (current.type == DateTimeFieldType.TEXT
+                    && next.type == DateTimeFieldType.TEXT) {
+                fields.set(i, DateTimeField.ofText(current.text + next.text));
                 fields.remove(i + 1);
             } else {
                 i++;

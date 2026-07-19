@@ -23,16 +23,21 @@ public class DataStylePatternTest {
         assertEquals(DataStylePattern.Kind.DATE_TIME, pattern.kind);
         assertTrue(pattern.hasDateFields());
 
-        List<DataStylePattern.Field> fields = pattern.dateTimeFields;
+        List<DataStylePattern.DateTimeField> fields = pattern.dateTimeFields;
         assertEquals(5, fields.size());
-        assertEquals(DataStylePattern.FieldType.YEAR, fields.get(0).type);
+        assertEquals(
+                DataStylePattern.DateTimeFieldType.YEAR, fields.get(0).type);
         assertEquals(4, fields.get(0).length);
-        assertEquals(DataStylePattern.FieldType.TEXT, fields.get(1).type);
+        assertEquals(
+                DataStylePattern.DateTimeFieldType.TEXT, fields.get(1).type);
         assertEquals("-", fields.get(1).text);
-        assertEquals(DataStylePattern.FieldType.MONTH, fields.get(2).type);
+        assertEquals(
+                DataStylePattern.DateTimeFieldType.MONTH, fields.get(2).type);
         assertEquals(2, fields.get(2).length);
-        assertEquals(DataStylePattern.FieldType.TEXT, fields.get(3).type);
-        assertEquals(DataStylePattern.FieldType.DAY, fields.get(4).type);
+        assertEquals(
+                DataStylePattern.DateTimeFieldType.TEXT, fields.get(3).type);
+        assertEquals(
+                DataStylePattern.DateTimeFieldType.DAY, fields.get(4).type);
         assertEquals(2, fields.get(4).length);
     }
 
@@ -64,9 +69,9 @@ public class DataStylePatternTest {
         assertEquals(DataStylePattern.Kind.DATE_TIME, pattern.kind);
         assertTrue(pattern.hasDateFields());
 
-        DataStylePattern.Field secondField = null;
-        for (DataStylePattern.Field field : pattern.dateTimeFields) {
-            if (field.type == DataStylePattern.FieldType.SECOND) {
+        DataStylePattern.DateTimeField secondField = null;
+        for (DataStylePattern.DateTimeField field : pattern.dateTimeFields) {
+            if (field.type == DataStylePattern.DateTimeFieldType.SECOND) {
                 secondField = field;
             }
         }
@@ -74,9 +79,9 @@ public class DataStylePatternTest {
         assertEquals(2, secondField.length);
         assertEquals(3, secondField.decimalPlaces);
 
-        DataStylePattern.Field textT = null;
-        for (DataStylePattern.Field field : pattern.dateTimeFields) {
-            if (field.type == DataStylePattern.FieldType.TEXT
+        DataStylePattern.DateTimeField textT = null;
+        for (DataStylePattern.DateTimeField field : pattern.dateTimeFields) {
+            if (field.type == DataStylePattern.DateTimeFieldType.TEXT
                     && "T".equals(field.text)) {
                 textT = field;
             }
@@ -91,8 +96,8 @@ public class DataStylePatternTest {
         // one "seconds" concept.
         DataStylePattern pattern = DataStylePattern.parse("ss.SSS");
         assertEquals(1, pattern.dateTimeFields.size());
-        DataStylePattern.Field second = pattern.dateTimeFields.get(0);
-        assertEquals(DataStylePattern.FieldType.SECOND, second.type);
+        DataStylePattern.DateTimeField second = pattern.dateTimeFields.get(0);
+        assertEquals(DataStylePattern.DateTimeFieldType.SECOND, second.type);
         assertEquals(2, second.length);
         assertEquals(3, second.decimalPlaces);
     }
@@ -140,11 +145,11 @@ public class DataStylePatternTest {
         DataStylePattern pattern = DataStylePattern.parse("hh:mm a");
         boolean sawHour12 = false;
         boolean sawAmPm = false;
-        for (DataStylePattern.Field field : pattern.dateTimeFields) {
-            if (field.type == DataStylePattern.FieldType.HOUR12) {
+        for (DataStylePattern.DateTimeField field : pattern.dateTimeFields) {
+            if (field.type == DataStylePattern.DateTimeFieldType.HOUR12) {
                 sawHour12 = true;
             }
-            if (field.type == DataStylePattern.FieldType.AMPM) {
+            if (field.type == DataStylePattern.DateTimeFieldType.AMPM) {
                 sawAmPm = true;
             }
         }
@@ -155,12 +160,14 @@ public class DataStylePatternTest {
     @Test
     public void monthTextualFormsUseTextualLength() {
         DataStylePattern abbrev = DataStylePattern.parse("MMM d, yyyy");
-        DataStylePattern.Field monthAbbrev = abbrev.dateTimeFields.get(0);
-        assertEquals(DataStylePattern.FieldType.MONTH, monthAbbrev.type);
+        DataStylePattern.DateTimeField monthAbbrev =
+                abbrev.dateTimeFields.get(0);
+        assertEquals(
+                DataStylePattern.DateTimeFieldType.MONTH, monthAbbrev.type);
         assertEquals(3, monthAbbrev.length);
 
         DataStylePattern full = DataStylePattern.parse("MMMM d, yyyy");
-        DataStylePattern.Field monthFull = full.dateTimeFields.get(0);
+        DataStylePattern.DateTimeField monthFull = full.dateTimeFields.get(0);
         assertEquals(4, monthFull.length);
     }
 
@@ -169,8 +176,8 @@ public class DataStylePatternTest {
         DataStylePattern pattern =
                 DataStylePattern.parse("yyyy 'o''clock' MM");
         StringBuilder combinedText = new StringBuilder();
-        for (DataStylePattern.Field field : pattern.dateTimeFields) {
-            if (field.type == DataStylePattern.FieldType.TEXT) {
+        for (DataStylePattern.DateTimeField field : pattern.dateTimeFields) {
+            if (field.type == DataStylePattern.DateTimeFieldType.TEXT) {
                 combinedText.append(field.text);
             }
         }
@@ -404,8 +411,8 @@ public class DataStylePatternTest {
                 DataStylePattern.parse("yyyy-MM-dd'notes'");
         assertEquals(DataStylePattern.Kind.DATE_TIME, pattern.kind);
         StringBuilder combinedText = new StringBuilder();
-        for (DataStylePattern.Field field : pattern.dateTimeFields) {
-            if (field.type == DataStylePattern.FieldType.TEXT) {
+        for (DataStylePattern.DateTimeField field : pattern.dateTimeFields) {
+            if (field.type == DataStylePattern.DateTimeFieldType.TEXT) {
                 combinedText.append(field.text);
             }
         }
@@ -468,7 +475,7 @@ public class DataStylePatternTest {
     public void eraFieldParsesAndCountsAsDateField() {
         DataStylePattern shortEra = DataStylePattern.parse("G yyyy");
         assertEquals(
-                DataStylePattern.FieldType.ERA,
+                DataStylePattern.DateTimeFieldType.ERA,
                 shortEra.dateTimeFields.get(0).type);
         assertTrue(shortEra.hasDateFields());
 
@@ -480,7 +487,7 @@ public class DataStylePatternTest {
     public void dayOfWeekFieldParsesAndCountsAsDateField() {
         DataStylePattern pattern = DataStylePattern.parse("EEE, MMM d");
         assertEquals(
-                DataStylePattern.FieldType.DAY_OF_WEEK,
+                DataStylePattern.DateTimeFieldType.DAY_OF_WEEK,
                 pattern.dateTimeFields.get(0).type);
         assertTrue(pattern.hasDateFields());
     }
@@ -498,7 +505,7 @@ public class DataStylePatternTest {
         // ODF's number:week-of-year has no style attribute at all.
         DataStylePattern pattern = DataStylePattern.parse("w yyyy");
         assertEquals(
-                DataStylePattern.FieldType.WEEK_OF_YEAR,
+                DataStylePattern.DateTimeFieldType.WEEK_OF_YEAR,
                 pattern.dateTimeFields.get(0).type);
         assertTrue(pattern.hasDateFields());
     }
@@ -515,10 +522,10 @@ public class DataStylePatternTest {
         DataStylePattern upper = DataStylePattern.parse("Q yyyy");
         DataStylePattern lower = DataStylePattern.parse("q yyyy");
         assertEquals(
-                DataStylePattern.FieldType.QUARTER,
+                DataStylePattern.DateTimeFieldType.QUARTER,
                 upper.dateTimeFields.get(0).type);
         assertEquals(
-                DataStylePattern.FieldType.QUARTER,
+                DataStylePattern.DateTimeFieldType.QUARTER,
                 lower.dateTimeFields.get(0).type);
     }
 
