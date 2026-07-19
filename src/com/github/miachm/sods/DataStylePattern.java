@@ -129,18 +129,25 @@ import java.util.List;
  */
 final class DataStylePattern {
 
+    // Which ODF style family a whole pattern becomes, e.g. "yyyy-MM-dd" ->
+    // DATE_TIME, "0.00" -> NUMBER, "@" -> TEXT.
     enum Kind { TEXT, DATE_TIME, NUMBER }
 
+    // What one letter run in a date/time pattern means, e.g. 'y' -> YEAR,
+    // 's' -> SECOND. TEXT is literal/separator text, not a letter run.
     enum FieldType {
         YEAR, MONTH, DAY, ERA, DAY_OF_WEEK, WEEK_OF_YEAR, QUARTER,
         HOUR24, HOUR12, MINUTE, SECOND, FRACTION_SECOND, AMPM, TEXT
     }
 
+    // One tokenized run from a date/time pattern. "yyyy-MM-dd" tokenizes to
+    // [Field(YEAR,4), Field(TEXT,"-"), Field(MONTH,2), Field(TEXT,"-"),
+    // Field(DAY,2)].
     static final class Field {
-        final FieldType type;
-        final int length;
-        final int decimalPlaces;
-        final String text;
+        final FieldType type;      // e.g. YEAR
+        final int length;          // repeat count, e.g. "yyyy" -> 4
+        final int decimalPlaces;   // SECOND only: "ss.SSS" -> 3
+        final String text;         // TEXT only: the literal characters
 
         private Field(
                 FieldType type, int length, int decimalPlaces, String text) {
@@ -163,15 +170,18 @@ final class DataStylePattern {
         }
     }
 
+    // The whole parsed shape of a numeric pattern, e.g. "$#,##0.00%" ->
+    // prefix="$", minIntegerDigits=1, decimalPlaces=2, grouping=true,
+    // percentage=true.
     static final class NumberSpec {
-        final String prefix;
-        final String suffix;
-        final int minIntegerDigits;
-        final int decimalPlaces;
-        final boolean grouping;
-        final boolean percentage;
-        final boolean scientific;
-        final int minExponentDigits;
+        final String prefix;           // e.g. "$#,##0.00" -> "$"
+        final String suffix;           // e.g. "0.00 kg" -> " kg"
+        final int minIntegerDigits;    // count of leading '0's
+        final int decimalPlaces;       // count of '0'/'#' after '.'
+        final boolean grouping;        // ',' present
+        final boolean percentage;      // '%' present
+        final boolean scientific;      // 'E' present
+        final int minExponentDigits;   // count of '0's after 'E'
 
         NumberSpec(
                 String prefix,
