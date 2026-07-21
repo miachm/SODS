@@ -35,13 +35,16 @@ class StyleWriter {
         xmlWriter.writeNamespace("fo", FONT);
         xmlWriter.writeAttribute(OFFICE, "version", "1.2");
         xmlWriter.writeStartElement(OFFICE, "styles");
-        // Write conditional formatting target styles as common styles
+        // Write conditional formatting target styles as common styles.
+        // A target style can be shared by multiple owners' conditions,
+        // keep track of what styles have been written to avoid duplicates.
+        java.util.Set<String> writtenTargetKeys = new java.util.HashSet<>();
         for (Style style : stylesUsed.keySet()) {
             if (!style.getConditions().isEmpty()) {
                 for (ConditionalFormat format : style.getConditions()) {
                     Style targetStyle = format.getStyleApplied();
                     String targetKey = stylesUsed.get(targetStyle);
-                    if (targetKey != null) {
+                    if (targetKey != null && writtenTargetKeys.add(targetKey)) {
                         writeCellStyle(xmlWriter, targetStyle, targetKey);
                     }
                 }
