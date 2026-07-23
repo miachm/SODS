@@ -9,7 +9,7 @@ A simple Java library for reading and writing ODS (OpenDocument Spreadsheet) fil
 
 ## Install
 
-### Maven 
+### Maven
 ```xml
 <dependency>
     <groupId>com.github.miachm.sods</groupId>
@@ -35,9 +35,9 @@ There is an [examples folder](https://github.com/miachm/SODS/tree/master/example
 ## F.A.Q
 
 ### What is an ODS?
-ODS means Open Document Spreadsheet. It's used in applications like Libreoffice or Open Office.
+ODS means OpenDocument Spreadsheet. It's used in applications like LibreOffice or OpenOffice.
 
-![Libreoffice Calc](http://i.imgur.com/Mm779of.jpg)
+![LibreOffice Calc](http://i.imgur.com/Mm779of.jpg)
 
 ### Minimum JDK needed?
 
@@ -47,10 +47,10 @@ ODS means Open Document Spreadsheet. It's used in applications like Libreoffice 
 I needed to generate ODS files in Java. I looked for libraries, but they are:
 
   - Deprecated or dead, like Apache ODF Toolkit. It's not working with Java 8.
-  - It has Libre Office as dependency in the user's computer. That's so much (Libre Office Api).
+  - It has LibreOffice as dependency in the user's computer. That's so much (LibreOffice API).
   - Poorly designed or bloated.
 
-So, i decided create my own library from scratch. The objetive is load and generate ODS files in a simple and easy way.
+So, I decided create my own library from scratch. The objective is load and generate ODS files in a simple and easy way.
 
 ### What is the current state?
 Right now you can:
@@ -73,7 +73,7 @@ Right now you can:
 This is an example of an ODS file in LibreOffice
 ![Sample Libreoffice](https://i.imgur.com/avJ8aLw.png)
 
-Here, i am using SODS for load the file and rendering it with JavaFX
+Here, I am using SODS for load the file and rendering it with JavaFX
 
 ![Sample SODS](https://i.imgur.com/Myfustx.png)
 
