@@ -50,3 +50,20 @@ Feature: Bugs related to invalid cell value content in SODS
       | 2       | 2             | 2       |
       | 1       | 1             | 1       |
 
+  Scenario: Setting the last row of a repeated block changed the whole block
+    Given an empty Spreadsheet
+    Given a sheet "A", size 4x1
+    When set the value "x" in cell 0,0
+    When set the value "x" in cell 1,0
+    When set the value "x" in cell 2,0
+    When set the value "x" in cell 3,0
+    When the client appends the sheet contained in World.sheet
+    And save the spreadsheet in the memory
+    And load a spreadsheet from memory
+    When get the first sheet
+    When set the value "changed" in cell 3,0
+    Then the cell values are:
+      | x       |
+      | x       |
+      | x       |
+      | changed |

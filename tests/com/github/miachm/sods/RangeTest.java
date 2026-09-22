@@ -1052,6 +1052,44 @@ public class RangeTest {
     }
 
     @Test
+    public void testSetValueOnLastRowOfRepeatedBlock() throws Exception {
+        Sheet sheet = new Sheet("A", 4, 1);
+        sheet.getRange(3, 0).setValue("x");
+
+        assertNull(sheet.getRange(2, 0).getValue());
+        assertEquals(sheet.getRange(3, 0).getValue(), "x");
+    }
+
+    @Test
+    public void testSetFormulaOnLastRowOfRepeatedBlock() throws Exception {
+        Sheet sheet = new Sheet("A", 4, 1);
+        sheet.getRange(3, 0).setFormula("=A1");
+
+        assertNull(sheet.getRange(2, 0).getFormula());
+        assertEquals(sheet.getRange(3, 0).getFormula(), "=A1");
+    }
+
+    @Test
+    public void testSetStyleOnLastRowOfRepeatedBlock() throws Exception {
+        Sheet sheet = new Sheet("A", 4, 1);
+        Style style = new Style();
+        style.setBold(true);
+        sheet.getRange(3, 0).setStyle(style);
+
+        assertEquals(sheet.getRange(2, 0).getStyle(), new Style());
+        assertEquals(sheet.getRange(3, 0).getStyle(), style);
+    }
+
+    @Test
+    public void testMergeOnLastRowOfRepeatedBlock() throws Exception {
+        Sheet sheet = new Sheet("A", 4, 2);
+        sheet.getRange(3, 0, 1, 2).merge();
+
+        assertEquals(sheet.getRange(0, 0, 3, 2).getMergedCells().length, 0);
+        assertEquals(sheet.getRange(3, 0, 1, 2).getMergedCells().length, 1);
+    }
+
+    @Test
     public void testAddLinkedValue() throws Exception {
         Sheet sheet = new Sheet("A");
         sheet.appendRow();

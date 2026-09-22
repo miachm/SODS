@@ -626,4 +626,37 @@ public class SheetTest {
         sheet = saveAndLoad(sheet);
         assertEquals(text, sheet.getRange(0,0).getValue());
     }
+
+    @Test
+    public void testSetValueOnLastRowAfterLoadingRepeatedRows() throws Exception {
+        Sheet sheet = new Sheet("A", 4, 1);
+        sheet.getDataRange().setValues("x", "x", "x", "x");
+        sheet = saveAndLoad(sheet);
+        sheet.getRange(3, 0).setValue("y");
+
+        assertEquals("x", sheet.getRange(2, 0).getValue());
+        assertEquals("y", sheet.getRange(3, 0).getValue());
+    }
+
+    @Test
+    public void testClearOnLastRowAfterLoadingRepeatedRows() throws Exception {
+        Sheet sheet = new Sheet("A", 4, 1);
+        sheet.getDataRange().setValues("x", "x", "x", "x");
+        sheet = saveAndLoad(sheet);
+        sheet.getRange(3, 0).clear();
+
+        assertEquals("x", sheet.getRange(2, 0).getValue());
+        assertNull(sheet.getRange(3, 0).getValue());
+    }
+
+    @Test
+    public void testSetValueOnLastRowAfterLoadingTrailingRepeatedRows() throws Exception {
+        Sheet sheet = new Sheet("A", 4, 1);
+        sheet.getDataRange().setValues("h", "x", "x", "x");
+        sheet = saveAndLoad(sheet);
+        sheet.getRange(3, 0).setValue("y");
+
+        assertEquals("x", sheet.getRange(2, 0).getValue());
+        assertEquals("y", sheet.getRange(3, 0).getValue());
+    }
 }
