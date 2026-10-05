@@ -46,19 +46,21 @@
     <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
-      <version>6.8</version>
+      <!-- 7.5.x is the last TestNG line built for Java 8; it overrides the
+           newer TestNG that cucumber-testng depends on transitively. -->
+      <version>7.5.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>info.cukes</groupId>
+      <groupId>io.cucumber</groupId>
       <artifactId>cucumber-java</artifactId>
-      <version>1.2.3</version>
+      <version>7.34.9</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>info.cukes</groupId>
+      <groupId>io.cucumber</groupId>
       <artifactId>cucumber-testng</artifactId>
-      <version>1.2.3</version>
+      <version>7.34.9</version>
       <scope>test</scope>
     </dependency>
     <dependency>

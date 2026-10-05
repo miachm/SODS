@@ -3,12 +3,12 @@ package steps;
 import com.github.miachm.sods.Color;
 import com.github.miachm.sods.ConditionalFormat;
 import com.github.miachm.sods.Style;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 public class StyleCucumber {
 
