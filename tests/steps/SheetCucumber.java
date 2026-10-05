@@ -7,6 +7,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 import java.lang.reflect.Array;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneOffset;
@@ -213,6 +214,11 @@ public class SheetCucumber {
     @When("^set the value \"([^\"]*)\" in cell (\\d+),(\\d+)$")
     public void set_the_value_in_cell(String value, int row, int column) throws Throwable {
         World.sheet.getRange(row, column).setValue(value);
+    }
+
+    @When("^set the date \"([^\"]*)\" in cell (\\d+),(\\d+)$")
+    public void set_the_date_in_cell(String isoDate, int row, int column) throws Throwable {
+        World.sheet.getRange(row, column).setValue(LocalDate.parse(isoDate));
     }
 
 }
